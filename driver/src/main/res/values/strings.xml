@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">VegeApp</string>
+    <string name="activity_login_key_pad_1">1</string>
+
+    <string-array name="chinese_language">
+
+    </string-array>
+
+    <string-array name="english_language">
+        <!--login 0-3-->
+        <item>Enter Passcode</item>
+        <item>Forgot Password?</item>
+        <item>Invalid Passcode</item>
+        <item>Login Successfully</item>
+        <!--home activity 4-8-->
+        <item>Pick Up Vegetables</item>
+        <item>Deliver Vegetables</item>
+        <item>Manage Basket</item>
+        <item>My History</item>
+        <item>Sign Up</item>
+        <!--dialog 9-10-->
+        <item>Warning</item>
+        <item>Are you sure that you want to sign out?</item>
+
+        <item>Click here to select farmer"</item>
+        <item>Click here to select customer</item>
+    </string-array>
+
+    <string-array name="malay_language">
+
+    </string-array>
+</resources>

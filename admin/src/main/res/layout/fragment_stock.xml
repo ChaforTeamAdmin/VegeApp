@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".stock.StockFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:id="@+id/sorting_layout"
+        android:background="@color/action_bar_color"
+        android:layout_height="?actionBarSize">
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:id="@+id/fragment_stock_sort"
+            android:layout_toStartOf="@id/fragment_stock_search_view"
+            android:layout_alignParentStart="true"
+            android:layout_height="match_parent"/>
+
+        <android.support.v7.widget.SearchView
+            android:layout_width="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:gravity="end"
+            android:theme="@style/CustomCursor"
+            android:id="@+id/fragment_stock_search_view"
+            android:layout_height="match_parent"/>
+
+    </RelativeLayout>
+
+<!--    <com.jby.admin.others.CustomListView
+        android:layout_width="match_parent"
+        android:layout_below="@id/sorting_layout"
+        android:layout_height="match_parent"
+        android:divider="@color/background_white"
+        android:id="@+id/fragment_stock_product_list"/>-->
+
+    <ExpandableListView
+        android:layout_width="match_parent"
+        android:layout_below="@id/sorting_layout"
+        android:id="@+id/fragment_stock_product_list"
+        android:dividerHeight="5dp"
+        android:divider="@color/background_color"
+        android:layout_height="match_parent"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:id="@+id/no_connection_layout"
+        android:visibility="gone"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/no_connection_icon"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/app_name"
+            android:layout_above="@id/label_connection"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:textColor="@color/grey"
+            android:id="@+id/label_connection"
+            android:text="@string/label_no_internet_connection"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:layout_below="@id/label_connection"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:id="@+id/retry_button"
+            android:background="@drawable/custom_view_wtih_border"
+            android:text="@string/label_retry"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/action_bar_color"
+    android:padding="30dp"
+    android:orientation="vertical"
+    tools:context=".basket.BasketFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:background="@drawable/custom_linear_layout_with_corner_white"
+        android:orientation="vertical"
+        android:layout_marginStart="10dp"
+        android:id="@+id/fragment_basket_upper_layout"
+        android:layout_marginEnd="10dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="Outstanding Basket"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/line_black"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/transparent_black"
+                android:id="@+id/fragment_basket_label_driver"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:text="Drivers"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/blue"
+                android:id="@+id/fragment_basket_driver_detail"
+                android:layout_centerInParent="true"
+                android:padding="5dp"
+               android:layout_toStartOf="@id/fragment_basket_driver_quantity"
+                android:background="@drawable/custom_text_view_with_corner"
+                android:textSize="14sp"
+                android:text="View Detail"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                android:id="@+id/fragment_basket_driver_quantity"
+                android:layout_alignParentEnd="true"
+                android:gravity="center"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:text="10"/>
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/line_black"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/transparent_black"
+                android:id="@+id/fragment_basket_label_farmer"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:text="Farmers"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/blue"
+                android:id="@+id/fragment_basket_farmer_detail"
+                android:layout_centerInParent="true"
+                android:padding="5dp"
+                android:layout_toStartOf="@id/fragment_basket_farmer_quantity"
+                android:background="@drawable/custom_text_view_with_corner"
+                android:textSize="14sp"
+                android:text="View Detail"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                android:id="@+id/fragment_basket_farmer_quantity"
+                android:layout_alignParentEnd="true"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:padding="12dp"
+                android:text="10"/>
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/line_black"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/transparent_black"
+                android:id="@+id/fragment_basket_label_customer"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:text="Customers"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/blue"
+                android:id="@+id/fragment_basket_customer_detail"
+                android:layout_centerInParent="true"
+                android:padding="5dp"
+                android:layout_toStartOf="@id/fragment_basket_customer_quantity"
+                android:background="@drawable/custom_text_view_with_corner"
+                android:textSize="14sp"
+                android:text="View Detail"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                android:id="@+id/fragment_basket_customer_quantity"
+                android:layout_alignParentEnd="true"
+                android:gravity="center"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:text="10"/>
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/line_black"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                android:id="@+id/fragment_basket_label_total"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:text="Total"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                android:id="@+id/fragment_basket_total_outstanding_quantity"
+                android:layout_alignParentEnd="true"
+                android:gravity="center"
+                android:padding="12dp"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:text="10"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="20dp"
+        android:id="@+id/fragment_basket_bottom_layout"
+        android:layout_weight="1.2">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:id="@+id/fragment_basket_label_inventory"
+            android:text="INVENTORY DETAILS"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/fragment_basket_label_inventory"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="25sp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:id="@+id/fragment_basket_total_basket"
+                    android:text="100"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:gravity="center"
+                    android:id="@+id/fragment_basket_label_total_basket"
+                    android:text="Total Basket"/>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="?actionBarSize"
+                android:layout_marginBottom="?actionBarSize"
+                android:background="@color/tranparent_white"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_height="match_parent">
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="25sp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:id="@+id/fragment_basket_available_basket"
+                    android:text="100"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:gravity="center"
+                    android:id="@+id/fragment_basket_label_available_basket"
+                    android:text="Available Basket"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

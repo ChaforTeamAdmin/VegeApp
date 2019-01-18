@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">admin</string>
+    <!--navigation drawer-->
+    <string name="activity_main_open">Open</string>
+    <string name="activity_main_close">Close</string>
+    <string name="activity_main_menu_1">Stock</string>
+    <string name="activity_main_menu_2">Basket</string>
+
+
+    <!--main activity-->
+    <string name="activity_login_hint_email">Username</string>
+    <string name="activity_login_hint_password">Password</string>
+    <string name="activity_login_sign_in_button">Sign In</string>
+    <string name="activity_login_label_before_register">Do not have an account? </string>
+    <string name="activity_login_label_register"><b>Sign up Now</b></string>
+    <string name="activity_login_label_forgot_password"><b>Forgot Password?</b></string>
+    <string name="activity_login_sign_in_by_google">Sign In With Google</string>
+
+    <string name="product_adapter_stock_available">Available</string>
+    <string name="product_adapter_stock_unavailable">Unavailable</string>
+
+    <string name="title_activity_stock_detail">Stock</string>
+    <string name="assign_product_dialog_label_item">Product:</string>
+    <string name="assign_product_dialog_send_button">Send</string>
+    <string name="assign_product_dialog_cancel_button">Cancel</string>
+    <string name="label_retry">RETRY</string>
+    <string name="label_no_internet_connection">No Internet Connection</string>
+
+    <string name="actionbar_label_farmer">Select a Customer</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+</resources>

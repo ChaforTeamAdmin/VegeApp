@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.SearchView
+        android:layout_width="match_parent"
+        android:id="@+id/farmer_dialog_search"
+        android:layout_height="?actionBarSize"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="All Farmer"
+                android:textSize="15sp"
+                android:padding="5dp"
+                android:textStyle="bold"
+                android:id="@+id/farmer_dialog_label_farmer"
+                android:textColor="@color/grey"/>
+
+            <com.jby.admin.others.ExpandableHeightListView
+                android:layout_width="match_parent"
+                android:id="@+id/farmer_dialog_farmer_list"
+                android:divider="@color/line_black"
+                android:dividerHeight="1dp"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

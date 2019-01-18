@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="10dp"
+    android:id="@+id/driver_dialog_list_view_item_parent_layout"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="AhBen Studio Sdn Bhd"
+        android:gravity="center|start"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:id="@+id/driver_dialog_list_view_item_name"
+        android:textColor="@color/grey"
+        android:textSize="20sp"/>
+
+</LinearLayout>

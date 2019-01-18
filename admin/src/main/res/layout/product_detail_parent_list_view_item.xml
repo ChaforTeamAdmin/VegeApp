@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        app:cardElevation="5dp"
+        android:layout_margin="5dp"
+        android:id="@+id/product_parent_list_view_item_parent_layout"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_margin="5dp"
+            android:orientation="horizontal"
+            android:layout_height="match_parent">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:id="@+id/product_parent_list_view_item_picture"
+                android:layout_height="70dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Vegetable 1"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:id="@+id/product_parent_list_view_item_name"
+                    android:textColor="@color/grey"
+                    android:padding="5dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+                
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Quantity:500"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:id="@+id/product_parent_list_view_item_quantity"
+                        android:textColor="@color/green"
+                        android:padding="5dp"
+                        android:textStyle="bold"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Available"
+                        android:layout_alignParentEnd="true"
+                        android:maxLines="1"
+                        android:gravity="center"
+                        android:background="@drawable/product_list_view_item_available"
+                        android:ellipsize="end"
+                        android:id="@+id/product_parent_list_view_item_status"
+                        android:textColor="@color/white"
+                        android:padding="5dp"
+                        android:textSize="13sp"
+                        android:textStyle="bold"/>
+                    
+                </RelativeLayout>
+                
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>
+
+
