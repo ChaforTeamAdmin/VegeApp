@@ -1,6 +1,7 @@
 package com.jby.vegeapp.pickUp.product;
 
 import android.app.Dialog;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -8,9 +9,15 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -20,6 +27,8 @@ import com.jby.vegeapp.R;
 import com.jby.vegeapp.adapter.ProductAdapter;
 import com.jby.vegeapp.object.ProductObject;
 import com.jby.vegeapp.others.ExpandableHeightListView;
+import com.jby.vegeapp.others.recycleview.GridSpacingItemDecoration;
+import com.jby.vegeapp.others.recycleview.RecyclerTouchListener;
 import com.jby.vegeapp.shareObject.ApiDataObject;
 import com.jby.vegeapp.shareObject.ApiManager;
 import com.jby.vegeapp.shareObject.AsyncTaskManager;
@@ -34,10 +43,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class ProductDialog extends DialogFragment implements SearchView.OnQueryTextListener, ProductAdapter.ProductAdapterCallBack {
+public class ProductDialog extends DialogFragment implements SearchView.OnQueryTextListener, ProductAdapter.ProductAdapterCallBack{
     View rootView;
 
-    private ExpandableHeightListView productDialogProductList;
+    private RecyclerView productDialogProductList;
     private SearchView productDialogSearch;
     private RelativeLayout productDialogProgressBar;
     private ArrayList<ProductObject> productObjectArrayList;
@@ -89,8 +98,24 @@ public class ProductDialog extends DialogFragment implements SearchView.OnQueryT
     }
 
     private void objectSetting() {
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
+        productDialogProductList.setLayoutManager(mLayoutManager);
+        productDialogProductList.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(5), true));
+        productDialogProductList.setItemAnimator(new DefaultItemAnimator());
         productDialogProductList.setAdapter(productAdapter);
-        productDialogProductList.setExpanded(true);
+
+        // row click listener
+        productDialogProductList.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), productDialogProductList, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
 
         productDialogSearch.setOnQueryTextListener(this);
         handler.postDelayed(new Runnable() {
@@ -99,6 +124,14 @@ public class ProductDialog extends DialogFragment implements SearchView.OnQueryT
                 fetchAllProduct();
             }
         },200);
+    }
+
+    /**
+     * Converting dp to pixel
+     */
+    private int dpToPx(int dp) {
+        Resources r = getResources();
+        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
     }
 
     private void fetchAllProduct(){
@@ -194,17 +227,6 @@ public class ProductDialog extends DialogFragment implements SearchView.OnQueryT
         else productDialogProgressBar.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public void add(final ProductObject productObject, final String quantity) {
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                productDialogCallBack.add(productObject, quantity);
-                showSnackBar("Added Successfully!");
-            }
-        },200);
-    }
-
     //    snackBar setting
     public void showSnackBar(String message) {
         final Snackbar snackbar = Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT);
@@ -216,6 +238,11 @@ public class ProductDialog extends DialogFragment implements SearchView.OnQueryT
             }
         });
         snackbar.show();
+    }
+
+    @Override
+    public void openAddProductDialog(String productID, String product, String price, String picture, String type, String weight, String quantity, String grade) {
+
     }
 
     public interface ProductDialogCallBack{

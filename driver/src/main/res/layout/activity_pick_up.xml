@@ -1,100 +1,261 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".pickUp.PickUpActivity">
+    android:layout_height="match_parent">
 
-    <include
-        layout="@layout/actionbar"
-        android:layout_height="?actionBarSize"
-        android:layout_width="match_parent"/>
-
-    <ScrollView
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <LinearLayout
+        <include
+            layout="@layout/actionbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="?actionBarSize"
+            app:layout_scrollFlags="scroll|enterAlways" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Farmer"
-                android:padding="10dp"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="@color/grey" />
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_margin="5dp"
-                android:id="@+id/activity_pick_up_farmer_layout"
-                android:background="@drawable/custom_view_wtih_border"
-                android:layout_height="?actionBarSize">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="5"
-                    android:layout_height="match_parent"
-                    android:text="Please Select Farmer"
-                    android:gravity="center"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:id="@+id/activity_pick_up_farmer"
-                    android:textSize="20sp"
-                    android:textColor="@color/grey"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/activity_pick_up_arrow_down"
-                    android:padding="20dp"
-                    android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:text="Farmer"
+                        android:textColor="@color/grey"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/activity_pick_up_farmer_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="?actionBarSize"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/custom_view_wtih_border"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/activity_pick_up_farmer"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="5"
+                            android:ellipsize="end"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            android:text="Please Select Farmer"
+                            android:textColor="@color/grey"
+                            android:textSize="20sp" />
+
+                        <ImageView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:padding="20dp"
+                            android:src="@drawable/activity_pick_up_arrow_down" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/activity_pick_up_basket_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="10dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/activity_pick_up_label_basket"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Basket"
+                            android:textColor="@color/grey"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            android:orientation="horizontal">
+
+                            <Spinner
+                                android:id="@+id/activity_pick_up_basket_status"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1.5" />
+
+                            <ImageView
+                                android:id="@+id/activity_pick_up_basket_icon"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:contentDescription="@string/app_name"
+                                android:src="@drawable/activity_home_manage_basket" />
+
+                            <EditText
+                                android:id="@+id/activity_pick_up_basket_quantity"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@drawable/custom_view_wtih_border"
+                                android:gravity="center"
+                                android:inputType="number" />
+
+                            <ImageView
+                                android:id="@+id/activity_pick_up_plus_basket_button"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:contentDescription="@string/app_name"
+                                android:padding="10dp"
+                                android:src="@drawable/activity_pick_up_plus_icon" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/activity_pick_up_add_item_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="Please select the item"
+                            android:textColor="@color/grey"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:id="@+id/activity_pick_up_select_item_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            android:layout_margin="5dp"
+                            android:background="@drawable/custom_view_wtih_border"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:id="@+id/activity_pick_up_label_select_item"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="5"
+                                android:ellipsize="end"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:text="Click here to show item"
+                                android:textColor="@color/grey"
+                                android:textSize="20sp" />
+
+                            <ImageView
+                                android:id="@+id/activity_pick_up_arrow"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:contentDescription="@string/app_name"
+                                android:padding="20dp"
+                                android:src="@drawable/activity_pick_up_arrow_down" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/activity_pick_up_label_selected_item"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="Selected Item"
+                            android:textColor="@color/grey"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <com.jby.vegeapp.others.NonScrollExpandableListView
+                            android:id="@+id/activity_pick_up_add_product_list"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                        <RelativeLayout
+                            android:id="@+id/activity_pick_up_product_list_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone">
+
+                            <RelativeLayout
+                                android:id="@+id/activity_pick_up_product_search_layout"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:orientation="horizontal"
+                                android:padding="5dp">
+
+                                <EditText
+                                    android:id="@+id/activity_pick_up_product_search"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerVertical="true"
+                                    android:backgroundTint="@color/line_black"
+                                    android:hint="Search by product..."
+                                    android:inputType="textEmailAddress" />
+
+                                <ImageView
+                                    android:id="@+id/searchButton"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:contentDescription="@string/app_name"
+                                    android:src="@android:drawable/ic_menu_search" />
+
+                            </RelativeLayout>
+
+                            <android.support.v7.widget.RecyclerView
+                                android:id="@+id/activity_pick_up_product_list"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_below="@id/activity_pick_up_product_search_layout"
+                                android:scrollbars="vertical" />
+
+                        </RelativeLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <TextView
-                android:layout_width="match_parent"
+            <include
+                layout="@layout/progress_bar"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Please select the item"
-                android:padding="10dp"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="@color/grey" />
+                android:layout_centerInParent="true" />
 
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"
-                android:textColor="@color/white"
-                android:text="Click to add item"
-                android:textStyle="bold"
-                android:enabled="false"
-                android:id="@+id/activity_pick_up_select_item"
-                android:background="@drawable/custom_disable_button"
-                android:layout_margin="5dp"/>
+        </RelativeLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Selected Item"
-                android:padding="10dp"
-                android:id="@+id/activity_pick_up_label_selected_item"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="@color/grey" />
+    </android.support.v4.widget.NestedScrollView>
 
-            <com.jby.vegeapp.others.ExpandableHeightListView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/activity_pick_up_add_product_list"/>
-
-        </LinearLayout>
-
-    </ScrollView>
-
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

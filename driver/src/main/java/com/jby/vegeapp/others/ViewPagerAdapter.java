@@ -1,5 +1,6 @@
 package com.jby.vegeapp.others;
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -19,7 +20,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         super(fm);
         this.viewPagerItemList = viewPagerItemList;
         mFragmentManager = fm;
-        mFragmentTags = new HashMap<Integer, String>();
+        mFragmentTags = new HashMap<>();
     }
 
     @Override
@@ -32,6 +33,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         return this.viewPagerItemList.size();
     }
 
+    @NonNull
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         Object object = super.instantiateItem(container, position);

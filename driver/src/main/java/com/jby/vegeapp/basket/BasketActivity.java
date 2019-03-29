@@ -12,6 +12,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,7 +20,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jby.vegeapp.R;
 import com.jby.vegeapp.basket.customer.CustomerDialog;
@@ -28,6 +28,7 @@ import com.jby.vegeapp.database.CustomSqliteHelper;
 import com.jby.vegeapp.database.FrameworkClass;
 import com.jby.vegeapp.database.ResultCallBack;
 import com.jby.vegeapp.network.BasketNetworkMonitor;
+import com.jby.vegeapp.object.BasketHistoryObject;
 import com.jby.vegeapp.pickUp.OffLineModeDialog;
 import com.jby.vegeapp.pickUp.farmer.FarmerDialog;
 import com.jby.vegeapp.shareObject.AnimationUtility;
@@ -40,6 +41,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -47,12 +49,15 @@ import java.util.concurrent.TimeoutException;
 import static com.jby.vegeapp.database.CustomSqliteHelper.TB_BASKET;
 import static com.jby.vegeapp.database.CustomSqliteHelper.TB_BASKET_FAVOURITE_CUSTOMER;
 import static com.jby.vegeapp.database.CustomSqliteHelper.TB_BASKET_FAVOURITE_FARMER;
+import static com.jby.vegeapp.shareObject.CustomToast.CustomToast;
 
-public class BasketActivity extends AppCompatActivity implements View.OnClickListener, TypeDialog.TypeDialogCallBack ,
+public class BasketActivity extends AppCompatActivity implements View.OnClickListener, TypeDialog.TypeDialogCallBack,
         FarmerDialog.FarmerDialogCallBack, CustomerDialog.CustomerDialogCallBack, ResultCallBack,
         OffLineModeDialog.OffLineModeDialogCallBack {
+    //actionbar
+    private Toolbar toolbar;
 
-    private TextView basketActivityType, basketActivityTo;
+    private TextView basketActivityType, basketActivityTo, basketActivityAvailableQuantity;
     private TextView basketActivityLabelType, basketActivityLabelTo;
     private LinearLayout basketActivityTypeLayout, basketActivityToLayout, basketActivityParentLayout;
 
@@ -60,19 +65,20 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
     private FragmentManager fm;
     //either customer or farmer
     private String type = null;
-
     private String farmerID = "0", customerID = "0";
     //bsaket purpose
     private ImageView basketActivityMinus, basketActivityPlus;
-    private Button basketActivityReturn, basketActivitySend;
-    private TextView basketActivityLabelBasket;
+    private Button basketActivityReturn, basketActivitySend, basketActivityUpdate;
     private EditText basketActivityQuantity;
     private LinearLayout basketActivityBasketLayout;
+    //update purpose
+    private BasketHistoryObject basketHistoryObject;
     //    asyncTask
     AsyncTaskManager asyncTaskManager;
     JSONObject jsonObjectLoginResponse;
     ArrayList<ApiDataObject> apiDataObjectArrayList;
     private Handler handler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +88,10 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void objectInitialize() {
+        //actionbar
+        toolbar = findViewById(R.id.toolbar);
+        basketActivityAvailableQuantity = findViewById(R.id.activity_basket_available_quantity);
+
         basketActivityType = findViewById(R.id.activity_basket_select_type);
         basketActivityTo = findViewById(R.id.activity_basket_to);
 
@@ -98,8 +108,8 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
 
         basketActivityReturn = findViewById(R.id.activity_basket_return_button);
         basketActivitySend = findViewById(R.id.activity_basket_send_button);
+        basketActivityUpdate = findViewById(R.id.activity_basket_update);
 
-        basketActivityLabelBasket = findViewById(R.id.activity_basket_label_basket);
         basketActivityBasketLayout = findViewById(R.id.activity_basket_basket_layout);
         fm = getSupportFragmentManager();
         handler = new Handler();
@@ -110,14 +120,53 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
         basketActivityToLayout.setOnClickListener(this);
         basketActivitySend.setOnClickListener(this);
         basketActivityReturn.setOnClickListener(this);
+        basketActivityUpdate.setOnClickListener(this);
         basketActivityPlus.setOnClickListener(this);
         basketActivityMinus.setOnClickListener(this);
+        //check whether is update or edit
+        checkingStatus();
+    }
 
+    private void checkingStatus() {
+        //edit
+        if (getIntent().getExtras() != null) {
+            basketHistoryObject = (BasketHistoryObject) getIntent().getExtras().getSerializable("object");
+            assert basketHistoryObject != null;
+
+            customerID = basketHistoryObject.getCustomer_id();
+            farmerID = basketHistoryObject.getFarmer_id();
+            String quantity = basketHistoryObject.getQuantity();
+
+            basketActivityQuantity.setText(Integer.valueOf(quantity) < 0 ? quantity.substring(1) : quantity);
+            type(!farmerID.equals("0") ? "Farmer" : "Customer");
+        }
+        setupActionBar();
+        getAvailableBasket();
+
+        basketActivityReturn.setVisibility(getIntent().getExtras() == null ? View.VISIBLE : View.GONE);
+        basketActivitySend.setVisibility(getIntent().getExtras() == null ? View.VISIBLE : View.GONE);
+        basketActivityTypeLayout.setVisibility(getIntent().getExtras() == null ? View.VISIBLE : View.GONE);
+        basketActivityLabelType.setVisibility(getIntent().getExtras() == null ? View.VISIBLE : View.GONE);
+        basketActivityUpdate.setVisibility(getIntent().getExtras() == null ? View.GONE : View.VISIBLE);
+    }
+
+    private void setupActionBar() {
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setTitle("Basket");
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.activity_basket_select_type_layout:
                 openTypeDialog();
                 break;
@@ -125,12 +174,13 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
                 openDialog();
                 break;
             case R.id.activity_basket_send_button:
-                if(!basketActivityQuantity.getText().toString().trim().equals("") && !basketActivityQuantity.getText().toString().trim().equals("0")) save(false);
-                else showSnackBar("Please enter basket quantity!");
+                save(!customerID.equals("0") ? "5" : "3");
                 break;
             case R.id.activity_basket_return_button:
-                if(!basketActivityQuantity.getText().toString().trim().equals("") && !basketActivityQuantity.getText().toString().trim().equals("0")) save(true);
-                else showSnackBar("Please enter basket quantity!");
+                save(!customerID.equals("0") ? "6" : "4");
+                break;
+            case R.id.activity_basket_update:
+                updateBasket();
                 break;
             case R.id.activity_basket_plus_button:
                 setQuantity(true);
@@ -140,15 +190,72 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
                 break;
         }
     }
-/*--------------------------------------------------------------select type purpose-------------------------------------------------------------------------*/
-    private void openTypeDialog(){
+
+    /*------------------------------------------------------------------get driver available basket------------------------------------------------------*/
+    private void getAvailableBasket() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                apiDataObjectArrayList = new ArrayList<>();
+                apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(BasketActivity.this)));
+
+                asyncTaskManager = new AsyncTaskManager(
+                        BasketActivity.this,
+                        new ApiManager().basket,
+                        new ApiManager().getResultParameter(
+                                "",
+                                new ApiManager().setData(apiDataObjectArrayList),
+                                ""
+                        )
+                );
+                asyncTaskManager.execute();
+
+                if (!asyncTaskManager.isCancelled()) {
+
+                    try {
+                        jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+
+                        if (jsonObjectLoginResponse != null) {
+                            Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                            if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                                final String quantity = jsonObjectLoginResponse.getString("total_basket");
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        basketActivityAvailableQuantity.setText(quantity);
+                                    }
+                                });
+                            }
+                        } else {
+                            CustomToast(BasketActivity.this, "Network Error!");
+                        }
+                    } catch (InterruptedException e) {
+                        CustomToast(BasketActivity.this, "Interrupted Exception!");
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        CustomToast(BasketActivity.this, "Execution Exception!");
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        CustomToast(BasketActivity.this, "JSON Exception!");
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        CustomToast(BasketActivity.this, "Connection Time Out!");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    /*--------------------------------------------------------------select type purpose-------------------------------------------------------------------------*/
+    private void openTypeDialog() {
         dialogFragment = new TypeDialog();
         dialogFragment.show(fm, "");
     }
 
-    private void showToLayout(boolean show){
-        basketActivityLabelTo.setVisibility(show ? View.VISIBLE:View.GONE);
-        basketActivityToLayout.setVisibility(show ? View.VISIBLE:View.GONE);
+    private void showToLayout(boolean show) {
+        basketActivityLabelTo.setVisibility(show ? View.VISIBLE : View.GONE);
+        basketActivityToLayout.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -162,31 +269,24 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
         showToLayout(true);
     }
 
-    private void openDialog(){
-        if(type.equals("Farmer")) openFarmerDialog();
+    private void openDialog() {
+        if (type.equals("Farmer")) openFarmerDialog();
         else openCustomerDialog();
     }
 
-    private void showDefault(){
-        if(type.equals("Farmer")) {
-            String defaultFarmer = SharedPreferenceManager.getBasketDefaultFarmer(this);
-            if(!defaultFarmer.equals("default")) {
-                basketActivityTo.setText(splitString(defaultFarmer, 0));
-                farmerID = splitString(defaultFarmer, 1);
-                showBasketLayout(true);
-            }
-            else basketActivityTo.setText("Click here to select farmer");
+    private void showDefault() {
+        String target;
+        if (type.equals("Farmer")) {
+            target = SharedPreferenceManager.getBasketDefaultFarmer(this);
+            customerID = "0";
+            farmerID = splitString(target, 1);
+        } else {
+            target = SharedPreferenceManager.getBasketDefaultCustomer(this);
+            farmerID = "0";
+            customerID = splitString(target, 1);
         }
-        else{
-            String defaultCustomer = SharedPreferenceManager.getBasketDefaultCustomer(this);
-            if(!defaultCustomer.equals("default")){
-                basketActivityTo.setText(splitString(defaultCustomer, 0));
-                customerID = splitString(defaultCustomer, 1);
-                //show basket layout
-                showBasketLayout(true);
-            }
-            else basketActivityTo.setText("Click here to select customer");
-        }
+        basketActivityTo.setText(!target.equals("default") ? splitString(target, 0) : "Click here to select");
+        showBasketLayout(!target.equals("default"));
     }
 
     private String splitString(String string, int position) {
@@ -195,8 +295,8 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     /*-------------------------------------------------------farmer purpose-----------------------------------------------------------------------*/
-    private void openFarmerDialog(){
-        dialogFragment  = new FarmerDialog();
+    private void openFarmerDialog() {
+        dialogFragment = new FarmerDialog();
 
         Bundle bundle = new Bundle();
         bundle.putString("BasketActivity", "From");
@@ -207,27 +307,26 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
 
     /*-------------------------------------------------------customer purpose-----------------------------------------------------------------------*/
 
-    private void openCustomerDialog(){
-        dialogFragment  = new CustomerDialog();
+    private void openCustomerDialog() {
+        dialogFragment = new CustomerDialog();
         dialogFragment.show(fm, "");
     }
+
     @Override
     public void selectedItem(String name, String id, String address) {
         //this id can be customer or farmer id
-        if(type.equals("Farmer")){
+        if (type.equals("Farmer")) {
             customerID = "0";
             farmerID = id;
             new FrameworkClass(this, new CustomSqliteHelper(this), TB_BASKET_FAVOURITE_FARMER)
-                    .new create("farmer_id, name",id + "," + name)
+                    .new create("farmer_id, name", id + "," + name)
                     .perform();
             SharedPreferenceManager.setBasketDefaultFarmer(this, name + "," + id);
-        }
-
-        else{
+        } else {
             farmerID = "0";
             customerID = id;
             new FrameworkClass(this, new CustomSqliteHelper(this), TB_BASKET_FAVOURITE_CUSTOMER)
-                    .new create("customer_id, name",id + "," + name)
+                    .new create("customer_id, name", id + "," + name)
                     .perform();
             SharedPreferenceManager.setBasketDefaultCustomer(this, name + "," + id);
         }
@@ -236,10 +335,10 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
-//    ------------------------------------------------------------basket purpose--------------------------------------------------------------------
-    private void showBasketLayout(boolean show){
+    //    ------------------------------------------------------------basket purpose--------------------------------------------------------------------
+    private void showBasketLayout(boolean show) {
         //reset
-        if(!show){
+        if (!show) {
             new AnimationUtility().fadeOutGone(this, basketActivityBasketLayout);
             basketActivityType.setText("Please select one");
             type = null;
@@ -248,47 +347,48 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
             //to layout
             basketActivityLabelTo.setVisibility(View.GONE);
             basketActivityToLayout.setVisibility(View.GONE);
-        }
-        else{
-            if(type.equals("Customer")) basketActivitySend.setVisibility(View.GONE);
-            else basketActivitySend.setVisibility(View.VISIBLE);
+        } else {
+            basketActivitySend.setVisibility(View.VISIBLE);
             new AnimationUtility().fadeInVisible(this, basketActivityBasketLayout);
         }
-        basketActivityQuantity.setText("0");
+        if (basketHistoryObject == null) basketActivityQuantity.setText("0");
     }
 
-    private void setQuantity(boolean plus){
-        if(basketActivityQuantity.getText().toString().trim().equals("")) basketActivityQuantity.setText("0");
+    private void setQuantity(boolean plus) {
+        if (basketActivityQuantity.getText().toString().trim().equals(""))
+            basketActivityQuantity.setText("0");
 
         int quantity = Integer.valueOf(basketActivityQuantity.getText().toString().trim());
-        if(plus) quantity ++;
-        else {if(quantity > 0) quantity --;}
+        if (plus) quantity++;
+        else {
+            if (quantity > 0) quantity--;
+        }
         basketActivityQuantity.setText(String.valueOf(quantity));
     }
 
     /*----------------------------------------------------------------upload basket to server------------------------------------------------------*/
 
-    private void save(boolean isReturn){
-        if(checkNetworkConnection()){
-            if(type.equals("Customer")) returnBasketFromFarmerOrCustomer("6");
-            else{
-                if(isReturn) returnBasketFromFarmerOrCustomer("4");
-                else sendBasketToFarmer();
-            }
-        }
-        else{
-            storeToLocal(isReturn);
-            scheduleJob();
+    private void save(String type) {
+        try {
+            if (!basketActivityQuantity.getText().toString().equals("0")) {
+                if (checkNetworkConnection()) basketControl(type);
+                else {
+                    storeToLocal(type);
+                    scheduleJob();
+                }
+            } else showSnackBar("Please enter a valid input");
+        } catch (NumberFormatException e) {
+            showSnackBar("Please enter a valid input");
         }
     }
 
-    public boolean checkNetworkConnection(){
-        ConnectivityManager connectivityManager = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+    public boolean checkNetworkConnection() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = null;
         if (connectivityManager != null) {
             networkInfo = connectivityManager.getActiveNetworkInfo();
         }
-        return (networkInfo !=  null && networkInfo.isConnected());
+        return (networkInfo != null && networkInfo.isConnected());
     }
 
     public void scheduleJob() {
@@ -312,7 +412,7 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void returnBasketFromFarmerOrCustomer(String type){
+    private void basketControl(String type) {
         apiDataObjectArrayList = new ArrayList<>();
         apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(this)));
         apiDataObjectArrayList.add(new ApiDataObject("farmer_id", farmerID));
@@ -322,7 +422,7 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
 
         asyncTaskManager = new AsyncTaskManager(
                 this,
-                new ApiManager().vege_manage,
+                new ApiManager().basket,
                 new ApiManager().getResultParameter(
                         "",
                         new ApiManager().setData(apiDataObjectArrayList),
@@ -337,101 +437,94 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
                 jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
 
                 if (jsonObjectLoginResponse != null) {
-                    Log.d("jsonObject", "jsonObject: " +  jsonObjectLoginResponse);
-                    if(jsonObjectLoginResponse.getString("status").equals("1")){
+                    Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                    if (jsonObjectLoginResponse.getString("status").equals("1")) {
                         showSnackBar("Save Successfully!");
                         showBasketLayout(false);
                     }
-                }
-                else {
-                    Toast.makeText(this, "Network Error!", Toast.LENGTH_SHORT).show();
+                } else {
+                    CustomToast(this, "Network Error!");
                 }
 
             } catch (InterruptedException e) {
-                Toast.makeText(this, "Interrupted Exception!", Toast.LENGTH_SHORT).show();
+                CustomToast(this, "Interrupted Exception!");
                 e.printStackTrace();
             } catch (ExecutionException e) {
-                Toast.makeText(this, "Execution Exception!", Toast.LENGTH_SHORT).show();
+                CustomToast(this, "Execution Exception!");
                 e.printStackTrace();
             } catch (JSONException e) {
-                Toast.makeText(this, "JSON Exception!", Toast.LENGTH_SHORT).show();
+                CustomToast(this, "JSON Exception!");
                 e.printStackTrace();
             } catch (TimeoutException e) {
-                Toast.makeText(this, "Connection Time Out!", Toast.LENGTH_SHORT).show();
+                CustomToast(this, "Connection Time Out!");
                 e.printStackTrace();
             }
         }
     }
 
-    private void sendBasketToFarmer(){
-        apiDataObjectArrayList = new ArrayList<>();
-        apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(this)));
-        apiDataObjectArrayList.add(new ApiDataObject("farmer_id", farmerID));
-        apiDataObjectArrayList.add(new ApiDataObject("quantity", basketActivityQuantity.getText().toString().trim()));
-
-        asyncTaskManager = new AsyncTaskManager(
-                this,
-                new ApiManager().vege_manage,
-                new ApiManager().getResultParameter(
-                        "",
-                        new ApiManager().setData(apiDataObjectArrayList),
-                        ""
-                )
-        );
-        asyncTaskManager.execute();
-
-        if (!asyncTaskManager.isCancelled()) {
-
-            try {
-                jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
-
-                if (jsonObjectLoginResponse != null) {
-                    Log.d("jsonObject", "jsonObject: " +  jsonObjectLoginResponse);
-                    if(jsonObjectLoginResponse.getString("status").equals("1")){
-                        showSnackBar("Save Successfully!");
-                        showBasketLayout(false);
-                    }
-                }
-                else {
-                    Toast.makeText(this, "Network Error!", Toast.LENGTH_SHORT).show();
-                }
-
-            } catch (InterruptedException e) {
-                Toast.makeText(this, "Interrupted Exception!", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                Toast.makeText(this, "Execution Exception!", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            } catch (JSONException e) {
-                Toast.makeText(this, "JSON Exception!", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            } catch (TimeoutException e) {
-                Toast.makeText(this, "Connection Time Out!", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void openOffLineModeDialog(){
+    private void openOffLineModeDialog() {
         dialogFragment = new OffLineModeDialog();
         dialogFragment.show(fm, "");
     }
 
-    private void storeToLocal(boolean isReturn){
-        String type;
-        if(this.type.equals("Customer")) type = "6";
-        else {
-            if(isReturn) type = "4";
-            else type = "3";
-        }
+    private void storeToLocal(String type) {
         String created_at = String.valueOf(android.text.format.DateFormat.format("yyyy-MM-dd HH:mm:ss", new java.util.Date()));
-
         FrameworkClass frameworkClass = new FrameworkClass(this, this, new CustomSqliteHelper(this), TB_BASKET);
-        frameworkClass.new create("farmer_id, customer_id, quantity, type, created_at",
-                farmerID + "," +customerID + "," + basketActivityQuantity.getText().toString().trim() + "," + type + "," +created_at)
-                .perform();
-
+        frameworkClass.new create("farmer_id, customer_id, quantity, type, created_at", farmerID + "," + customerID + "," + basketActivityQuantity.getText().toString().trim() + "," + type + "," + created_at).perform();
     }
+
+    /*-------------------------------------------------------------------------update purpose---------------------------------------------------------*/
+    private void updateBasket() {
+        apiDataObjectArrayList = new ArrayList<>();
+        apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(this)));
+        apiDataObjectArrayList.add(new ApiDataObject("farmer_id", farmerID));
+        apiDataObjectArrayList.add(new ApiDataObject("customer_id", customerID));
+        apiDataObjectArrayList.add(new ApiDataObject("quantity", basketActivityQuantity.getText().toString().trim()));
+        apiDataObjectArrayList.add(new ApiDataObject("type", basketHistoryObject.getType()));
+        apiDataObjectArrayList.add(new ApiDataObject("id", basketHistoryObject.getId()));
+
+        asyncTaskManager = new AsyncTaskManager(
+                this,
+                new ApiManager().basket,
+                new ApiManager().getResultParameter(
+                        "",
+                        new ApiManager().setData(apiDataObjectArrayList),
+                        ""
+                )
+        );
+        asyncTaskManager.execute();
+
+        if (!asyncTaskManager.isCancelled()) {
+
+            try {
+                jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+
+                if (jsonObjectLoginResponse != null) {
+                    Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                    if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                        CustomToast(this, "Update Successfully!");
+                        finish();
+                    }
+                } else {
+                    CustomToast(this, "Network Error!");
+                }
+
+            } catch (InterruptedException e) {
+                CustomToast(this, "Interrupted Exception!");
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                CustomToast(this, "Execution Exception!");
+                e.printStackTrace();
+            } catch (JSONException e) {
+                CustomToast(this, "JSON Exception!");
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                CustomToast(this, "Connection Time Out!");
+                e.printStackTrace();
+            }
+        }
+    }
+
     //    -----------------------------------------------------------other-----------------------------------------------------------------------
 //    snackBar setting
     public void showSnackBar(String message) {

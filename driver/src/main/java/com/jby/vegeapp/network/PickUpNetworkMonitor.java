@@ -46,9 +46,12 @@ public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
 
     private void doBackgroundWork(final JobParameters params) {
         this.params = params;
-        frameworkClass.new Read("id, farmer_id, product_id, price, quantity, type")
-                .where("status = 2")
-                .orderByDesc("id").perform();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                frameworkClass.new Read("*").where("status = 2").orderByDesc("id").perform();
+            }
+        }).start();
     }
 
     @Override
@@ -65,23 +68,18 @@ public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
 
     @Override
     public void readResult(String result) {
+        Log.d("haha", "result:  " + result);
         try {
             JSONObject jsonObject = new JSONObject(result);
             JSONArray jsonArray = jsonObject.getJSONArray("result");
             for(int i = 0 ; i < jsonArray.length(); i++){
-                storeToCloud(
-                        jsonArray.getJSONObject(i).getString("id"),
-                        jsonArray.getJSONObject(i).getString("farmer_id"),
-                        jsonArray.getJSONObject(i).getString("product_id"),
-                        jsonArray.getJSONObject(i).getString("price"),
-                        jsonArray.getJSONObject(i).getString("quantity"),
-                        jsonArray.getJSONObject(i).getString("type")
-                );
+                storeToCloud(jsonArray.getJSONObject(i));
                 jobFinished(params, false);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
 
     }
 
@@ -95,14 +93,23 @@ public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
 
     }
 
-    private void storeToCloud(String id, String farmerId, String productId, String price, String quantity, String type){
+    private void storeToCloud(JSONObject jsonObject){
         apiDataObjectArrayList = new ArrayList<>();
-        apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(this)));
-        apiDataObjectArrayList.add(new ApiDataObject("farmer_id", farmerId));
-        apiDataObjectArrayList.add(new ApiDataObject("product_id", productId));
-        apiDataObjectArrayList.add(new ApiDataObject("price", price));
-        apiDataObjectArrayList.add(new ApiDataObject("quantity", quantity));
-        apiDataObjectArrayList.add(new ApiDataObject("type", type));
+
+        try {
+            apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(this)));
+            apiDataObjectArrayList.add(new ApiDataObject("farmer_id", jsonObject.getString("farmer_id")));
+            apiDataObjectArrayList.add(new ApiDataObject("weight", jsonObject.getString("weight")));
+            apiDataObjectArrayList.add(new ApiDataObject("product_id", jsonObject.getString("product_id")));
+            apiDataObjectArrayList.add(new ApiDataObject("price", jsonObject.getString("price")));
+            apiDataObjectArrayList.add(new ApiDataObject("quantity", jsonObject.getString("quantity")));
+            apiDataObjectArrayList.add(new ApiDataObject("type", jsonObject.getString("type")));
+            apiDataObjectArrayList.add(new ApiDataObject("grade", jsonObject.getString("grade")));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
         asyncTaskManager = new AsyncTaskManager(
                 this,
@@ -123,7 +130,7 @@ public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
                 if (jsonObjectLoginResponse != null) {
                     Log.d("jsonObject", "jsonObject: " +  jsonObjectLoginResponse);
                     if(jsonObjectLoginResponse.getString("status").equals("1")){
-                       updateStatus(id);
+                        deleteRecordAfterUpload(jsonObject.getString("id"));
                     }
                 }
                 else {
@@ -146,12 +153,7 @@ public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
         }
     }
 
-    private void updateStatus(String id){
-        String status = "1";
-        String updated_at = String.valueOf(android.text.format.DateFormat.format("yyyy-MM-dd HH:mm:ss", new java.util.Date()));
-
-        frameworkClass.new Update("status, updated_at", status + "," + updated_at)
-                .where("id = ?", id)
-                .perform();
+    private void deleteRecordAfterUpload(String id){
+        frameworkClass.new Delete().where("id = ?", id).perform();
     }
 }

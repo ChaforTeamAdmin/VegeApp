@@ -10,6 +10,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.jby.vegeapp.basket.BasketActivity;
+import com.jby.vegeapp.delivery.DeliverActivity;
+import com.jby.vegeapp.delivery.DeliveryDetailActivity;
+import com.jby.vegeapp.history.HistoryActivity;
 import com.jby.vegeapp.pickUp.PickUpActivity;
 import com.jby.vegeapp.shareObject.SystemLanguage;
 import com.jby.vegeapp.sharePreference.SharedPreferenceManager;
@@ -71,14 +74,17 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(this, PickUpActivity.class));
                 break;
             case R.id.activity_home_deliver:
+                startActivity(new Intent(this, DeliverActivity.class));
                 break;
             case R.id.activity_home_basket:
                 startActivity(new Intent(this, BasketActivity.class));
                 break;
             case R.id.activity_home_history:
+                startActivity(new Intent(this, HistoryActivity.class));
                 break;
             case R.id.activity_home_sign_out:
-                alertMessage(languageSetting(9), languageSetting(10));
+//                alertMessage(languageSetting(9), languageSetting(10));
+                startActivity(new Intent(this, TestingActivity.class));
                 break;
         }
     }

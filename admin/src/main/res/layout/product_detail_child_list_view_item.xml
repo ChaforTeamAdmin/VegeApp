@@ -1,92 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:padding="5dp"
-    android:id="@+id/farmer_dialog_list_view_item_parent_layout"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:text="1-14-2019"
-        android:textSize="15sp"
-        android:layout_alignParentStart="true"
-        android:maxLines="1"
-        android:visibility="gone"
-        android:textColor="@color/white"
-        android:ellipsize="end"
-        android:id="@+id/product_detail_list_view_item_date"
-        android:textStyle="bold"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:text="AhBen Farm Sdn Bhd"
-        android:textColor="@color/grey"
-        android:textSize="20sp"
-        android:layout_alignParentStart="true"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:id="@+id/product_detail_list_view_item_farmer"
-        android:textStyle="bold"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:textSize="16sp"
-        android:text="11:51pm 1/12/2019"
-        android:textColor="@color/grey"
-        android:layout_below="@id/product_detail_list_view_item_farmer"
-        android:id="@+id/product_detail_list_view_item_time"
-        android:fontFamily="sans-serif"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:text="Pick up by: Mr Lee"
-        android:textSize="16sp"
-        android:textColor="@color/line_black"
-        android:layout_below="@id/product_detail_list_view_item_time"
-        android:id="@+id/product_detail_list_view_item_driver"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:text="Grade A"
-        android:background="@drawable/product_list_view_item_available"
-        android:textColor="@color/white"
-        android:layout_below="@id/product_detail_list_view_item_driver"
-        android:id="@+id/product_detail_list_view_item_grade"
-        android:padding="5dp"
+    <android.support.v7.widget.CardView
+        android:id="@+id/product_parent_list_view_item_parent_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:layout_height="wrap_content" />
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="5dp"
+        app:cardElevation="5dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:text="x 11"
-        android:layout_alignParentBottom="true"
-        android:textColor="@color/grey"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-condensed"
-        android:layout_toStartOf="@id/product_detail_list_view_item_label_quantity"
-        android:id="@+id/product_detail_list_view_item_quantity"
-        android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:text=" basket"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:textColor="@color/grey"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-condensed"
-        android:id="@+id/product_detail_list_view_item_label_quantity"
-        android:layout_height="wrap_content" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
-</RelativeLayout>
+                <TextView
+                    android:id="@+id/product_child_list_view_item_farmer_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="250dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:text="Vegetable 1"
+                    android:textColor="@color/grey"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:gravity="end"
+                    android:layout_centerInParent="true"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/product_child_list_view_item__available_quantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:gravity="end|center"
+                        android:maxLines="1"
+                        android:padding="5dp"
+                        android:text="Avaliable :500"
+                        android:textColor="@color/green"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        tools:ignore="NestedWeights" />
+
+                    <TextView
+                        android:id="@+id/product_child_list_view_item_taken_quantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:gravity="end|center"
+                        android:maxLines="1"
+                        android:padding="5dp"
+                        android:textColor="@color/red"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>
+
+

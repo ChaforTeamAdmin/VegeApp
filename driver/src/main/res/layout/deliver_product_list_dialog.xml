@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/assign_product_dialog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent_black"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <include
+        layout="@layout/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/custom_linear_layout_with_corner"
+        android:minHeight="200dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/deliver_product_list_dialog_farmer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:padding="5dp"
+            android:text="Ah Ben Studio"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/deliver_product_list_dialog_product_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/deliver_product_list_dialog_farmer"
+            android:layout_margin="10dp"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="5dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:padding="5dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/deliver_product_list_dialog_product_image"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:contentDescription="@string/app_name" />
+
+                <TextView
+                    android:id="@+id/deliver_product_list_dialog_product"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/grey"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+        <View
+            android:id="@+id/assign_product_dialog_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/deliver_product_list_dialog_product_layout"
+            android:layout_margin="10dp"
+            android:background="@color/line_black" />
+
+        <GridView
+            android:id="@+id/deliver_product_list_dialog_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/deliver_product_list_dialog_cancel"
+            android:layout_below="@id/assign_product_dialog_divider"
+            android:columnWidth="90dp"
+            android:gravity="center"
+            android:horizontalSpacing="5dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="5dp" />
+
+        <Button
+            android:id="@+id/deliver_product_list_dialog_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom"
+            android:layout_margin="5dp"
+            android:background="@drawable/custom_button"
+            android:text="Cancel"
+            android:textColor="@color/white" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

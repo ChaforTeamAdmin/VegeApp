@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:background="@color/transparent_black"
+    android:gravity="center"
+    android:padding="20dp"
+    android:layout_height="match_parent">
+
+    <include
+        layout="@layout/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:background="@drawable/dialog_background"
+        android:padding="20dp"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:id="@+id/remark_dialog_title"
+            android:fontFamily="@string/font_family_condensed"
+            android:text="Remark Item"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:id="@+id/remark_dialog_label"
+            android:fontFamily="@string/font_family_condensed"
+            android:text="Please choose the reason to remark this item"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:id="@+id/remark_dialog_spinner"
+            android:gravity="center"
+            android:layout_margin="10dp"
+            android:textSize="16sp"
+            android:fontFamily="@string/font_family_condensed" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:inputType="phone"
+            android:visibility="gone"
+            android:textColor="@color/black"
+            android:gravity="start"
+            android:textSize="16sp"
+            android:id="@+id/remark_dialog_input"
+            android:background="@drawable/custom_linear_layout_with_corner"
+            android:fontFamily="@string/font_family_condensed"
+            android:hint="Please enter the correct weight"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Remark"
+            android:background="@drawable/custom_button"
+            android:fontFamily="@string/font_family_condensed"
+            android:id="@+id/remark_dialog_remark_button"
+            android:layout_marginTop="20dp"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/red"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:id="@+id/remark_dialog_remarked_label"
+            android:fontFamily="@string/font_family_condensed"
+            android:padding="5dp"
+            android:text="If any changes please contact with administrator"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
+
+

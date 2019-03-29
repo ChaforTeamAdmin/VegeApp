@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="5dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:id="@+id/remark_missing_child_list_view_layout_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/remark_missing_child_list_view_item_product"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:text="Vege 1"
+                    android:textColor="@color/grey"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/remark_missing_child_list_view_item_weight_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/remark_missing_child_list_view_item_product"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="- Missing"
+                    android:textColor="@color/red"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/remark_missing_child_list_view_item_linear_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/remark_missing_child_list_view_item_product"
+                    android:layout_toStartOf="@id/remark_missing_child_list_view_item_time"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/remark_missing_child_list_view_item_driver"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:padding="5dp"
+                        android:text="Benson"
+                        android:textColor="@color/grey"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/remark_missing_child_list_view_item_action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="5dp"
+                        android:text="To"
+                        android:textColor="@color/grey"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/remark_missing_child_list_view_item_customer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:padding="5dp"
+                        android:text="Customer"
+                        android:textColor="@color/grey"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+
+
+                <TextView
+                    android:id="@+id/remark_missing_child_list_view_item_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="9:07 pm"
+                    android:textColor="@color/transparent_black"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/remark_missing_child_list_view_item_undo"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_below="@id/remark_missing_child_list_view_layout_message"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="5dp"
+                android:background="@drawable/custom_cancel_button"
+                android:text="Undo"
+                android:textColor="@color/white" />
+
+            <Button
+                android:id="@+id/remark_missing_child_list_view_item_approve"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_below="@id/remark_missing_child_list_view_layout_message"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="5dp"
+                android:background="@drawable/custom_button"
+                android:text="Approve"
+                android:textColor="@color/white" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

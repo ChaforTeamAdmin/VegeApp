@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        app:cardCornerRadius="5dp"
+        android:layout_margin="5dp"
+        app:cardElevation="2dp"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            android:layout_height="40dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Vege farmer one"
+                android:textSize="18sp"
+                android:id="@+id/delivery_child_farmer"
+                android:layout_toStartOf="@id/delivery_child_weight"
+                android:layout_alignParentStart="true"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:textStyle="bold"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center|start"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/grey" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="35KG"
+                android:textSize="16sp"
+                android:id="@+id/delivery_child_weight"
+                android:paddingStart="5dp"
+                android:paddingEnd="0dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center"
+                android:layout_toStartOf="@id/delivery_child_quantity"
+                android:textColor="@color/grey" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="X5"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:layout_marginStart="15dp"
+                android:layout_toStartOf="@id/delivery_child_arrow_right"
+                android:padding="5dp"
+                android:id="@+id/delivery_child_quantity"
+                android:textColor="@color/grey" />
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:contentDescription="@string/app_name"
+                android:id="@+id/delivery_child_arrow_right"
+                android:layout_alignParentEnd="true"
+                android:layout_centerInParent="true"
+                android:src="@drawable/arrow_right" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

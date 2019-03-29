@@ -7,12 +7,18 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class ApiManager {
-    public static String domain = "http://www.chafor.net/";
-    public static String prefix = "vegetable/";
-    public static String sub_prefix = "driver/";
+    private static String domain = "http://www.chafor.net/";
+    private static String prefix = "vegetable/";
+    private static String sub_prefix = "driver/";
 
     public String registration = domain + prefix + sub_prefix + "registration/registration.php";
-    public String vege_manage = domain + prefix + sub_prefix + "vege_management/vege_manage.php";
+
+    public String vege_manage = domain + prefix + sub_prefix + "vege_management/pick_up.php";
+    public String deliver = domain + prefix + sub_prefix + "vege_management/deliver.php";
+    public String delivery_remark = domain + prefix + sub_prefix + "vege_management/remark.php";
+    public String basket = domain + prefix + sub_prefix + "vege_management/basket.php";
+
+    public String history = domain + prefix + sub_prefix + "history/history.php";
 
     public String farmer = domain + prefix + "farmer/farmer.php";
     public String product = domain + prefix + "product/product.php";
@@ -20,6 +26,7 @@ public class ApiManager {
 
     //img path
     public String img_product = domain + prefix + "product/vege_img/";
+
     public String setData(ArrayList<ApiDataObject> apiDataObjectArrayList){
         String apiDataPost = "";
         String anApiDataPost = "";

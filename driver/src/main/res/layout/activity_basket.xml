@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:id="@+id/activity_basket_parent_layout"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".basket.BasketActivity">
 
     <include
         layout="@layout/actionbar"
-        android:layout_height="?actionBarSize"
-        android:layout_width="match_parent"/>
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -21,169 +21,221 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Type"
-                android:padding="10dp"
-                android:textSize="15sp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/activity_basket_label_available_quantity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Available Quantity: "
+                    android:textColor="@color/grey"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/activity_basket_available_quantity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/grey"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" Basket"
+                    android:textColor="@color/grey"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="5dp"
+                android:background="@color/line_black" />
+
+            <TextView
                 android:id="@+id/activity_basket_label_select_type"
-                android:textStyle="bold"
-                android:textColor="@color/grey" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="Type"
+                android:textColor="@color/grey"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_margin="5dp"
                 android:id="@+id/activity_basket_select_type_layout"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:layout_margin="5dp"
                 android:background="@drawable/custom_view_wtih_border"
-                android:layout_height="?actionBarSize">
+                android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/activity_basket_select_type"
                     android:layout_width="0dp"
-                    android:layout_weight="5"
                     android:layout_height="match_parent"
-                    android:text="Please select one"
+                    android:layout_weight="5"
+                    android:ellipsize="end"
                     android:gravity="center"
                     android:maxLines="1"
-                    android:ellipsize="end"
-                    android:id="@+id/activity_basket_select_type"
-                    android:textSize="20sp"
-                    android:textColor="@color/grey"/>
+                    android:text="Please select one"
+                    android:textColor="@color/grey"
+                    android:textSize="20sp" />
 
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/activity_pick_up_arrow_down"
+                    android:layout_weight="1"
                     android:padding="20dp"
-                    android:layout_weight="1"/>
+                    android:src="@drawable/activity_pick_up_arrow_down" />
 
             </LinearLayout>
 
             <TextView
+                android:id="@+id/activity_basket_label_to_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="To"
                 android:padding="10dp"
+                android:text="To"
+                android:textColor="@color/grey"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                android:visibility="gone"
-                android:id="@+id/activity_basket_label_to_layout"
-                android:textColor="@color/grey" />
+                android:visibility="gone" />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_margin="5dp"
-                android:visibility="gone"
                 android:id="@+id/activity_basket_to_layout"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:layout_margin="5dp"
                 android:background="@drawable/custom_view_wtih_border"
-                android:layout_height="?actionBarSize">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <TextView
+                    android:id="@+id/activity_basket_to"
                     android:layout_width="0dp"
-                    android:layout_weight="5"
                     android:layout_height="match_parent"
-                    android:text="Please Select Farmer"
+                    android:layout_weight="5"
+                    android:ellipsize="end"
                     android:gravity="center"
                     android:maxLines="1"
-                    android:ellipsize="end"
-                    android:id="@+id/activity_basket_to"
-                    android:textSize="20sp"
-                    android:textColor="@color/grey"/>
+                    android:text="Please Select Farmer"
+                    android:textColor="@color/grey"
+                    android:textSize="20sp" />
 
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/activity_pick_up_arrow_down"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/app_name"
                     android:padding="20dp"
-                    android:layout_weight="1"/>
+                    android:src="@drawable/activity_pick_up_arrow_down" />
 
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center"
                 android:id="@+id/activity_basket_basket_layout"
-                android:padding="10dp"
-                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
                 android:orientation="vertical"
-                android:layout_height="wrap_content">
+                android:padding="10dp"
+                android:visibility="gone">
 
                 <TextView
+                    android:id="@+id/activity_basket_label_basket"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Type"
                     android:padding="10dp"
+                    android:text="Please enter quantity here:"
+                    android:textColor="@color/grey"
                     android:textSize="15sp"
-                    android:id="@+id/activity_basket_label_basket"
-                    android:textStyle="bold"
-                    android:textColor="@color/grey" />
+                    android:textStyle="bold" />
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="150dp"
                     android:id="@+id/activity_basket_basket_icon"
-                    android:src="@drawable/activity_home_manage_basket"/>
+                    android:layout_width="wrap_content"
+                    android:layout_height="100dp"
+                    android:src="@drawable/activity_home_manage_basket" />
 
                 <LinearLayout
-                    android:layout_width="match_parent"
                     android:id="@+id/activity_basket_quantity_layout"
+                    android:layout_width="match_parent"
                     android:layout_height="?actionBarSize">
 
                     <ImageView
-                        android:layout_width="0dp"
-                        android:padding="10dp"
-                        android:layout_height="match_parent"
                         android:id="@+id/activity_basket_minus_button"
-                        android:contentDescription="@string/app_name"
-                        android:src="@drawable/activity_pick_up_minus_icon"
-                        android:layout_weight="1"/>
-
-                    <EditText
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:gravity="center"
-                        android:background="@drawable/custom_view_wtih_border"
+                        android:contentDescription="@string/app_name"
+                        android:padding="10dp"
+                        android:src="@drawable/activity_pick_up_minus_icon" />
+
+                    <EditText
                         android:id="@+id/activity_basket_quantity"
-                        android:inputType="number"/>
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/custom_view_wtih_border"
+                        android:gravity="center"
+                        android:inputType="number" />
 
                     <ImageView
-                        android:layout_width="0dp"
-                        android:padding="10dp"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@string/app_name"
-                        android:src="@drawable/activity_pick_up_plus_icon"
                         android:id="@+id/activity_basket_plus_button"
-                        android:layout_weight="1"/>
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/app_name"
+                        android:padding="10dp"
+                        android:src="@drawable/activity_pick_up_plus_icon" />
 
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:orientation="horizontal"
+                    android:layout_height="?actionBarSize"
                     android:layout_marginTop="10dp"
-                    android:layout_height="?actionBarSize">
+                    android:orientation="horizontal">
 
                     <Button
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="match_parent"
-                        android:text="Return"
                         android:id="@+id/activity_basket_return_button"
-                        android:textColor="@color/white"
-                        android:background="@drawable/custom_button"/>
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/custom_button"
+                        android:text="Return"
+                        android:textColor="@color/white" />
 
 
                     <Button
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="match_parent"
-                        android:text="Send"
                         android:id="@+id/activity_basket_send_button"
-                        android:textColor="@color/white"
-                        android:background="@drawable/activity_basket_send_button"/>
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/activity_basket_send_button"
+                        android:text="Send"
+                        android:textColor="@color/white" />
+
+                    <Button
+                        android:id="@+id/activity_basket_update"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/custom_button"
+                        android:text="Update"
+                        android:textColor="@color/white" />
 
                 </LinearLayout>
 

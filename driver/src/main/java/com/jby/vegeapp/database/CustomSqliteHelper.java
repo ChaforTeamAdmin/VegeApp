@@ -46,7 +46,9 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
             "price Text, " +
             "type Text, " +
             "quantity Text, " +
+            "weight Text, " +
             "session Text, " +
+            "grade Text, " +
             "status INTEGER DEFAULT 0, " +
             "created_at Text," +
             "updated_at Text)";

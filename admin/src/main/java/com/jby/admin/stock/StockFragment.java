@@ -9,6 +9,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,10 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +31,7 @@ import com.jby.admin.R;
 import com.jby.admin.adapter.ProductExpandableAdapter;
 import com.jby.admin.object.ProductDetailChildObject;
 import com.jby.admin.object.ProductDetailParentObject;
-import com.jby.admin.others.NetworkConnection;
+import com.jby.admin.others.SwipeDismissTouchListener;
 import com.jby.admin.shareObject.ApiDataObject;
 import com.jby.admin.shareObject.ApiManager;
 import com.jby.admin.shareObject.AsyncTaskManager;
@@ -46,11 +48,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.jby.admin.shareObject.CustomToast.CustomToast;
+
 
 public class StockFragment extends Fragment implements AdapterView.OnItemSelectedListener, SearchView.OnQueryTextListener,
         ProductExpandableAdapter.ProductExpandableAdapterCallBack, ExpandableListView.OnGroupClickListener,
-        ExpandableListView.OnChildClickListener, AssignProductDialog.AssignProductDialogCallBack, View.OnClickListener {
-
+        AssignProductDialog.AssignProductDialogCallBack, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     // TODO: Rename and change types of parameters
@@ -62,13 +65,12 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
     private Spinner stockFragmentSpinner;
     private SearchView stockFragmentSearch;
     //list
+    private SwipeRefreshLayout stockFragmentRefreshLayout;
     private ExpandableListView stockFragmentProductList;
     private ProductExpandableAdapter productAdapter;
     private ArrayList<ProductDetailParentObject> productObjectArrayList;
     private JSONArray jsonArray;
-    //no connection purpose
-    private RelativeLayout noInternetConnectionLayout;
-    private TextView reconnectButton;
+    private int groupPosition = -1, childPosition = -1;
     //sorting and search purpose
     private String query = "";
     //dialog
@@ -79,6 +81,10 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
     JSONObject jsonObjectLoginResponse;
     ArrayList<ApiDataObject> apiDataObjectArrayList;
     private Handler handler;
+    //delivery order purpose
+    private List<String> deliveryProductIDList;
+    private Button stockFragmentAssignButton;
+    private String deliveryOrderID = "0";
 
     public StockFragment() {
     }
@@ -112,12 +118,12 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
     private void objectInitialize() {
+        stockFragmentRefreshLayout = rootView.findViewById(R.id.fragment_stock_refresh_layout);
         stockFragmentProductList = rootView.findViewById(R.id.fragment_stock_product_list);
         stockFragmentSearch = rootView.findViewById(R.id.fragment_stock_search_view);
         stockFragmentSpinner = rootView.findViewById(R.id.fragment_stock_sort);
-        //connection purpose
-        noInternetConnectionLayout = rootView.findViewById(R.id.no_connection_layout);
-        reconnectButton = rootView.findViewById(R.id.retry_button);
+        stockFragmentAssignButton = rootView.findViewById(R.id.fragment_stock_assign_button);
+        deliveryProductIDList = new ArrayList<>();
 
         productObjectArrayList = new ArrayList<>();
         productAdapter = new ProductExpandableAdapter(getActivity(), productObjectArrayList, this);
@@ -129,47 +135,35 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
     private void objectSetting() {
         stockFragmentProductList.setAdapter(productAdapter);
         stockFragmentProductList.setOnGroupClickListener(this);
-        stockFragmentProductList.setOnChildClickListener(this);
 
-        reconnectButton.setOnClickListener(this);
         stockFragmentSpinner.setOnItemSelectedListener(this);
         stockFragmentSearch.setOnQueryTextListener(this);
 
+        stockFragmentAssignButton.setOnClickListener(this);
+
+        stockFragmentRefreshLayout.setOnRefreshListener(this);
+
         searchViewSetting();
         setupSpinner();
-        checkConnection();
-
+        showProgressBar(true);
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                fetchParentItem();
+            }
+        }, 200);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.retry_button:
-                checkConnection();
+            case R.id.fragment_stock_assign_button:
+                assignVegetable();
                 break;
         }
     }
 
-    private void checkConnection(){
-        showProgressBar(true);
-        if(new NetworkConnection(getActivity()).checkNetworkConnection()){
-            noInternetConnectionLayout.setVisibility(View.GONE);
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    fetchParentItem();
-                }
-            },200);
-        }
-        else{
-            showProgressBar(false);
-            noInternetConnectionLayout.setVisibility(View.VISIBLE);
-            showSnackBar("No Internet Connection!");
-        }
-
-    }
-
-    private void searchViewSetting(){
+    private void searchViewSetting() {
         //close icon
         ImageView iconClose = stockFragmentSearch.findViewById(android.support.v7.appcompat.R.id.search_close_btn);
         iconClose.setColorFilter(getResources().getColor(R.color.white));
@@ -199,9 +193,20 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
 
     /*-------------------------------------------------------------------expandable list purpose----------------------------------------------*/
 
-    private void fetchParentItem(){
+    public void reset() {
+        showProgressBar(true);
+        closeOtherChildView(-1);
+        productObjectArrayList.clear();
+        fetchParentItem();
+        //delivery list
+        deliveryProductIDList.clear();
+        stockFragmentAssignButton.setVisibility(View.GONE);
+    }
+
+    private void fetchParentItem() {
         apiDataObjectArrayList = new ArrayList<>();
         apiDataObjectArrayList.add(new ApiDataObject("fetch", "1"));
+        apiDataObjectArrayList.add(new ApiDataObject("customer_id", ((MainActivity) getActivity()).getCustomerID()));
 
         asyncTaskManager = new AsyncTaskManager(
                 getActivity(),
@@ -220,13 +225,12 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
                 jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
 
                 if (jsonObjectLoginResponse != null) {
-                    Log.d("jsonObject", "jsonObject: " +  jsonObjectLoginResponse);
-                    if(jsonObjectLoginResponse.getString("status").equals("1")){
+                    Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                    if (jsonObjectLoginResponse.getString("status").equals("1")) {
                         jsonArray = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("stock");
                         sorting();
                     }
-                }
-                else {
+                } else {
                     Toast.makeText(getActivity(), "Network Error!", Toast.LENGTH_SHORT).show();
                 }
 
@@ -245,25 +249,26 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
             }
         }
     }
-    
+
     //--------------------------------------parent----------
-    private void sorting(){
-        for(int i = 0; i < jsonArray.length(); i++)
-        {
+    private void sorting() {
+        for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 String name = jsonArray.getJSONObject(i).getString("name");
                 //search value
-                if(name.contains(query)){
+                if (name.contains(query)) {
                     //sorting by spinner
-                    switch (stockFragmentSpinner.getSelectedItemPosition()){
+                    switch (stockFragmentSpinner.getSelectedItemPosition()) {
                         case 0:
                             setParentValue(i);
                             break;
                         case 1:
-                            if(!jsonArray.getJSONObject(i).getString("current_quantity").equals("0")) setParentValue(i);
+                            if (!jsonArray.getJSONObject(i).getString("current_quantity").equals("0"))
+                                setParentValue(i);
                             break;
                         case 2:
-                            if(jsonArray.getJSONObject(i).getString("current_quantity").equals("0")) setParentValue(i);
+                            if (jsonArray.getJSONObject(i).getString("current_quantity").equals("0"))
+                                setParentValue(i);
                             break;
                     }
                 }
@@ -277,11 +282,11 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
                 productAdapter.notifyDataSetChanged();
                 showProgressBar(false);
             }
-        },200);
+        }, 200);
 
     }
 
-    private void setParentValue(int i){
+    private void setParentValue(int i) {
         try {
             //mean this id is never added yet so create a new group view
             productObjectArrayList.add(new ProductDetailParentObject(
@@ -290,8 +295,8 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
                     jsonArray.getJSONObject(i).getString("picture"),
                     jsonArray.getJSONObject(i).getString("type"),
                     jsonArray.getJSONObject(i).getString("price"),
-                    jsonArray.getJSONObject(i).getString("current_quantity")));
-
+                    jsonArray.getJSONObject(i).getString("available_quantity"),
+                    jsonArray.getJSONObject(i).getString("taken_quantity")));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -304,9 +309,12 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
 
     @Override
     public boolean onGroupClick(ExpandableListView expandableListView, View view, final int i, long l) {
-        if(!productObjectArrayList.get(i).getAvailable_quantity().equals("0")){
+        groupPosition = i;
+        if (!productObjectArrayList.get(i).getAvailable_quantity().equals("0") || !productObjectArrayList.get(i).getTaken_quantity().equals("0")
+                && !((MainActivity) getActivity()).getCustomerID().equals("-1")) {
+
             if (expandableListView.isGroupExpanded(i)) expandableListView.collapseGroup(i);
-            else{
+            else {
                 //close view
                 closeOtherChildView(i);
                 productObjectArrayList.get(i).getProductDetailChildObjectArrayList().clear();
@@ -316,39 +324,55 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
                     public void run() {
                         fetchChildItem(i);
                     }
-                },200);
+                }, 200);
 
             }
-        }
-        else showSnackBar("Not Available!");
+        } else showSnackBar("Not Available!");
         return true;
     }
 
-    private void closeOtherChildView(int position){
-        for(int i = 0 ; i < productObjectArrayList.size(); i ++){
-            if(i != position) stockFragmentProductList.collapseGroup(i);
+    private void closeOtherChildView(int position) {
+        for (int i = 0; i < productObjectArrayList.size(); i++) {
+            if (i != position) stockFragmentProductList.collapseGroup(i);
         }
+    }
+
+    public void groupQuantityControl(String status) {
+        View v = stockFragmentProductList.getChildAt(groupPosition - stockFragmentProductList.getFirstVisiblePosition());
+        if (v == null) return;
+        TextView tvQuantity = v.findViewById(R.id.product_parent_list_view_item_quantity);
+        TextView tvTakenQuantity = v.findViewById(R.id.product_parent_list_view_item_taken_quantity);
+        LinearLayout takenLayout = v.findViewById(R.id.product_parent_list_view_item_taken_layout);
+
+        int availableQuantity = Integer.valueOf(productObjectArrayList.get(groupPosition).getAvailable_quantity());
+        int takenQuantity = Integer.valueOf(productObjectArrayList.get(groupPosition).getTaken_quantity());
+
+        if (status.equals("1")) {
+            availableQuantity--;
+            takenQuantity++;
+        } else {
+            if (takenQuantity > 0) {
+                availableQuantity++;
+                takenQuantity--;
+            }
+        }
+        if (takenQuantity <= 0) takenLayout.setVisibility(View.GONE);
+        else takenLayout.setVisibility(View.VISIBLE);
+
+        productObjectArrayList.get(groupPosition).setAvailable_quantity(String.valueOf(availableQuantity));
+        productObjectArrayList.get(groupPosition).setTaken_quantity(String.valueOf(takenQuantity));
+
+
+        tvQuantity.setText(" x " + String.valueOf(availableQuantity));
+        tvTakenQuantity.setText(" x " + String.valueOf(takenQuantity));
+
     }
 
 //    --------------------------------------child-------------
 
-    private void setChildValue(JSONArray jsonArray, int position){
-        for(int i = 0; i < jsonArray.length(); i++){
-            ArrayList<ProductDetailChildObject> productDetailChildObjectArrayList = productObjectArrayList.get(position).getProductDetailChildObjectArrayList();
-            boolean isExisted = false;
+    private void setChildValue(JSONArray jsonArray, int position) {
+        for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                //check whether the date is existed or not
-                for(int j = 0; j < productDetailChildObjectArrayList.size(); j++){
-                    Log.d("haha","haha: " + productDetailChildObjectArrayList.size());
-                    if(productDetailChildObjectArrayList.get(j).getDate().equals(jsonArray.getJSONObject(i).getString("date"))){
-                        isExisted = true;
-                        break;
-                    }
-                }
-                //if date is not existed then add
-                if(!isExisted){
-                    productObjectArrayList.get(position).setProductDetailChildObjectArrayList(setDate(jsonArray.getJSONObject(i)));
-                }
                 productObjectArrayList.get(position).setProductDetailChildObjectArrayList(setChildObject(jsonArray.getJSONObject(i)));
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -356,10 +380,10 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
         }
     }
 
-    private void fetchChildItem(int position){
+    private void fetchChildItem(int position) {
         apiDataObjectArrayList = new ArrayList<>();
         apiDataObjectArrayList.add(new ApiDataObject("product_id", productObjectArrayList.get(position).getId()));
-
+        apiDataObjectArrayList.add(new ApiDataObject("customer_id", ((MainActivity) getActivity()).getCustomerID()));
         asyncTaskManager = new AsyncTaskManager(
                 getActivity(),
                 new ApiManager().stock,
@@ -377,13 +401,12 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
                 jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
 
                 if (jsonObjectLoginResponse != null) {
-                    Log.d("jsonObject", "jsonObject: " +  jsonObjectLoginResponse);
-                    if(jsonObjectLoginResponse.getString("status").equals("1")){
-                        JSONArray jsonArray = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("stock_detail");
+                    Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                    if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                        JSONArray jsonArray = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("farmer_stock");
                         setChildValue(jsonArray, position);
                     }
-                }
-                else {
+                } else {
                     Toast.makeText(getActivity(), "Network Error!", Toast.LENGTH_SHORT).show();
                 }
 
@@ -406,88 +429,136 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
         showProgressBar(false);
     }
 
-    private ProductDetailChildObject setChildObject(JSONObject jsonObject){
+    private ProductDetailChildObject setChildObject(JSONObject jsonObject) {
         ProductDetailChildObject object = null;
         try {
             object = new ProductDetailChildObject(
                     jsonObject.getString("id"),
-                    jsonObject.getString("driver_id"),
-                    jsonObject.getString("driver_name"),
-                    jsonObject.getString("farmer_id"),
                     jsonObject.getString("farmer_name"),
-                    jsonObject.getString("price"),
-                    jsonObject.getString("grade"),
-                    jsonObject.getString("quantity"),
-                    jsonObject.getString("date"),
-                    jsonObject.getString("time"));
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return object;
-    }
-    //set null object for date purpose
-    private ProductDetailChildObject setDate(JSONObject jsonObject){
-        ProductDetailChildObject object = null;
-        try {
-            object = new ProductDetailChildObject(
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    jsonObject.getString("date"),
-                    "");
-
+                    jsonObject.getString("available_quantity"),
+                    jsonObject.getString("taken_quantity"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return object;
     }
 
-    @Override
-    public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
-        if(!productObjectArrayList.get(i).getProductDetailChildObjectArrayList().get(i1).getId().equals("")){
-            if(isCustomerSelected()){
-                dialogFragment = new AssignProductDialog();
+    private void childQuantityControl(String status) {
+        int availableQuantity = Integer.valueOf(productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition).getQuantity());
+        int takenQuantity = Integer.valueOf(productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition).getTakenQuantity());
 
-                Bundle bundle = new Bundle();
-                bundle.putString("product_id", productObjectArrayList.get(i).getProductDetailChildObjectArrayList().get(i1).getId());
-                bundle.putString("product", productObjectArrayList.get(i).getName());
-                bundle.putString("farmer_id", productObjectArrayList.get(i).getProductDetailChildObjectArrayList().get(i1).getFarmerID());
-                bundle.putString("quantity", productObjectArrayList.get(i).getProductDetailChildObjectArrayList().get(i1).getQuantity());
-                bundle.putString("grade", productObjectArrayList.get(i).getProductDetailChildObjectArrayList().get(i1).getGrade());
-                bundle.putString("type", productObjectArrayList.get(i).getType());
-                bundle.putString("stock_in_id", productObjectArrayList.get(i).getProductDetailChildObjectArrayList().get(i1).getId());
-                bundle.putString("grade", productObjectArrayList.get(i).getProductDetailChildObjectArrayList().get(i1).getGrade());
-                bundle.putString("customer_id", ((MainActivity)Objects.requireNonNull(getActivity())).getCustomerID());
-
-                dialogFragment.setArguments(bundle);
-                dialogFragment.show(fm, "");
+        if (status.equals("1")) {
+            availableQuantity--;
+            takenQuantity++;
+        } else {
+            if (takenQuantity > 0) {
+                availableQuantity++;
+                takenQuantity--;
             }
-            else showSnackBar("Please select a customer!");
         }
-        return true;
+        productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition).setQuantity(String.valueOf(availableQuantity));
+        productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition).setTakenQuantity(String.valueOf(takenQuantity));
+        productAdapter.notifyDataSetChanged();
     }
 
-    private boolean isCustomerSelected(){
-        String customerId = ((MainActivity)Objects.requireNonNull(getActivity())).getCustomerID();
-        return !customerId.equals("");
-    }
-// ------------------------------------------------------sorting purpose------------------------------------------------------------------------
-@Override
-public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-    if(adapterView.getId() == R.id.fragment_stock_sort){
-        if(jsonArray != null) {
-            productObjectArrayList.clear();
-            sorting();
-        }
+    //--------------------------------------stock detail-------------------------
+    @Override
+    public void childOnClick(final int position, int groupPosition) {
+        this.childPosition = position;
+        Bundle bundle = new Bundle();
+        bundle.putString("customer_id", ((MainActivity) getActivity()).getCustomerID());
+        bundle.putString("farmer_id", productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(position).getFarmerID());
+        bundle.putString("farmer_name", productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(position).getFarmerName());
+        bundle.putString("product_id", productObjectArrayList.get(groupPosition).getId());
+        bundle.putStringArrayList("delivery_product_list_id", (ArrayList<String>) deliveryProductIDList);
+
+        dialogFragment = new AssignProductDialog();
+        dialogFragment.setArguments(bundle);
+        dialogFragment.show(getChildFragmentManager(), "");
 
     }
-}
+
+    public void updateListViewQuantity(String status) {
+        groupQuantityControl(status);
+        childQuantityControl(status);
+    }
+
+    /*--------------------------------------------------------assign delivery order ---------------------------------------------------------------*/
+    public void setDeliveryProductIDList(String id, String deliveryOrderID) {
+        if (deliveryProductIDList.contains(id)) deliveryProductIDList.remove(id);
+        else deliveryProductIDList.add(id);
+
+        stockFragmentAssignButton.setVisibility(deliveryProductIDList.size() > 0 ? View.VISIBLE : View.GONE);
+        this.deliveryOrderID = deliveryOrderID;
+    }
+
+    private String getDeliveryProductID() {
+        return deliveryProductIDList.toString().substring(1, deliveryProductIDList.toString().length() - 1);
+    }
+
+    private void assignVegetable() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                apiDataObjectArrayList = new ArrayList<>();
+                apiDataObjectArrayList.add(new ApiDataObject("id", getDeliveryProductID()));
+                apiDataObjectArrayList.add(new ApiDataObject("do_id", deliveryOrderID));
+                apiDataObjectArrayList.add(new ApiDataObject("customer_id", ((MainActivity) getActivity()).getCustomerID()));
+                apiDataObjectArrayList.add(new ApiDataObject("type", productObjectArrayList.get(groupPosition).getType()));
+                Log.d("haha" ,"order: " + deliveryOrderID);
+                asyncTaskManager = new AsyncTaskManager(
+                        getActivity(),
+                        new ApiManager().delivery,
+                        new ApiManager().getResultParameter(
+                                "",
+                                new ApiManager().setData(apiDataObjectArrayList),
+                                ""
+                        )
+                );
+                asyncTaskManager.execute();
+
+                if (!asyncTaskManager.isCancelled()) {
+
+                    try {
+                        jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+                        if (jsonObjectLoginResponse != null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    stockFragmentAssignButton.setVisibility(View.GONE);
+                                    deliveryProductIDList.clear();
+                                    showSnackBar("Delivery order is created!");
+                                }
+                            });
+                            Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                        } else {
+                            CustomToast(getActivity(), "Network Error!");
+                        }
+                    } catch (InterruptedException e) {
+                        CustomToast(getActivity(), "Interrupted Exception!");
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        CustomToast(getActivity(), "Execution Exception!");
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        CustomToast(getActivity(), "Connection Time Out!");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    // ------------------------------------------------------sorting purpose------------------------------------------------------------------------
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        if (adapterView.getId() == R.id.fragment_stock_sort) {
+            if (jsonArray != null) {
+                productObjectArrayList.clear();
+                sorting();
+            }
+        }
+    }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
@@ -502,7 +573,7 @@ public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
     @Override
     public boolean onQueryTextChange(String newText) {
         query = newText;
-        if((((MainActivity) Objects.requireNonNull(getActivity())).mainActivityProgressBar.getVisibility() != View.VISIBLE))
+        if ((((MainActivity) Objects.requireNonNull(getActivity())).mainActivityProgressBar.getVisibility() != View.VISIBLE))
             showProgressBar(true);
         handler.postDelayed(new Runnable() {
             @Override
@@ -510,7 +581,7 @@ public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
                 productObjectArrayList.clear();
                 sorting();
             }
-        },700);
+        }, 700);
         return false;
     }
 
@@ -545,7 +616,7 @@ public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
     }
 
     /*--------------------------------------------------------------other------------------------------------------------------------------------*/
-    public void showSnackBar(String message){
+    public void showSnackBar(String message) {
         final Snackbar snackbar = Snackbar.make(getActivity().findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT);
         snackbar.setAction("Dismiss", new View.OnClickListener() {
             @Override
@@ -556,7 +627,14 @@ public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
         snackbar.show();
     }
 
-    private void showProgressBar(boolean show){
+    private void showProgressBar(boolean show) {
         ((MainActivity) Objects.requireNonNull(getActivity())).showProgressBar(show);
     }
+
+    @Override
+    public void onRefresh() {
+        reset();
+        stockFragmentRefreshLayout.setRefreshing(false);
+    }
+
 }

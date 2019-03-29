@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/add_product_dialog_parent_layout"
+    android:background="@color/transparent_black"
+    android:padding="20dp"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:background="@drawable/custom_linear_layout_with_corner"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Item: "
+                    android:padding="10dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/grey"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Carrot"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:id="@+id/add_product_dialog_product"
+                    android:textColor="@color/black"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:padding="5dp"
+                android:layout_height="50dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
+                    android:text="Weight"
+                    android:padding="10dp"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/grey" />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="40dp"
+                    android:gravity="center"
+                    android:hint="KG"
+                    android:background="@drawable/custom_view_wtih_border"
+                    android:id="@+id/add_product_dialog_weight"
+                    android:inputType="number"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:padding="5dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
+                    android:text="Quantity"
+                    android:padding="10dp"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/grey" />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="40dp"
+                    android:gravity="center"
+                    android:text="1"
+                    android:selectAllOnFocus="true"
+                    android:background="@drawable/custom_view_wtih_border"
+                    android:id="@+id/add_product_dialog_quantity"
+                    android:inputType="number"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:text="Grade"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/grey" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:padding="5dp"
+                android:layout_height="wrap_content">
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:id="@+id/add_product_dialog_grade_layout"
+                    android:layout_height="match_parent">
+
+                    <RadioButton
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/add_product_dialog_grade_a"
+                        android:text="A"/>
+
+                    <RadioButton
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:id="@+id/add_product_dialog_grade_b"
+                        android:layout_height="wrap_content"
+                        android:text="B"/>
+
+                    <RadioButton
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:id="@+id/add_product_dialog_grade_unknow"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="Unknown"/>
+
+                </RadioGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/add_product_dialog_cancel"
+                    android:text="Cancel"
+                    android:textColor="@color/white"
+                    android:background="@drawable/activity_basket_send_button"/>
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Add"
+                    android:id="@+id/add_product_dialog_add"
+                    android:textColor="@color/white"
+                    android:background="@drawable/custom_button"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateBehavior="repeat"
+            android:layout_gravity="center"
+            android:layout_centerInParent="true"
+            android:id="@+id/add_product_dialog_progress_bar"
+            android:padding="15dp"
+            android:visibility="gone"
+            android:indeterminateTintMode="src_in"
+            android:indeterminateTint="@color/red"/>
+
+    </RelativeLayout>
+
+
+
+</RelativeLayout>

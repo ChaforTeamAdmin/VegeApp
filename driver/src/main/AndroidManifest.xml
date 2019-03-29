@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:allowBackup="true"
@@ -13,6 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/NoActionBar">
+        <activity android:name=".history.HistoryActivity" />
+        <activity android:name=".delivery.DeliverActivity" />
+        <activity android:name=".delivery.DeliveryDetailActivity" />
         <activity
             android:name=".LoginActivity"
             android:windowSoftInputMode="stateVisible">
@@ -24,17 +28,18 @@
             </intent-filter>
         </activity>
         <activity android:name=".HomeActivity" />
-        <activity android:name=".pickUp.PickUpActivity" />
+        <activity
+            android:name=".pickUp.PickUpActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <service
             android:name=".network.PickUpNetworkMonitor"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-
         <service
             android:name=".network.BasketNetworkMonitor"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <activity android:name=".basket.BasketActivity"/>
+        <activity android:name=".basket.BasketActivity" />
     </application>
 
 </manifest>

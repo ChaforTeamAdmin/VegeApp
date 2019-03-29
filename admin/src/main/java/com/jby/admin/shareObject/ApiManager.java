@@ -16,31 +16,30 @@ public class ApiManager {
     public String driver = domain + prefix + "driver/driver.php";
     public String customer = domain + prefix + "customer/customer.php";
     public String basket = domain + prefix + sub_prefix + "basket/basket.php";
+    public String remark = domain + prefix + sub_prefix + "stock/remark.php";
+    public String delivery = domain + prefix + sub_prefix + "delivery_order/delivery_order.php";
     //image path
     public String product_img = domain + prefix +  "product/vege_img/";
 
     public String setData(ArrayList<ApiDataObject> apiDataObjectArrayList){
-        String apiDataPost = "";
+        StringBuilder apiDataPost = new StringBuilder();
         String anApiDataPost = "";
-
         for (int position = 0 ; position < apiDataObjectArrayList.size() ; position++) {
-            if (apiDataObjectArrayList.size() > 0){
-                try {
-                    anApiDataPost = URLEncoder.encode(apiDataObjectArrayList.get(position).getDataKey(), "UTF-8")
-                                    + "=" +
-                                    URLEncoder.encode(apiDataObjectArrayList.get(position).getDataContent(), "UTF-8");
+            apiDataObjectArrayList.size();
+            try {
+                anApiDataPost = URLEncoder.encode(apiDataObjectArrayList.get(position).getDataKey(), "UTF-8")
+                                + "=" +
+                                URLEncoder.encode(apiDataObjectArrayList.get(position).getDataContent(), "UTF-8");
 
-                    apiDataPost += anApiDataPost;
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (position != (apiDataObjectArrayList.size() - 1))
-                        apiDataPost += "&";
-                }
+                apiDataPost.append(anApiDataPost);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } finally {
+                if (position != (apiDataObjectArrayList.size() - 1))
+                    apiDataPost.append("&");
             }
         }
-
-        return apiDataPost;
+        return apiDataPost.toString();
     }
 
     /*

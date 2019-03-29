@@ -1,165 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:orientation="vertical"
     android:id="@+id/assign_product_dialog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/transparent_black"
-    android:padding="30dp"
-    android:layout_height="match_parent">
+    android:orientation="vertical"
+    android:padding="20dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="@drawable/custom_linear_layout_with_corner"
-        android:orientation="vertical"
-        android:layout_centerInParent="true"
-        android:layout_height="wrap_content">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/assign_product_dialog_label_item"
-                android:padding="10dp"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/grey"/>
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Carrot"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:id="@+id/assign_product_dialog_product"
-                android:textColor="@color/black"/>
-
-        </LinearLayout>
+        android:minHeight="200dp"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Quantity"
-            android:padding="10dp"
-            android:textSize="15sp"
+            android:id="@+id/assign_product_dialog_title"
+            android:text="Ah Ben Farmer"
+            android:gravity="center"
+            android:textColor="@color/grey"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="@color/grey" />
+            android:layout_alignParentTop="true"/>
 
-        <LinearLayout
+        <View
             android:layout_width="match_parent"
-            android:id="@+id/activity_basket_quantity_layout"
-            android:layout_height="?actionBarSize">
+            android:layout_height="1dp"
+            android:layout_below="@id/assign_product_dialog_title"
+            android:id="@+id/assign_product_dialog_divider"
+            android:layout_margin="10dp"
+            android:background="@color/line_black" />
 
-            <ImageView
-                android:layout_width="0dp"
-                android:padding="10dp"
-                android:layout_height="match_parent"
-                android:id="@+id/assign_product_dialog_minus"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/minus_icon"
-                android:layout_weight="1"/>
-
-            <EditText
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:background="@drawable/custom_view_wtih_border"
-                android:id="@+id/assign_product_dialog_quantity"
-                android:inputType="number"/>
-
-            <ImageView
-                android:layout_width="0dp"
-                android:padding="10dp"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/plus_icon"
-                android:id="@+id/assign_product_dialog_plus"
-                android:layout_weight="1"/>
-
-        </LinearLayout>
-
-        <TextView
+        <GridView
+            android:id="@+id/assign_product_dialog_grid_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Driver"
-            android:padding="10dp"
-            android:textSize="15sp"
-            android:id="@+id/activity_basket_label_select_type"
-            android:textStyle="bold"
-            android:textColor="@color/grey" />
+            android:columnWidth="50dp"
+            android:gravity="center"
+            android:horizontalSpacing="5dp"
+            android:layout_below="@id/assign_product_dialog_divider"
+            android:layout_above="@id/assign_product_dialog_cancel_button"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="5dp" />
 
-        <LinearLayout
+        <Button
+            android:id="@+id/assign_product_dialog_cancel_button"
             android:layout_width="match_parent"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_margin="5dp"
-            android:id="@+id/assign_product_dialog_driver_layout"
-            android:background="@drawable/custom_view_wtih_border"
-            android:layout_height="?actionBarSize">
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/custom_button"
+            android:text="Cancel"
+            android:textColor="@color/white" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="5"
-                android:layout_height="match_parent"
-                android:text="Please select one"
-                android:gravity="center"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:id="@+id/assign_product_dialog_driver"
-                android:textSize="20sp"
-                android:textColor="@color/grey"/>
-
-            <ImageView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/arrow_down"
-                android:padding="20dp"
-                android:layout_weight="1"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:layout_height="?actionBarSize">
-
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="@string/assign_product_dialog_cancel_button"
-                android:id="@+id/assign_product_cancel_button"
-                android:textColor="@color/white"
-                android:background="@drawable/custom_cancel_button"/>
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="@string/assign_product_dialog_send_button"
-                android:id="@+id/assign_product_send_button"
-                android:textColor="@color/white"
-                android:background="@drawable/custom_button"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
+    </RelativeLayout>
 
     <ProgressBar
+        android:id="@+id/assign_product_dialog_progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:indeterminateBehavior="repeat"
-        android:padding="15dp"
-        android:visibility="gone"
-        android:id="@+id/assign_product_dialog_progress_bar"
         android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:indeterminateBehavior="repeat"
+        android:indeterminateTint="@color/red"
         android:indeterminateTintMode="src_in"
-        android:indeterminateTint="@color/red"/>
+        android:padding="15dp"
+        android:visibility="gone" />
 
 </RelativeLayout>

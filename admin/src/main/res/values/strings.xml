@@ -5,6 +5,7 @@
     <string name="activity_main_close">Close</string>
     <string name="activity_main_menu_1">Stock</string>
     <string name="activity_main_menu_2">Basket</string>
+    <string name="activity_main_menu_3">Remark</string>
 
 
     <!--main activity-->
@@ -27,6 +28,9 @@
     <string name="label_no_internet_connection">No Internet Connection</string>
 
     <string name="actionbar_label_farmer">Select a Customer</string>
+    <string name="remark_fragment_approved">Approved</string>
+    <string name="remark_fragment_rejected">Rejected</string>
+    <string name="remark_fragment_weight_unit"> KG</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
