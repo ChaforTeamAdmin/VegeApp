@@ -1,0 +1,44 @@
+{
+  "project_info": {
+    "project_number": "866401662535",
+    "firebase_url": "https://vege-admin.firebaseio.com",
+    "project_id": "vege-admin",
+    "storage_bucket": "vege-admin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866401662535:android:81210a76dcb2c59b",
+        "android_client_info": {
+          "package_name": "com.jby.admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "866401662535-ha7avn6tne7thk1sbup94kb7k84a9de0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jby.admin",
+            "certificate_hash": "cd2a2e4f63f8e0bb6c260e099aeb746c4d2ee61b"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaqQpzcPeuw96O8WCWCGIZdHQVzbeVMmE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "866401662535-ic0jh2g7oqdoidvt46g0tmojujvf6do6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -6,20 +6,47 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 
     <application
-        android:allowBackup="true"
+        android:name=".printer.MyApplication"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/NoActionBar">
-        <activity android:name=".history.HistoryActivity" />
-        <activity android:name=".delivery.DeliverActivity" />
-        <activity android:name=".delivery.DeliveryDetailActivity" />
+        android:theme="@style/NoActionBar"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".printer.PrintfBlueListActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".history.HistoryDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".history.HistoryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".delivery.DeliverActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".HomeActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".delivery.DeliveryDetailActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
         <activity
             android:name=".LoginActivity"
-            android:windowSoftInputMode="stateVisible">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -27,17 +54,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HomeActivity" />
+
         <activity
             android:name=".pickUp.PickUpActivity"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <service
             android:name=".network.PickUpNetworkMonitor"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <service
             android:name=".network.BasketNetworkMonitor"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver
+            android:name=".printer.Receiver.NameOfBroadcastReceiverClass"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" /> <!-- 蓝牙适配器状态改变 -->
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" /> <!-- 连接已经断开 -->
+            </intent-filter>
+        </receiver>
 
         <activity android:name=".basket.BasketActivity" />
     </application>

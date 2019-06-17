@@ -1,10 +1,14 @@
 package com.jby.admin.stock;
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Context;;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -15,9 +19,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
@@ -28,32 +34,44 @@ import android.widget.Toast;
 
 import com.jby.admin.MainActivity;
 import com.jby.admin.R;
-import com.jby.admin.adapter.ProductExpandableAdapter;
+import com.jby.admin.adapter.stock.ProductExpandableAdapter;
 import com.jby.admin.object.ProductDetailChildObject;
 import com.jby.admin.object.ProductDetailParentObject;
-import com.jby.admin.others.SwipeDismissTouchListener;
+import com.jby.admin.shareObject.AnimationUtility;
 import com.jby.admin.shareObject.ApiDataObject;
 import com.jby.admin.shareObject.ApiManager;
 import com.jby.admin.shareObject.AsyncTaskManager;
+import com.jby.admin.sharePreference.SharedPreferenceManager;
 import com.jby.admin.stock.dialog.AssignProductDialog;
+import com.jby.admin.stock.dialog.DriverDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED;
+import static android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED;
+import static android.support.design.widget.BottomSheetBehavior.STATE_HIDDEN;
 import static com.jby.admin.shareObject.CustomToast.CustomToast;
 
 
 public class StockFragment extends Fragment implements AdapterView.OnItemSelectedListener, SearchView.OnQueryTextListener,
         ProductExpandableAdapter.ProductExpandableAdapterCallBack, ExpandableListView.OnGroupClickListener,
-        AssignProductDialog.AssignProductDialogCallBack, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+        AssignProductDialog.AssignProductDialogCallBack, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener,
+        DriverDialog.DriverDialogCallBack, AbsListView.OnScrollListener {
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     // TODO: Rename and change types of parameters
@@ -64,27 +82,62 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
     private View rootView;
     private Spinner stockFragmentSpinner;
     private SearchView stockFragmentSearch;
-    //list
+    /*
+     * list view
+     * */
     private SwipeRefreshLayout stockFragmentRefreshLayout;
     private ExpandableListView stockFragmentProductList;
     private ProductExpandableAdapter productAdapter;
     private ArrayList<ProductDetailParentObject> productObjectArrayList;
     private JSONArray jsonArray;
     private int groupPosition = -1, childPosition = -1;
-    //sorting and search purpose
+    /*
+     * sorting purpose
+     * */
     private String query = "";
-    //dialog
+    /*
+     * dialog
+     * */
     private DialogFragment dialogFragment;
     private FragmentManager fm;
-    //    asyncTask
+    /*
+     * Async task
+     * */
     AsyncTaskManager asyncTaskManager;
     JSONObject jsonObjectLoginResponse;
     ArrayList<ApiDataObject> apiDataObjectArrayList;
     private Handler handler;
-    //delivery order purpose
+    /*
+     * delivery purpose
+     * */
+    private BottomSheetBehavior stockFragmentDeliveryLayout;
     private List<String> deliveryProductIDList;
     private Button stockFragmentAssignButton;
-    private String deliveryOrderID = "0";
+    private int orderPriority = 1000, tempTakenQuantity = 0;
+    /*
+     * default driver
+     * */
+    private LinearLayout stockFragmentDefaultDriverLayout;
+    private ImageView stockFragmentDefaultDriverLayoutIndicator;
+    private TextView stockFragmentDefaultDriver;
+    private String defaultDriverId = "", defaultDriver = "";
+    private String lastDriverId, lastDriver;
+    /*
+     * date
+     * */
+    private LinearLayout stockFragmentDateLayout;
+    private TextView stockFragmentDate;
+    private String date = "", do_id = "";
+    private String lastDate = "";
+    /*
+     * stock unavailable
+     * */
+    private ArrayList<ProductDetailParentObject> unavailableStockArrayList;
+    private int unavailablePosition = -1;
+    /*
+     * stock control list
+     * */
+    private ArrayList<ProductDetailParentObject> stockControlArrayList;
 
     public StockFragment() {
     }
@@ -119,11 +172,25 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
 
     private void objectInitialize() {
         stockFragmentRefreshLayout = rootView.findViewById(R.id.fragment_stock_refresh_layout);
+
         stockFragmentProductList = rootView.findViewById(R.id.fragment_stock_product_list);
         stockFragmentSearch = rootView.findViewById(R.id.fragment_stock_search_view);
         stockFragmentSpinner = rootView.findViewById(R.id.fragment_stock_sort);
+        /*
+         * driver and date layout (bottom sheet) purpose
+         * */
+        stockFragmentDeliveryLayout = BottomSheetBehavior.from(rootView.findViewById(R.id.fragment_stock_delivery_layout));
         stockFragmentAssignButton = rootView.findViewById(R.id.fragment_stock_assign_button);
+        stockFragmentDefaultDriverLayout = rootView.findViewById(R.id.fragment_stock_default_driver_layout);
+        stockFragmentDefaultDriver = rootView.findViewById(R.id.fragment_stock_default_driver);
+        stockFragmentDefaultDriverLayoutIndicator = rootView.findViewById(R.id.fragment_stock_delivery_layout_indicator);
+
+        stockFragmentDateLayout = rootView.findViewById(R.id.fragment_stock_date_layout);
+        stockFragmentDate = rootView.findViewById(R.id.fragment_stock_date);
+
         deliveryProductIDList = new ArrayList<>();
+        unavailableStockArrayList = new ArrayList<>();
+        stockControlArrayList = new ArrayList<>();
 
         productObjectArrayList = new ArrayList<>();
         productAdapter = new ProductExpandableAdapter(getActivity(), productObjectArrayList, this);
@@ -135,30 +202,49 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
     private void objectSetting() {
         stockFragmentProductList.setAdapter(productAdapter);
         stockFragmentProductList.setOnGroupClickListener(this);
+        stockFragmentProductList.setOnScrollListener(this);
 
         stockFragmentSpinner.setOnItemSelectedListener(this);
         stockFragmentSearch.setOnQueryTextListener(this);
 
         stockFragmentAssignButton.setOnClickListener(this);
+        stockFragmentDefaultDriverLayout.setOnClickListener(this);
+        stockFragmentDateLayout.setOnClickListener(this);
+        stockFragmentDefaultDriverLayoutIndicator.setOnClickListener(this);
 
         stockFragmentRefreshLayout.setOnRefreshListener(this);
-
+        //driver and date layout
+        setUpBottomSheet();
+        //search view
         searchViewSetting();
+        //spinner and progress bar
         setupSpinner();
+        //progress bar
         showProgressBar(true);
+        //fetch data
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                fetchParentItem();
+                fetchParentItem(query);
             }
         }, 200);
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.fragment_stock_assign_button:
-                assignVegetable();
+                showProgressBar(true);
+                checkingStockBeforeUpdate();
+                break;
+            case R.id.fragment_stock_default_driver_layout:
+                openDriverDialog();
+                break;
+            case R.id.fragment_stock_date_layout:
+                openDatePicker();
+                break;
+            case R.id.fragment_stock_delivery_layout_indicator:
+                stockFragmentDeliveryLayout.setState(stockFragmentDeliveryLayout.getState() == STATE_COLLAPSED ? STATE_EXPANDED : STATE_COLLAPSED);
                 break;
         }
     }
@@ -194,98 +280,122 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
     /*-------------------------------------------------------------------expandable list purpose----------------------------------------------*/
 
     public void reset() {
-        showProgressBar(true);
-        closeOtherChildView(-1);
-        productObjectArrayList.clear();
-        fetchParentItem();
+        //reset order priority
+        orderPriority = 1000;
         //delivery list
         deliveryProductIDList.clear();
-        stockFragmentAssignButton.setVisibility(View.GONE);
+        //unavailable list
+        unavailableStockArrayList.clear();
+        productAdapter.clearUnavailableList();
+        //stock control list
+        stockControlArrayList.clear();
+        productAdapter.clearStockControlArrayList();
+        //reset date
+        stockFragmentDateLayout.setVisibility(View.GONE);
+
+        hideBottomSheetLayout(true);
+        showProgressBar(true);
+        closeOtherChildView(-1);
+        fetchParentItem(query);
     }
 
-    private void fetchParentItem() {
-        apiDataObjectArrayList = new ArrayList<>();
-        apiDataObjectArrayList.add(new ApiDataObject("fetch", "1"));
-        apiDataObjectArrayList.add(new ApiDataObject("customer_id", ((MainActivity) getActivity()).getCustomerID()));
+    private void fetchParentItem(final String query) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                productAdapter.setUnavailableProduct(unavailableStockArrayList);
 
-        asyncTaskManager = new AsyncTaskManager(
-                getActivity(),
-                new ApiManager().stock,
-                new ApiManager().getResultParameter(
-                        "",
-                        new ApiManager().setData(apiDataObjectArrayList),
-                        ""
-                )
-        );
-        asyncTaskManager.execute();
+                productObjectArrayList.clear();
 
-        if (!asyncTaskManager.isCancelled()) {
+                apiDataObjectArrayList = new ArrayList<>();
+                apiDataObjectArrayList.add(new ApiDataObject("fetch", "1"));
+                apiDataObjectArrayList.add(new ApiDataObject("customer_id", ((MainActivity) getActivity()).getCustomerID()));
+                apiDataObjectArrayList.add(new ApiDataObject("do_id", do_id));
+                apiDataObjectArrayList.add(new ApiDataObject("query", query));
+                asyncTaskManager = new AsyncTaskManager(
+                        getActivity(),
+                        new ApiManager().stock,
+                        new ApiManager().getResultParameter(
+                                "",
+                                new ApiManager().setData(apiDataObjectArrayList),
+                                ""
+                        )
+                );
+                asyncTaskManager.execute();
 
-            try {
-                jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+                if (!asyncTaskManager.isCancelled()) {
 
-                if (jsonObjectLoginResponse != null) {
-                    Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
-                    if (jsonObjectLoginResponse.getString("status").equals("1")) {
-                        jsonArray = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("stock");
-                        sorting();
+                    try {
+                        jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+                        if (jsonObjectLoginResponse != null) {
+                            /*
+                             * cleat array list for search purpose
+                             * */
+                            productObjectArrayList.clear();
+                            Log.d("jsonObject", "Stock List: " + jsonObjectLoginResponse);
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                                            if (!((MainActivity) getActivity()).getCustomerID().equals("-1")) {
+                                                /*
+                                                 * default driver detail
+                                                 * */
+                                                JSONObject object = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONObject("driver_detail");
+                                                lastDriverId = defaultDriverId = object.getString("driver_id");
+                                                lastDriver = object.getString("name");
+                                                stockFragmentDefaultDriver.setText(object.getString("name"));
+                                                /*
+                                                 * latest DO detail
+                                                 * */
+                                                lastDate = date = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONObject("do_detail").getString("date");
+                                                //show bottom sheet when update
+                                                if (!do_id.equals("")) {
+                                                    hideBottomSheetLayout(false);
+                                                    setDefaultDate();
+                                                }
+                                            }
+                                            /*
+                                             * product list
+                                             * */
+                                            jsonArray = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("stock");
+                                            sorting();
+                                        }
+                                        /*
+                                         * status != 1 mean not found or something else
+                                         * */
+                                        else {
+                                            productAdapter.notifyDataSetChanged();
+                                            showProgressBar(false);
+                                        }
+                                    } catch (JSONException e) {
+                                        CustomToast(getActivity(), "JSON Exception!");
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                        } else {
+                            CustomToast(getActivity(), "Network Error!");
+                        }
+                    } catch (InterruptedException e) {
+                        CustomToast(getActivity(), "Interrupted Exception!");
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        CustomToast(getActivity(), "Execution Exception!");
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        CustomToast(getActivity(), "Connection Time Out!");
+                        e.printStackTrace();
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
                     }
-                } else {
-                    Toast.makeText(getActivity(), "Network Error!", Toast.LENGTH_SHORT).show();
                 }
-
-            } catch (InterruptedException e) {
-                Toast.makeText(getActivity(), "Interrupted Exception!", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                Toast.makeText(getActivity(), "Execution Exception!", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            } catch (JSONException e) {
-                Toast.makeText(getActivity(), "JSON Exception!", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            } catch (TimeoutException e) {
-                Toast.makeText(getActivity(), "Connection Time Out!", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
             }
-        }
+        }).start();
     }
 
     //--------------------------------------parent----------
-    private void sorting() {
-        for (int i = 0; i < jsonArray.length(); i++) {
-            try {
-                String name = jsonArray.getJSONObject(i).getString("name");
-                //search value
-                if (name.contains(query)) {
-                    //sorting by spinner
-                    switch (stockFragmentSpinner.getSelectedItemPosition()) {
-                        case 0:
-                            setParentValue(i);
-                            break;
-                        case 1:
-                            if (!jsonArray.getJSONObject(i).getString("current_quantity").equals("0"))
-                                setParentValue(i);
-                            break;
-                        case 2:
-                            if (jsonArray.getJSONObject(i).getString("current_quantity").equals("0"))
-                                setParentValue(i);
-                            break;
-                    }
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                productAdapter.notifyDataSetChanged();
-                showProgressBar(false);
-            }
-        }, 200);
-
-    }
-
     private void setParentValue(int i) {
         try {
             //mean this id is never added yet so create a new group view
@@ -296,15 +406,11 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
                     jsonArray.getJSONObject(i).getString("type"),
                     jsonArray.getJSONObject(i).getString("price"),
                     jsonArray.getJSONObject(i).getString("available_quantity"),
-                    jsonArray.getJSONObject(i).getString("taken_quantity")));
+                    jsonArray.getJSONObject(i).getString("taken_quantity"),
+                    jsonArray.getJSONObject(i).getString("product_code")));
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void parentOnCluck(int position) {
-
     }
 
     @Override
@@ -319,6 +425,9 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
                 closeOtherChildView(i);
                 productObjectArrayList.get(i).getProductDetailChildObjectArrayList().clear();
                 showProgressBar(true);
+                /*
+                 * fetch child item
+                 * */
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -331,41 +440,15 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
         return true;
     }
 
-    private void closeOtherChildView(int position) {
-        for (int i = 0; i < productObjectArrayList.size(); i++) {
-            if (i != position) stockFragmentProductList.collapseGroup(i);
-        }
-    }
-
-    public void groupQuantityControl(String status) {
-        View v = stockFragmentProductList.getChildAt(groupPosition - stockFragmentProductList.getFirstVisiblePosition());
-        if (v == null) return;
-        TextView tvQuantity = v.findViewById(R.id.product_parent_list_view_item_quantity);
-        TextView tvTakenQuantity = v.findViewById(R.id.product_parent_list_view_item_taken_quantity);
-        LinearLayout takenLayout = v.findViewById(R.id.product_parent_list_view_item_taken_layout);
-
-        int availableQuantity = Integer.valueOf(productObjectArrayList.get(groupPosition).getAvailable_quantity());
-        int takenQuantity = Integer.valueOf(productObjectArrayList.get(groupPosition).getTaken_quantity());
-
-        if (status.equals("1")) {
-            availableQuantity--;
-            takenQuantity++;
-        } else {
-            if (takenQuantity > 0) {
-                availableQuantity++;
-                takenQuantity--;
+    private void closeOtherChildView(final int position) {
+        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < productObjectArrayList.size(); i++) {
+                    if (i != position) stockFragmentProductList.collapseGroup(i);
+                }
             }
-        }
-        if (takenQuantity <= 0) takenLayout.setVisibility(View.GONE);
-        else takenLayout.setVisibility(View.VISIBLE);
-
-        productObjectArrayList.get(groupPosition).setAvailable_quantity(String.valueOf(availableQuantity));
-        productObjectArrayList.get(groupPosition).setTaken_quantity(String.valueOf(takenQuantity));
-
-
-        tvQuantity.setText(" x " + String.valueOf(availableQuantity));
-        tvTakenQuantity.setText(" x " + String.valueOf(takenQuantity));
-
+        });
     }
 
 //    --------------------------------------child-------------
@@ -383,7 +466,9 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
     private void fetchChildItem(int position) {
         apiDataObjectArrayList = new ArrayList<>();
         apiDataObjectArrayList.add(new ApiDataObject("product_id", productObjectArrayList.get(position).getId()));
-        apiDataObjectArrayList.add(new ApiDataObject("customer_id", ((MainActivity) getActivity()).getCustomerID()));
+        apiDataObjectArrayList.add(new ApiDataObject("do_id", do_id));
+        apiDataObjectArrayList.add(new ApiDataObject("unavailable_list", getUnavailableID()));
+        Log.d("haha", "haha: id:: " + getUnavailableID());
         asyncTaskManager = new AsyncTaskManager(
                 getActivity(),
                 new ApiManager().stock,
@@ -443,6 +528,62 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
         return object;
     }
 
+    /*----------------------------------------------------------taken and available quantity control----------------------------------------------------*/
+
+    public void groupQuantityControl(String status) {
+        int availableQuantity = Integer.valueOf(productObjectArrayList.get(groupPosition).getAvailable_quantity());
+        int takenQuantity = Integer.valueOf(productObjectArrayList.get(groupPosition).getTaken_quantity());
+
+        if (status.equals("1")) {
+            availableQuantity--;
+            takenQuantity++;
+        } else {
+            if (takenQuantity > 0) {
+                availableQuantity++;
+                takenQuantity--;
+            }
+        }
+        productObjectArrayList.get(groupPosition).setAvailable_quantity(String.valueOf(availableQuantity));
+        productObjectArrayList.get(groupPosition).setTaken_quantity(String.valueOf(takenQuantity));
+        /*
+         * stock into stock control list
+         * */
+        checkStockControlParentItem(String.valueOf(availableQuantity), String.valueOf(takenQuantity));
+        productAdapter.setStockControlArrayList(stockControlArrayList);
+        /*
+         * for order priority purpose
+         * */
+        if (!productObjectArrayList.get(groupPosition).getTaken_quantity().equals("0"))
+            productObjectArrayList.get(groupPosition).setPriority(orderPriority--);
+        else
+            productObjectArrayList.get(groupPosition).setPriority(0);
+    }
+
+    private void checkStockControlParentItem(String availableQuantity, String takenQuantity) {
+        if (stockControlArrayList.size() > 0) {
+            boolean isFound = false;
+            for (int i = 0; i < stockControlArrayList.size(); i++) {
+                if (stockControlArrayList.get(i).getId().equals(productObjectArrayList.get(groupPosition).getId())) {
+                    stockControlArrayList.get(i).setAvailable_quantity(availableQuantity);
+                    stockControlArrayList.get(i).setTaken_quantity(takenQuantity);
+                    isFound = true;
+                    break;
+                }
+            }
+            if (!isFound) setStockControlArrayList(availableQuantity, takenQuantity);
+
+        } else {
+            setStockControlArrayList(availableQuantity, takenQuantity);
+        }
+    }
+
+    private void setStockControlArrayList(String availableQuantity, String takenQuantity) {
+        stockControlArrayList.add(new ProductDetailParentObject(
+                productObjectArrayList.get(groupPosition).getId(),
+                availableQuantity,
+                takenQuantity));
+    }
+
     private void childQuantityControl(String status) {
         int availableQuantity = Integer.valueOf(productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition).getQuantity());
         int takenQuantity = Integer.valueOf(productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition).getTakenQuantity());
@@ -458,24 +599,35 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
         }
         productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition).setQuantity(String.valueOf(availableQuantity));
         productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition).setTakenQuantity(String.valueOf(takenQuantity));
-        productAdapter.notifyDataSetChanged();
-    }
 
-    //--------------------------------------stock detail-------------------------
-    @Override
-    public void childOnClick(final int position, int groupPosition) {
-        this.childPosition = position;
-        Bundle bundle = new Bundle();
-        bundle.putString("customer_id", ((MainActivity) getActivity()).getCustomerID());
-        bundle.putString("farmer_id", productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(position).getFarmerID());
-        bundle.putString("farmer_name", productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(position).getFarmerName());
-        bundle.putString("product_id", productObjectArrayList.get(groupPosition).getId());
-        bundle.putStringArrayList("delivery_product_list_id", (ArrayList<String>) deliveryProductIDList);
+        /*
+         * stock into stock control list
+         * */
+        for (int i = 0; i < stockControlArrayList.size(); i++) {
+            if (stockControlArrayList.get(i).getId().equals(productObjectArrayList.get(groupPosition).getId())) {
+                boolean farmerIsFound = false;
 
-        dialogFragment = new AssignProductDialog();
-        dialogFragment.setArguments(bundle);
-        dialogFragment.show(getChildFragmentManager(), "");
+                for (int j = 0; j < stockControlArrayList.get(i).getProductDetailChildObjectArrayList().size(); j++) {
+                    String farmerId = stockControlArrayList.get(i).getProductDetailChildObjectArrayList().get(j).getFarmerID();
+                    if (farmerId.equals(productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition).getFarmerID())) {
+                        farmerIsFound = true;
+                        stockControlArrayList.get(i).getProductDetailChildObjectArrayList().get(j).setQuantity(String.valueOf(availableQuantity));
+                        stockControlArrayList.get(i).getProductDetailChildObjectArrayList().get(j).setTakenQuantity(String.valueOf(takenQuantity));
+                        break;
+                    }
+                }
+                if (!farmerIsFound)
+                    stockControlArrayList.get(i).getProductDetailChildObjectArrayList().add(new ProductDetailChildObject(
+                            productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition).getFarmerID(),
+                            String.valueOf(availableQuantity),
+                            String.valueOf(takenQuantity)));
 
+                productAdapter.setStockControlArrayList(stockControlArrayList);
+                break;
+            }
+        }
+
+        productAdapter.setProductDetailParentObjectArrayList(productObjectArrayList);
     }
 
     public void updateListViewQuantity(String status) {
@@ -483,29 +635,101 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
         childQuantityControl(status);
     }
 
+    /*
+     * update (unavailable id) list every time user's click on the crashed item
+     * */
+    public void updateUnavailableStockArrayList(final String selectedID, final String farmerID) {
+        try {
+            List<String> tempList = new ArrayList<>();
+            /*
+             * for checking unavailable stock's id
+             * */
+            String[] unavailableIDList = unavailableStockArrayList.get(unavailablePosition).getUnavailableID();
+            int initialLength = unavailableIDList.length;
+
+            for (int i = 0; i < unavailableIDList.length; i++) {
+                if (!unavailableIDList[i].equals(selectedID)) {
+                    tempList.add(unavailableIDList[i]);
+                }
+            }
+            unavailableIDList = tempList.toArray(new String[tempList.size()]);
+            unavailableStockArrayList.get(unavailablePosition).setUnavailableID(unavailableIDList);
+
+            if (unavailableIDList.length <= 0) {
+                unavailableStockArrayList.remove(unavailablePosition);
+                productAdapter.setUnavailableProduct(unavailableStockArrayList);
+            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
+    }
+
     /*--------------------------------------------------------assign delivery order ---------------------------------------------------------------*/
+    @Override
+    public void childOnClick(final int position, int groupPosition) {
+        this.childPosition = position;
+        this.groupPosition = groupPosition;
+        tempTakenQuantity = Integer.parseInt(productObjectArrayList.get(groupPosition).getTaken_quantity());
+        Bundle bundle = new Bundle();
+        try {
+            bundle.putString("customer_id", ((MainActivity) getActivity()).getCustomerID());
+            bundle.putString("do_id", do_id);
+            bundle.putString("farmer_id", productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(position).getFarmerID());
+            bundle.putString("farmer_name", productObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(position).getFarmerName());
+            bundle.putString("product_id", productObjectArrayList.get(groupPosition).getId());
+            bundle.putStringArrayList("delivery_product_list_id", (ArrayList<String>) deliveryProductIDList);
+            bundle.putStringArray("unavailable_list", unavailableStockArrayList.get(unavailablePosition).getUnavailableID());
+        } catch (IndexOutOfBoundsException e) {
+            Log.d("StockFragment", "Some list are null!");
+        }
+
+        dialogFragment = new AssignProductDialog();
+        dialogFragment.setArguments(bundle);
+        dialogFragment.show(getChildFragmentManager(), "");
+    }
+
     public void setDeliveryProductIDList(String id, String deliveryOrderID) {
         if (deliveryProductIDList.contains(id)) deliveryProductIDList.remove(id);
         else deliveryProductIDList.add(id);
 
-        stockFragmentAssignButton.setVisibility(deliveryProductIDList.size() > 0 ? View.VISIBLE : View.GONE);
-        this.deliveryOrderID = deliveryOrderID;
+        if (deliveryProductIDList.size() <= 0) {
+            hideBottomSheetLayout(true);
+//            //clear unavailable list when user deselect all the crash item
+//            unavailableStockArrayList.clear();
+//            productAdapter.setUnavailableProduct(unavailableStockArrayList);
+        } else hideBottomSheetLayout(false);
+
+        setDefaultDate();
     }
 
     private String getDeliveryProductID() {
         return deliveryProductIDList.toString().substring(1, deliveryProductIDList.toString().length() - 1);
     }
 
-    private void assignVegetable() {
+    private String getUnavailableID() {
+        try {
+            for (int i = 0; i < unavailableStockArrayList.size(); i++) {
+                if (unavailableStockArrayList.get(i).getId().equals(productObjectArrayList.get(groupPosition).getId())) {
+                    unavailablePosition = i;
+                    Log.d("haha", "position:  " + unavailablePosition);
+                    String unavailableID = Arrays.toString(unavailableStockArrayList.get(i).getUnavailableID());
+                    return unavailableID.substring(1, unavailableID.length() - 1);
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            return "";
+        }
+        return "";
+    }
+
+    private void checkingStockBeforeUpdate() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 apiDataObjectArrayList = new ArrayList<>();
                 apiDataObjectArrayList.add(new ApiDataObject("id", getDeliveryProductID()));
-                apiDataObjectArrayList.add(new ApiDataObject("do_id", deliveryOrderID));
-                apiDataObjectArrayList.add(new ApiDataObject("customer_id", ((MainActivity) getActivity()).getCustomerID()));
-                apiDataObjectArrayList.add(new ApiDataObject("type", productObjectArrayList.get(groupPosition).getType()));
-                Log.d("haha" ,"order: " + deliveryOrderID);
+                apiDataObjectArrayList.add(new ApiDataObject("admin_id", SharedPreferenceManager.getUserId(getActivity())));
+
                 asyncTaskManager = new AsyncTaskManager(
                         getActivity(),
                         new ApiManager().delivery,
@@ -521,16 +745,42 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
 
                     try {
                         jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+
                         if (jsonObjectLoginResponse != null) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    stockFragmentAssignButton.setVisibility(View.GONE);
-                                    deliveryProductIDList.clear();
-                                    showSnackBar("Delivery order is created!");
+                            /*
+                             * confict occur
+                             * */
+                            if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                                //close all view
+                                closeOtherChildView(-1);
+                                //reset
+                                unavailableStockArrayList.clear();
+                                //toast
+                                CustomToast(getActivity(), "Stock not found!");
+
+                                JSONArray jsonArray = jsonObjectLoginResponse.getJSONArray("unavailable_stock");
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    unavailableStockArrayList.add(new ProductDetailParentObject(
+                                            jsonArray.getJSONObject(i).getString("product_id"),
+                                            (jsonArray.getJSONObject(i).getString("id").split(",")),
+                                            (jsonArray.getJSONObject(i).getString("farmer_id").split(","))));
                                 }
-                            });
-                            Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                                /*
+                                 * show bottom sheet
+                                 * */
+                                hideBottomSheetLayout(false);
+                                productAdapter.setUnavailableProduct(unavailableStockArrayList);
+                                notifyDataSetChanged();
+                                showProgressBar(false);
+                            }
+                            /*
+                             * continue to assign vege
+                             * */
+                            else if (jsonObjectLoginResponse.getString("status").equals("2")) {
+                                assignVegetable();
+                            } else if (jsonObjectLoginResponse.getString("status").equals("3")) {
+                                checkingStockBeforeUpdate();
+                            }
                         } else {
                             CustomToast(getActivity(), "Network Error!");
                         }
@@ -540,6 +790,9 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
                     } catch (ExecutionException e) {
                         CustomToast(getActivity(), "Execution Exception!");
                         e.printStackTrace();
+                    } catch (JSONException e) {
+                        CustomToast(getActivity(), "JSON Exception!");
+                        e.printStackTrace();
                     } catch (TimeoutException e) {
                         CustomToast(getActivity(), "Connection Time Out!");
                         e.printStackTrace();
@@ -547,6 +800,70 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
                 }
             }
         }).start();
+    }
+
+    private void assignVegetable() {
+        apiDataObjectArrayList = new ArrayList<>();
+        apiDataObjectArrayList.add(new ApiDataObject("id", getDeliveryProductID()));
+        apiDataObjectArrayList.add(new ApiDataObject("do_id", do_id));
+        apiDataObjectArrayList.add(new ApiDataObject("customer_id", ((MainActivity) getActivity()).getCustomerID()));
+        apiDataObjectArrayList.add(new ApiDataObject("driver_id", defaultDriverId));
+        apiDataObjectArrayList.add(new ApiDataObject("type", productObjectArrayList.get(groupPosition).getType()));
+        apiDataObjectArrayList.add(new ApiDataObject("date", date + " " + getCurrentTime()));
+        apiDataObjectArrayList.add(new ApiDataObject("admin_id", SharedPreferenceManager.getUserId(getActivity())));
+        asyncTaskManager = new AsyncTaskManager(
+                getActivity(),
+                new ApiManager().delivery,
+                new ApiManager().getResultParameter(
+                        "",
+                        new ApiManager().setData(apiDataObjectArrayList),
+                        ""
+                )
+        );
+        asyncTaskManager.execute();
+
+        if (!asyncTaskManager.isCancelled()) {
+
+            try {
+                jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+                if (jsonObjectLoginResponse != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showSnackBar("Delivery order is created!");
+                            //fetch item (customer id = -1)
+                            resetCustomerDetail();
+                            //reset list view
+                            reset();
+                            //reset date
+                            resetDate();
+                        }
+                    });
+                    Log.d("jsonObject", "jsonObject: Assign: " + jsonObjectLoginResponse);
+                } else {
+                    CustomToast(getActivity(), "Network Error!");
+                }
+            } catch (InterruptedException e) {
+                CustomToast(getActivity(), "Interrupted Exception!");
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                CustomToast(getActivity(), "Execution Exception!");
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                CustomToast(getActivity(), "Connection Time Out!");
+                e.printStackTrace();
+            }
+        }
+        showProgressBar(false);
+    }
+
+    private void resetCustomerDetail() {
+        ((MainActivity) Objects.requireNonNull(getActivity())).setCustomerID("-1");
+        ((MainActivity) getActivity()).actionBarCustomer.setText("Select a Customer");
+    }
+
+    public void setDo_id(String do_id) {
+        this.do_id = do_id;
     }
 
     // ------------------------------------------------------sorting purpose------------------------------------------------------------------------
@@ -571,18 +888,374 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
     @Override
-    public boolean onQueryTextChange(String newText) {
+    public boolean onQueryTextChange(final String newText) {
         query = newText;
         if ((((MainActivity) Objects.requireNonNull(getActivity())).mainActivityProgressBar.getVisibility() != View.VISIBLE))
             showProgressBar(true);
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                productObjectArrayList.clear();
-                sorting();
+                fetchParentItem(query);
             }
-        }, 700);
+        }, 500);
         return false;
+    }
+
+    private void sorting() {
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                //sorting by spinner
+                switch (stockFragmentSpinner.getSelectedItemPosition()) {
+                    case 0:
+                        setParentValue(i);
+                        break;
+                    case 1:
+                        if (!jsonArray.getJSONObject(i).getString("available_quantity").equals("0"))
+                            setParentValue(i);
+                        break;
+                    case 2:
+                        if (jsonArray.getJSONObject(i).getString("available_quantity").equals("0"))
+                            setParentValue(i);
+                        break;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                productAdapter.notifyDataSetChanged();
+                showProgressBar(false);
+            }
+        }, 200);
+
+    }
+
+    public void orderByPriority() {
+        try {
+            Collections.sort(productObjectArrayList, new Comparator<ProductDetailParentObject>() {
+                @Override
+                public int compare(ProductDetailParentObject object1, ProductDetailParentObject object2) {
+                    return Integer.compare(object2.getPriority(), object1.getPriority());
+                }
+            });
+            productAdapter.notifyDataSetChanged();
+        } catch (NullPointerException e) {
+            CustomToast(getActivity(), "Failed to sorting!");
+        }
+    }
+
+    /*-------------------------------------------------------------default driver purpose---------------------------------------------------------------*/
+    private void setUpBottomSheet() {
+        //set hidden at begin
+        stockFragmentDeliveryLayout.setState(STATE_HIDDEN);
+        stockFragmentDeliveryLayout.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(View bottomSheet, int newState) {
+                // Check Logs to see how bottom sheets behaves
+                switch (newState) {
+                    case STATE_COLLAPSED:
+                        setLayoutIndicator(true);
+                        break;
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                        break;
+                    case STATE_EXPANDED:
+                        setLayoutIndicator(false);
+                        break;
+                    case STATE_HIDDEN:
+                        break;
+                    case BottomSheetBehavior.STATE_SETTLING:
+                        break;
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
+    }
+
+    private void setMargin(boolean set) {
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) stockFragmentProductList.getLayoutParams();
+        params.bottomMargin = (set ? ((MainActivity) Objects.requireNonNull(getActivity())).getActionBarHeight() : 0);
+    }
+
+    private void hideBottomSheetLayout(final boolean hide) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                stockFragmentDeliveryLayout.setHideable(hide);
+                stockFragmentDeliveryLayout.setState(hide ? BottomSheetBehavior.STATE_HIDDEN : STATE_COLLAPSED);
+                /*
+                 * set margin for list view
+                 * */
+                setMargin(!hide);
+            }
+        });
+    }
+
+    private void setLayoutIndicator(boolean collapsed) {
+        stockFragmentDefaultDriverLayoutIndicator.setImageDrawable(collapsed ? Objects.requireNonNull(getActivity()).getResources().getDrawable(R.drawable.arrow_up) : getActivity().getResources().getDrawable(R.drawable.arrow_down));
+    }
+
+    public void openDriverDialog() {
+        Bundle bundle = new Bundle();
+        bundle.putString("customer_id", ((MainActivity) getActivity()).getCustomerID());
+
+        dialogFragment = new DriverDialog();
+        dialogFragment.setArguments(bundle);
+        dialogFragment.show(getChildFragmentManager(), "");
+    }
+
+    @Override
+    public void selectedItem(String name, String id) {
+        lastDriverId = id;
+        lastDriver = name;
+        /*
+         * update DO's driver
+         * */
+        if (!do_id.equals("")) changeDriverConfirmationDialog();
+            /*
+             * simply choose the driver
+             * */
+        else {
+            defaultDriverId = id;
+            defaultDriver = name;
+            stockFragmentDefaultDriver.setText(name);
+        }
+    }
+
+    public void changeDriverConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Warning");
+        builder.setMessage("Are you sure that you want to change the driver of #DO" + setDoPlaceHolder(do_id) + "?");
+        builder.setCancelable(true);
+
+        builder.setPositiveButton(
+                "I'm Sure",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int i) {
+                        showProgressBar(true);
+                        defaultDriver = lastDriver;
+                        defaultDriverId = lastDriverId;
+                        updateDoDriver();
+                        dialog.cancel();
+                    }
+                });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void updateDoDriver() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                apiDataObjectArrayList = new ArrayList<>();
+                apiDataObjectArrayList.add(new ApiDataObject("do_id", do_id));
+                apiDataObjectArrayList.add(new ApiDataObject("driver_id", defaultDriverId));
+                apiDataObjectArrayList.add(new ApiDataObject("edit_do_driver", "1"));
+                asyncTaskManager = new AsyncTaskManager(
+                        getActivity(),
+                        new ApiManager().delivery,
+                        new ApiManager().getResultParameter(
+                                "",
+                                new ApiManager().setData(apiDataObjectArrayList),
+                                ""
+                        )
+                );
+                asyncTaskManager.execute();
+
+                if (!asyncTaskManager.isCancelled()) {
+
+                    try {
+                        jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+
+                        if (jsonObjectLoginResponse != null) {
+                            Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                            if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                                Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        showSnackBar("Update Successfully");
+                                        stockFragmentDefaultDriver.setText(defaultDriver);
+                                    }
+                                });
+                            }
+                        } else {
+                            CustomToast(getActivity(), "Network Error!");
+                        }
+                    } catch (InterruptedException e) {
+                        CustomToast(getActivity(), "Interrupted Exception!");
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        CustomToast(getActivity(), "Execution Exception!");
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        CustomToast(getActivity(), "JSON Exception!");
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        CustomToast(getActivity(), "Connection Time Out!");
+                        e.printStackTrace();
+                    }
+                }
+                showProgressBar(false);
+            }
+        }).start();
+    }
+
+    /*--------------------------------------------------------date purpose------------------------------------------------------------------------------*/
+    private void setDefaultDate() {
+        //this will be only called once when the date layout is in (GONE state)
+        if (stockFragmentDateLayout.getVisibility() == View.GONE) {
+            new AnimationUtility().fadeInVisible(getActivity(), stockFragmentDateLayout);
+            date = date.equals("") ? (String) android.text.format.DateFormat.format("yyyy-MM-dd", new java.util.Date()) : date;
+            stockFragmentDate.setText(isToday(date));
+        }
+    }
+
+    private String isToday(String date) {
+        return date.contentEquals(android.text.format.DateFormat.format("yyyy-MM-dd", new java.util.Date())) ? "Today" : date;
+    }
+
+    private String getCurrentTime() {
+        return String.valueOf(android.text.format.DateFormat.format("HH:mm:ss", new java.util.Date()));
+    }
+
+    private void openDatePicker() {
+        final Calendar c = Calendar.getInstance();
+        int mYear = c.get(Calendar.YEAR);
+        int mMonth = c.get(Calendar.MONTH);
+        int mDay = c.get(Calendar.DAY_OF_MONTH);
+
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
+                new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        lastDate = String.format(Locale.getDefault(), "%d-%02d-%02d", year, (monthOfYear + 1), dayOfMonth);
+                        /*
+                         * if do_id != null mean that the DO is created update date is performed here
+                         * */
+                        if (!do_id.equals("")) changeDateConfirmationDialog();
+                            /*
+                             * set date otherwise
+                             * */
+                        else {
+                            date = String.format(Locale.getDefault(), "%d-%02d-%02d", year, (monthOfYear + 1), dayOfMonth);
+                            stockFragmentDate.setText(date);
+                        }
+                    }
+                }, mYear, mMonth, mDay);
+        datePickerDialog.getDatePicker().setMaxDate(c.getTimeInMillis());
+        datePickerDialog.show();
+    }
+
+    public void resetDate() {
+        stockFragmentDateLayout.setVisibility(View.GONE);
+        do_id = date = lastDate = "";
+    }
+
+    public void changeDateConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Warning");
+        builder.setMessage("This will change all the item's date in #DO" + setDoPlaceHolder(do_id) + "\n Do you want to proceed?");
+        builder.setCancelable(true);
+
+        builder.setPositiveButton(
+                "Proceed",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int i) {
+                        showProgressBar(true);
+                        date = lastDate;
+                        updateDoDate();
+                        dialog.cancel();
+                    }
+                });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private String setDoPlaceHolder(String do_id) {
+        StringBuilder do_idBuilder = new StringBuilder(do_id);
+        for (int i = do_idBuilder.length(); i < 5; i++) {
+            do_idBuilder.insert(0, "0");
+        }
+        return do_idBuilder.toString();
+    }
+
+    private void updateDoDate() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                apiDataObjectArrayList = new ArrayList<>();
+                apiDataObjectArrayList.add(new ApiDataObject("do_id", do_id));
+                apiDataObjectArrayList.add(new ApiDataObject("date", date + " " + getCurrentTime()));
+                apiDataObjectArrayList.add(new ApiDataObject("edit_do_date", "1"));
+
+                asyncTaskManager = new AsyncTaskManager(
+                        getActivity(),
+                        new ApiManager().delivery,
+                        new ApiManager().getResultParameter(
+                                "",
+                                new ApiManager().setData(apiDataObjectArrayList),
+                                ""
+                        )
+                );
+                asyncTaskManager.execute();
+
+                if (!asyncTaskManager.isCancelled()) {
+
+                    try {
+                        jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+
+                        if (jsonObjectLoginResponse != null) {
+                            Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                            if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                                Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        showSnackBar("Update Successfully");
+                                        stockFragmentDate.setText(date);
+                                    }
+                                });
+                            }
+                        } else {
+                            CustomToast(getActivity(), "Network Error!");
+                        }
+                    } catch (InterruptedException e) {
+                        CustomToast(getActivity(), "Interrupted Exception!");
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        CustomToast(getActivity(), "Execution Exception!");
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        CustomToast(getActivity(), "JSON Exception!");
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        CustomToast(getActivity(), "Connection Time Out!");
+                        e.printStackTrace();
+                    }
+                }
+                showProgressBar(false);
+            }
+        }).start();
     }
 
     /*------------------------------------------------------------fragment default setting-------------------------------------------------------------*/
@@ -610,9 +1283,22 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
         mListener = null;
     }
 
+    @Override
+    public void onScrollStateChanged(AbsListView absListView, int i) {
+
+    }
+
+    @Override
+    public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+        if (stockFragmentProductList.getChildAt(0) != null) {
+            stockFragmentRefreshLayout.setEnabled(stockFragmentProductList.getFirstVisiblePosition() == 0 && stockFragmentProductList.getChildAt(0).getTop() == 0);
+        }
+    }
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+
     }
 
     /*--------------------------------------------------------------other------------------------------------------------------------------------*/
@@ -631,10 +1317,51 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
         ((MainActivity) Objects.requireNonNull(getActivity())).showProgressBar(show);
     }
 
+    private void notifyDataSetChanged() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                productAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
     @Override
     public void onRefresh() {
-        reset();
+        if (deliveryProductIDList.size() > 0 || !do_id.equals("")) {
+            refreshConfirmationDialog();
+        } else {
+            resetCustomerDetail();
+            reset();
+            resetDate();
+        }
         stockFragmentRefreshLayout.setRefreshing(false);
     }
 
+    public void refreshConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Notice");
+        builder.setMessage(do_id.equals("") ? "All selected item will be clear once you refresh!" : "Stop doing update?");
+        builder.setCancelable(true);
+
+        builder.setPositiveButton(
+                "Confirm",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int i) {
+                        do_id = date = lastDate = "";
+                        deliveryProductIDList.clear();
+                        onRefresh();
+                        dialog.cancel();
+                    }
+                });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 }

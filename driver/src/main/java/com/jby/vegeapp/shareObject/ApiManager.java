@@ -7,7 +7,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class ApiManager {
-    private static String domain = "http://www.chafor.net/";
+//    private static String domain = "http://www.chafor.net/";
+    private static String domain = "http://www.yofu.my/";
     private static String prefix = "vegetable/";
     private static String sub_prefix = "driver/";
 
@@ -18,7 +19,9 @@ public class ApiManager {
     public String delivery_remark = domain + prefix + sub_prefix + "vege_management/remark.php";
     public String basket = domain + prefix + sub_prefix + "vege_management/basket.php";
 
-    public String history = domain + prefix + sub_prefix + "history/history.php";
+    public String basket_history = domain + prefix + sub_prefix + "history/history.php";
+    public String pick_up_history = domain + prefix + sub_prefix + "history/pick_up_history.php";
+    public String deliver_history = domain + prefix + sub_prefix + "history/delivery_history.php";
 
     public String farmer = domain + prefix + "farmer/farmer.php";
     public String product = domain + prefix + "product/product.php";

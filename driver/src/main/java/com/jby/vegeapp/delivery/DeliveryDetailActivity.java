@@ -20,6 +20,8 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -29,16 +31,17 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.jby.vegeapp.R;
-import com.jby.vegeapp.adapter.DeliveryExpandableAdapter;
+import com.jby.vegeapp.adapter.delivery.DeliveryExpandableAdapter;
 import com.jby.vegeapp.delivery.dialog.DelivertProductListDialog;
 import com.jby.vegeapp.object.CustomerObject;
-import com.jby.vegeapp.object.ProductChildObject;
-import com.jby.vegeapp.object.ProductParentObject;
+import com.jby.vegeapp.object.product.ProductChildObject;
+import com.jby.vegeapp.object.product.ProductParentObject;
 import com.jby.vegeapp.others.NetworkConnection;
 import com.jby.vegeapp.others.NonScrollExpandableListView;
 import com.jby.vegeapp.shareObject.ApiDataObject;
 import com.jby.vegeapp.shareObject.ApiManager;
 import com.jby.vegeapp.shareObject.AsyncTaskManager;
+import com.jby.vegeapp.sharePreference.SharedPreferenceManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,15 +56,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.jby.vegeapp.Utils.VariableUtils.REFRESH_AVAILABLE_QUANTITY;
 import static com.jby.vegeapp.shareObject.CustomToast.CustomToast;
-import static com.jby.vegeapp.shareObject.VariableUtils.MY_PERMISSIONS_REQUEST_PHONE_CALL;
-import static com.jby.vegeapp.shareObject.VariableUtils.UPDATE_LIST;
+import static com.jby.vegeapp.Utils.VariableUtils.MY_PERMISSIONS_REQUEST_PHONE_CALL;
+import static com.jby.vegeapp.Utils.VariableUtils.UPDATE_LIST;
 
 public class DeliveryDetailActivity extends AppCompatActivity implements DeliveryExpandableAdapter.ProductExpandableAdapterCallBack,
-        ExpandableListView.OnChildClickListener {
+        ExpandableListView.OnChildClickListener, View.OnClickListener {
     private NonScrollExpandableListView deliveryDetailActivityListView;
     private DeliveryExpandableAdapter deliveryDetailExpandableAdapter;
     private ArrayList<ProductParentObject> productObjectArrayList;
+    private Button deliveryDetailCompleteButton;
     private Toolbar toolbar;
     //farmer detail
     private CardView deliveryDetailActivityCustomerLayout, deliveryDetailActivityProductLayout;
@@ -76,10 +81,16 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
     private ProgressBar progressBar;
 
     private CustomerObject customerObject;
+    private String do_id = "";
     //    asyncTask
     AsyncTaskManager asyncTaskManager;
     JSONObject jsonObjectLoginResponse;
     ArrayList<ApiDataObject> apiDataObjectArrayList;
+    /*
+     * basket purpose
+     * */
+    private EditText deliveryDetailActivityBasketQuantity;
+    private ImageView deliveryDetailActivityPlusButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,10 +110,14 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
         noInternetConnectionLayout = findViewById(R.id.no_connection_layout);
         //progress bar
         progressBar = findViewById(R.id.progress_bar);
+        //basket
+        deliveryDetailActivityBasketQuantity = findViewById(R.id.activity_delivery_detail_quantity);
+        deliveryDetailActivityPlusButton = findViewById(R.id.activity_delivery_detail_plus_button);
 
         deliveryDetailActivityListView = findViewById(R.id.activity_delivery_detail_list);
         deliveryDetailActivityCustomerLayout = findViewById(R.id.activity_delivery_detail_customer_detail_layout);
         deliveryDetailActivityProductLayout = findViewById(R.id.activity_delivery_detail_item_detail_layout);
+        deliveryDetailCompleteButton = findViewById(R.id.activity_delivery_detail_complete_button);
 
         deliveryDetailActivityCustomer = findViewById(R.id.activity_delivery_detail_customer);
         deliveryDetailActivityCustomerAddress = findViewById(R.id.activity_delivery_detail_customer_address);
@@ -116,7 +131,13 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
     private void objectSetting() {
         deliveryDetailActivityListView.setAdapter(deliveryDetailExpandableAdapter);
         deliveryDetailActivityListView.setOnChildClickListener(this);
+
+        deliveryDetailActivityPlusButton.setOnClickListener(this);
+        deliveryDetailCompleteButton.setOnClickListener(this);
+        deliveryDetailActivityBasketQuantity.append("0");
+
         if (getIntent().getExtras() != null) {
+            do_id = getIntent().getExtras().getString("do_id");
             customerObject = (CustomerObject) getIntent().getExtras().getSerializable("customer");
             deliveryDetailActivityCustomerAddress.setText(customerObject.getAddress());
             deliveryDetailActivityCustomerPhone.setText(customerObject.getPhone());
@@ -127,6 +148,7 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
         setupNotFoundLayout();
         checkInternetConnection(null);
     }
+
 
     private void setupActionBar() {
         setSupportActionBar(toolbar);
@@ -240,13 +262,45 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
                 }
                 // if the same date(group view) is added then add the child item
                 else {
-                    productObjectArrayList.get(position).getProductChildObjectArrayList().add(setChildObject(jsonArray.getJSONObject(i)));
+                    /*
+                     * check same farmer is existed within one product or not
+                     * */
+                    int childPosition = -1;
+                    String farmer = jsonArray.getJSONObject(i).getString("farmer");
+                    for (int j = 0; j < productObjectArrayList.get(position).getProductChildObjectArrayList().size(); j++) {
+                        if (productObjectArrayList.get(position).getProductChildObjectArrayList().get(j).getFarmer().equals(farmer)) {
+                            childPosition = j;
+                            //stop looping
+                            break;
+                        }
+                    }
+                    //create new child
+                    if (childPosition == -1)
+                        productObjectArrayList.get(position).getProductChildObjectArrayList().add(setChildObject(jsonArray.getJSONObject(i)));
+                        //if exist then add weight into the same farmer within one product,
+                    else {
+                        productObjectArrayList.get(position).getProductChildObjectArrayList().get(childPosition).joinAllWeight(multipleWeight(jsonArray.getJSONObject(i).getString("weight"), jsonArray.getJSONObject(i).getString("total_quantity")));
+                        productObjectArrayList.get(position).getProductChildObjectArrayList().get(childPosition).totalQuantity(jsonArray.getJSONObject(i).getString("total_quantity"));
+                    }
+                    productObjectArrayList.get(position).setQuantity(countParentTotalQuantity(position));
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
         notifyDataSetChanged();
+    }
+
+    private String multipleWeight(String weight, String totalQuantity) {
+        return weight + "x" + totalQuantity;
+    }
+
+    private String countParentTotalQuantity(int position) {
+        int totalQuantity = 0;
+        for (int k = 0; k < productObjectArrayList.get(position).getProductChildObjectArrayList().size(); k++) {
+            totalQuantity = totalQuantity + Integer.valueOf(productObjectArrayList.get(position).getProductChildObjectArrayList().get(k).getQuantity());
+        }
+        return String.valueOf(totalQuantity);
     }
 
     private void setVisibility() {
@@ -280,10 +334,10 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
         try {
             transactionChildObjectArrayList.add(new ProductChildObject(
                     jsonObject.getString("id"),
-                    jsonObject.getString("weight"),
+                    multipleWeight(jsonObject.getString("weight"), jsonObject.getString("total_quantity")),
                     jsonObject.getString("total_quantity"),
                     jsonObject.getString("farmer"),
-                    "deliver"));
+                    jsonObject.getString("farmer_id")));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -293,13 +347,14 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
 
     private ProductChildObject setChildObject(JSONObject jsonObject) {
         ProductChildObject object = null;
+
         try {
             object = new ProductChildObject(
                     jsonObject.getString("id"),
-                    jsonObject.getString("weight"),
+                    multipleWeight(jsonObject.getString("weight"), jsonObject.getString("total_quantity")),
                     jsonObject.getString("total_quantity"),
                     jsonObject.getString("farmer"),
-                    "deliver");
+                    jsonObject.getString("farmer_id"));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -312,9 +367,9 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
         Bundle bundle = new Bundle();
         bundle.putString("product", productObjectArrayList.get(i).getName());
         bundle.putString("farmer", productObjectArrayList.get(i).getProductChildObjectArrayList().get(j).getFarmer());
+        bundle.putString("farmer_id", productObjectArrayList.get(i).getProductChildObjectArrayList().get(j).getFarmer_id());
         bundle.putString("product_id", productObjectArrayList.get(i).getId());
         bundle.putString("product_pic", productObjectArrayList.get(i).getPicture());
-        bundle.putString("weight", productObjectArrayList.get(i).getProductChildObjectArrayList().get(j).getWeight());
         bundle.putString("customer_id", customerObject.getId());
 
         DialogFragment dialogFragment = new DelivertProductListDialog();
@@ -334,7 +389,17 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
                 "Confirm",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int i) {
-                        missionComplete();
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showProgressBar(true);
+                                //update delivery status
+                                missionComplete();
+                                //basket purpose
+                                if (!deliveryDetailActivityBasketQuantity.getText().toString().trim().equals("0") || !deliveryDetailActivityBasketQuantity.getText().toString().trim().equals(""))
+                                    receiveBasket();
+                            }
+                        }).start();
                         dialog.cancel();
                     }
                 });
@@ -350,58 +415,55 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
     }
 
     private void missionComplete() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                apiDataObjectArrayList = new ArrayList<>();
-                apiDataObjectArrayList.add(new ApiDataObject("customer_id", customerObject.getId()));
-                apiDataObjectArrayList.add(new ApiDataObject("complete", "1"));
-                asyncTaskManager = new AsyncTaskManager(
-                        getApplicationContext(),
-                        new ApiManager().deliver,
-                        new ApiManager().getResultParameter(
-                                "",
-                                new ApiManager().setData(apiDataObjectArrayList),
-                                ""
-                        )
-                );
-                asyncTaskManager.execute();
+        apiDataObjectArrayList = new ArrayList<>();
+        apiDataObjectArrayList.add(new ApiDataObject("customer_id", customerObject.getId()));
+        apiDataObjectArrayList.add(new ApiDataObject("do_id", do_id));
+        apiDataObjectArrayList.add(new ApiDataObject("complete", "1"));
+        asyncTaskManager = new AsyncTaskManager(
+                getApplicationContext(),
+                new ApiManager().deliver,
+                new ApiManager().getResultParameter(
+                        "",
+                        new ApiManager().setData(apiDataObjectArrayList),
+                        ""
+                )
+        );
+        asyncTaskManager.execute();
 
-                if (!asyncTaskManager.isCancelled()) {
+        if (!asyncTaskManager.isCancelled()) {
 
-                    try {
-                        jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+            try {
+                jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
 
-                        if (jsonObjectLoginResponse != null) {
-                            if (jsonObjectLoginResponse.getString("status").equals("1")) {
-                                CustomToast(getApplicationContext(), "Delivery Successfully!");
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        onBackPressed();
-                                    }
-                                });
+                if (jsonObjectLoginResponse != null) {
+                    if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                        CustomToast(getApplicationContext(), "Delivery Successfully!");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showProgressBar(false);
+                                onBackPressed();
                             }
-                        } else {
-                            CustomToast(getApplicationContext(), "Network Error!");
-                        }
-
-                    } catch (InterruptedException e) {
-                        CustomToast(getApplicationContext(), "Interrupted Exception!");
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        CustomToast(getApplicationContext(), "Execution Exception!");
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        CustomToast(getApplicationContext(), "JSON Exception!");
-                        e.printStackTrace();
-                    } catch (TimeoutException e) {
-                        CustomToast(getApplicationContext(), "Connection Time Out!");
-                        e.printStackTrace();
+                        });
                     }
+                } else {
+                    CustomToast(getApplicationContext(), "Network Error!");
                 }
+
+            } catch (InterruptedException e) {
+                CustomToast(getApplicationContext(), "Interrupted Exception!");
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                CustomToast(getApplicationContext(), "Execution Exception!");
+                e.printStackTrace();
+            } catch (JSONException e) {
+                CustomToast(getApplicationContext(), "JSON Exception!");
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                CustomToast(getApplicationContext(), "Connection Time Out!");
+                e.printStackTrace();
             }
-        }).start();
+        }
     }
 
     /*-------------------------------------------------------------navigation purpose----------------------------------------------------------------------*/
@@ -521,6 +583,55 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
         }
     }
 
+    /*--------------------------------------------------------------basket purpose-----------------------------------------------------------------------------*/
+    private void receiveBasket() {
+        //type 6 == customer return basket to driver
+        String type = "6";
+        apiDataObjectArrayList = new ArrayList<>();
+        apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(getApplicationContext())));
+        apiDataObjectArrayList.add(new ApiDataObject("farmer_id", "0"));
+        apiDataObjectArrayList.add(new ApiDataObject("customer_id", customerObject.getId()));
+        apiDataObjectArrayList.add(new ApiDataObject("quantity", deliveryDetailActivityBasketQuantity.getText().toString().trim()));
+        apiDataObjectArrayList.add(new ApiDataObject("type", type));
+
+        asyncTaskManager = new AsyncTaskManager(
+                getApplicationContext(),
+                new ApiManager().basket,
+                new ApiManager().getResultParameter(
+                        "",
+                        new ApiManager().setData(apiDataObjectArrayList),
+                        ""
+                )
+        );
+        asyncTaskManager.execute();
+
+        if (!asyncTaskManager.isCancelled()) {
+
+            try {
+                jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+
+                if (jsonObjectLoginResponse != null) {
+                    Log.d("jsonObject", "basket jsonObject: " + jsonObjectLoginResponse);
+                    if (!jsonObjectLoginResponse.getString("status").equals("1")) {
+                        CustomToast(getApplicationContext(), "Network Error!");
+                    }
+                }
+            } catch (InterruptedException e) {
+                CustomToast(getApplicationContext(), "Interrupted Exception!");
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                CustomToast(getApplicationContext(), "Execution Exception!");
+                e.printStackTrace();
+            } catch (JSONException e) {
+                CustomToast(getApplicationContext(), "JSON Exception!");
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                CustomToast(getApplicationContext(), "Connection Time Out!");
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     public void openProductDetail() {
 
@@ -542,4 +653,39 @@ public class DeliveryDetailActivity extends AppCompatActivity implements Deliver
         });
         snackbar.show();
     }
+
+
+    public void showProgressBar(final boolean show) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.activity_delivery_detail_plus_button:
+                setQuantity();
+                break;
+            case R.id.activity_delivery_detail_complete_button:
+                confirmationDialog(view);
+                break;
+        }
+
+    }
+
+    private void setQuantity() {
+        if (deliveryDetailActivityBasketQuantity.getText().toString().trim().equals(""))
+            deliveryDetailActivityBasketQuantity.setText("0");
+
+        int quantity = Integer.valueOf(deliveryDetailActivityBasketQuantity.getText().toString().trim());
+        quantity++;
+
+        deliveryDetailActivityBasketQuantity.setText("");
+        deliveryDetailActivityBasketQuantity.append(String.valueOf(quantity));
+    }
+
 }

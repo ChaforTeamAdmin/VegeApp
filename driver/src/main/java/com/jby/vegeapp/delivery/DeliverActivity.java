@@ -7,15 +7,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jby.vegeapp.R;
-import com.jby.vegeapp.adapter.DeliveryCustomerAdapter;
+import com.jby.vegeapp.adapter.delivery.DeliveryCustomerAdapter;
 import com.jby.vegeapp.object.CustomerObject;
 import com.jby.vegeapp.others.ExpandableHeightListView;
 import com.jby.vegeapp.others.NetworkConnection;
@@ -34,8 +32,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.jby.vegeapp.Utils.VariableUtils.REFRESH_AVAILABLE_QUANTITY;
 import static com.jby.vegeapp.shareObject.CustomToast.CustomToast;
-import static com.jby.vegeapp.shareObject.VariableUtils.UPDATE_LIST;
+import static com.jby.vegeapp.Utils.VariableUtils.UPDATE_LIST;
 
 public class DeliverActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private ExpandableHeightListView activityDeliverListView;
@@ -211,17 +210,26 @@ public class DeliverActivity extends AppCompatActivity implements AdapterView.On
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Bundle bundle = new Bundle();
         bundle.putSerializable("customer", customerObjectArrayList.get(i));
+        bundle.putString("do_id", customerObjectArrayList.get(i).getDo_id());
         startActivityForResult(new Intent(this, DeliveryDetailActivity.class).putExtras(bundle), UPDATE_LIST);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == UPDATE_LIST) refresh();
+        if (resultCode == UPDATE_LIST) refresh();
     }
 
-    private void refresh(){
+    private void refresh() {
         customerObjectArrayList.clear();
         fetchAllCustomerOrder();
+    }
+
+    @Override
+    public void onBackPressed() {
+        //for update available basket quantity in home activity
+        setResult(REFRESH_AVAILABLE_QUANTITY);
+        super.onBackPressed();
+
     }
 }

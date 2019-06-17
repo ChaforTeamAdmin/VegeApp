@@ -3,14 +3,9 @@
     android:layout_width="match_parent"
     android:orientation="vertical"
     android:background="@color/transparent_black"
-    android:gravity="center"
+    android:gravity="center_horizontal"
     android:padding="20dp"
     android:layout_height="match_parent">
-
-    <include
-        layout="@layout/progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -55,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:inputType="phone"
+            android:inputType="numberDecimal"
             android:visibility="gone"
             android:textColor="@color/black"
             android:gravity="start"
@@ -88,6 +83,17 @@
             android:fontFamily="@string/font_family_condensed"
             android:padding="5dp"
             android:text="If any changes please contact with administrator"/>
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateBehavior="repeat"
+            android:layout_gravity="center"
+            android:id="@+id/progress_bar"
+            android:visibility="gone"
+            android:padding="15dp"
+            android:indeterminateTintMode="src_in"
+            android:indeterminateTint="@color/red"/>
 
     </LinearLayout>
 

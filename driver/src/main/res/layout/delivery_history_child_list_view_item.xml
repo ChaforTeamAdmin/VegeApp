@@ -90,7 +90,7 @@
                 android:textColor="@color/blue"
                 android:layout_alignParentEnd="true"
                 android:id="@+id/delivery_history_child_list_view_item_edit"
-                android:text="Edit"/>
+                android:text="Click to view detail"/>
             
         </RelativeLayout>
 

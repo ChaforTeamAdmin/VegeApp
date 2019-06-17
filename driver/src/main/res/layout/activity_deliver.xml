@@ -32,8 +32,7 @@
             <com.jby.vegeapp.others.ExpandableHeightListView
                 android:id="@+id/activity_deliver_list_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/action_bar" />
+                android:layout_height="wrap_content" />
 
             <include
                 layout="@layout/no_internet_connection"

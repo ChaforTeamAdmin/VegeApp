@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent_black"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include
+                layout="@layout/progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <android.support.v7.widget.SearchView
+                android:id="@+id/basket_detail_dialog_search"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize" />
+
+            <Spinner
+                android:id="@+id/basket_detail_dialog_sort"
+                android:layout_width="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_below="@id/basket_detail_dialog_search"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/basket_detail_dialog_product_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/basket_detail_dialog_sort"
+                android:scrollbars="vertical" />
+
+            <include
+                layout="@layout/progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="16sp"
+                android:visibility="gone"
+                android:id="@+id/basket_detail_dialog_not_found"
+                android:textColor="@color/grey" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>
+

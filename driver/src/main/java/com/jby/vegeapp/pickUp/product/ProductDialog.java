@@ -11,22 +11,20 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.jby.vegeapp.R;
-import com.jby.vegeapp.adapter.ProductAdapter;
-import com.jby.vegeapp.object.ProductObject;
-import com.jby.vegeapp.others.ExpandableHeightListView;
+import com.jby.vegeapp.adapter.pick_up.ProductAdapter;
+import com.jby.vegeapp.object.product.ProductObject;
+import com.jby.vegeapp.others.SwipeDismissTouchListener;
 import com.jby.vegeapp.others.recycleview.GridSpacingItemDecoration;
 import com.jby.vegeapp.others.recycleview.RecyclerTouchListener;
 import com.jby.vegeapp.shareObject.ApiDataObject;
@@ -84,12 +82,30 @@ public class ProductDialog extends DialogFragment implements SearchView.OnQueryT
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Dialog d = getDialog();
+        Objects.requireNonNull(d.getWindow()).getDecorView().setOnTouchListener(new SwipeDismissTouchListener(d.getWindow().getDecorView(), null,
+                new SwipeDismissTouchListener.DismissCallbacks() {
+                    @Override
+                    public boolean canDismiss(Object token) {
+                        return true;
+                    }
+
+                    @Override
+                    public void onDismiss(View view, Object token) {
+                        dismiss();
+                    }
+                }));
+    }
+
     private void objectInitialize() {
         productDialogCallBack = (ProductDialogCallBack) getActivity();
 
         productDialogProductList = rootView.findViewById(R.id.product_dialog_product_list);
         productDialogSearch = rootView.findViewById(R.id.product_dialog_search);
-        productDialogProgressBar = rootView.findViewById(R.id.product_dialog_progerss_bar);
+        productDialogProgressBar = rootView.findViewById(R.id.progress_bar);
 
         productObjectArrayList = new ArrayList<>();
         productAdapter = new ProductAdapter(getActivity(), productObjectArrayList, this);

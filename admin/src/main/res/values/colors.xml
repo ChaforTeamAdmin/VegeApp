@@ -8,6 +8,7 @@
     <color name="tranparent_white">#80ffffff</color>
     <color name="blue">#016AFB</color>
     <color name="red">#f51d18</color>
+    <color name="light_red">#99FD0905</color>
     <color name="google_color">#D6492F</color>
     <color name="transparent">#00000000</color>
     <color name="transparent_black">#80000000</color>
@@ -21,4 +22,9 @@
     <color name="tiffany_blue">#00CB99</color>
     <color name="action_bar_color">#344C56</color>
     <color name="edit_text_background">#E6E6E6</color>
+    <color name="selected_color">#E2E4FF</color>
+    <color name="purple">#A12EB7</color>
+    <color name="sky_blue">#04B9D2</color>
+    <color name="peach">#C78E7A</color>
+
 </resources>

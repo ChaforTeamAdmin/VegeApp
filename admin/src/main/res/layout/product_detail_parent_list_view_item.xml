@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <android.support.v7.widget.CardView
         android:id="@+id/product_parent_list_view_item_parent_layout"
@@ -33,17 +33,36 @@
                 android:layout_weight="2"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/product_parent_list_view_item_name"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:padding="5dp"
-                    android:text="Vegetable 1"
-                    android:textColor="@color/grey"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/product_parent_list_view_item_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:padding="5dp"
+                        android:text="Vegetable 1"
+                        android:textColor="@color/grey"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/product_parent_list_view_item_code"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:gravity="end|top"
+                        android:maxLines="1"
+                        android:padding="5dp"
+                        android:text="Vegetable 1"
+                        android:textColor="@color/transparent_black"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -52,12 +71,12 @@
                     android:orientation="horizontal">
 
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:id="@+id/product_parent_list_view_item_status_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
                         android:layout_gravity="start"
-                        android:orientation="horizontal"
-                        android:layout_height="match_parent">
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
 
                         <TextView
                             android:id="@+id/product_parent_list_view_item_status"
@@ -88,12 +107,12 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/product_parent_list_view_item_taken_layout"
                         android:layout_width="0dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="end"
-                        android:id="@+id/product_parent_list_view_item_taken_layout"
-                        android:orientation="horizontal"
-                        android:layout_height="match_parent">
+                        android:orientation="horizontal">
 
                         <TextView
                             android:id="@+id/product_parent_list_view_item_label_taken"

@@ -28,17 +28,14 @@ public class AsyncTaskManager extends AsyncTask<String, String, JSONObject> {
 //        System.out.println("on pre execute");
         super.onPreExecute();
 
-        if(NetworkUtils.getConnectivityStatus(this.context) == NetworkUtils.TYPE_NOT_CONNECTED)
+        if (NetworkUtils.getConnectivityStatus(this.context) == NetworkUtils.TYPE_NOT_CONNECTED)
             cancel(true);
     }
 
     @Override
     protected JSONObject doInBackground(String... params) {
-//        System.out.println("on doInBackground execute");
-
-        JSONObject JSONObjectResponse = new JSONParser().getJSONFromUrl(this.url, this.dataPost);
-//        Log.i("JSONObjectResponse", JSONObjectResponse.toString());
-        return JSONObjectResponse;
+        //        Log.i("JSONObjectResponse", JSONObjectResponse.toString());
+        return new JSONParser().getJSONFromUrl(this.url, this.dataPost);
     }
 
     @Override
@@ -50,7 +47,6 @@ public class AsyncTaskManager extends AsyncTask<String, String, JSONObject> {
     @Override
     protected void onCancelled(JSONObject jsonObject) {
         super.onCancelled(jsonObject);
-
         Toast.makeText(this.context, "Please Connect To A Network", Toast.LENGTH_SHORT).show();
         Log.i("AsyncTask Cancel", "Connection Timeout");
     }

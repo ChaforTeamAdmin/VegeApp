@@ -10,13 +10,16 @@ public class KeyboardHelper {
 
         InputMethodManager imm = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
+        assert imm != null;
         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
     }
 
 
     public static void openSoftKeyboard(Context context, EditText editText) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+//        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+        assert imm != null;
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
     }
 
 }

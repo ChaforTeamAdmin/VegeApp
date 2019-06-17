@@ -23,6 +23,7 @@ import com.jby.admin.database.FrameworkClass;
 import com.jby.admin.database.ResultCallBack;
 import com.jby.admin.object.DriverObject;
 import com.jby.admin.others.ExpandableHeightListView;
+import com.jby.admin.others.SwipeDismissTouchListener;
 import com.jby.admin.shareObject.ApiDataObject;
 import com.jby.admin.shareObject.ApiManager;
 import com.jby.admin.shareObject.AsyncTaskManager;
@@ -41,13 +42,13 @@ import static com.jby.admin.database.CustomSqliteHelper.TB_DEFAULT_DRIVER;
 
 
 public class DriverDialog extends DialogFragment implements SearchView.OnQueryTextListener, AdapterView.OnItemClickListener,
-        ResultCallBack{
+        ResultCallBack {
     View rootView;
     private SearchView driverDialogSearch;
     private ExpandableHeightListView driverList;
     private ArrayList<DriverObject> driverObjectArrayList;
     private DriverAdapter driverAdapter;
-    private TextView dr;
+    private String customerID = "";
     //favourite list
     private TextView drivDialogLabelFavouriteFarmer;
     private ExpandableHeightListView favouriteFarmerList;
@@ -106,26 +107,23 @@ public class DriverDialog extends DialogFragment implements SearchView.OnQueryTe
         favouriteFarmerList.setOnItemClickListener(this);
 
         frameworkClass = new FrameworkClass(getActivity(), this, new CustomSqliteHelper(getActivity()), TB_DEFAULT_DRIVER);
-        Bundle bundle = getArguments();
-        if(bundle != null){
-            final String farmerId = bundle.getString("farmer_id");
-            final String productId = bundle.getString("product_id");
-
+        final Bundle bundle = getArguments();
+        if (bundle != null) {
+            customerID = bundle.getString("customer_id");
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    fetchAllFarmer();
-
                     frameworkClass.new Read("*")
-                            .where("customer_id = " + farmerId + " AND " + "product_id = " + productId)
+                            .where("customer_id = " + customerID)
                             .orderByDesc("id")
                             .perform();
                 }
-            },200);
+            }, 200);
         }
+        fetchDriver();
     }
 
-    private void fetchAllFarmer(){
+    private void fetchDriver() {
         apiDataObjectArrayList = new ArrayList<>();
         apiDataObjectArrayList.add(new ApiDataObject("fetch", "1"));
 
@@ -146,19 +144,17 @@ public class DriverDialog extends DialogFragment implements SearchView.OnQueryTe
                 jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
 
                 if (jsonObjectLoginResponse != null) {
-                    Log.d("jsonObject", "jsonObject: " +  jsonObjectLoginResponse);
-                    if(jsonObjectLoginResponse.getString("status").equals("1")){
+                    Log.d("jsonObject", "jsonObject: haha " + jsonObjectLoginResponse);
+                    if (jsonObjectLoginResponse.getString("status").equals("1")) {
                         JSONArray jsonArray = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("driver");
-                        for(int i = 0; i < jsonArray.length(); i++)
-                        {
+                        for (int i = 0; i < jsonArray.length(); i++) {
                             driverObjectArrayList.add(new DriverObject(
                                     jsonArray.getJSONObject(i).getString("id"),
                                     jsonArray.getJSONObject(i).getString("name"),
                                     jsonArray.getJSONObject(i).getString("phone")));
                         }
                     }
-                }
-                else {
+                } else {
                     Toast.makeText(getActivity(), "Network Error!", Toast.LENGTH_SHORT).show();
                 }
 
@@ -193,6 +189,24 @@ public class DriverDialog extends DialogFragment implements SearchView.OnQueryTe
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Dialog d = getDialog();
+        Objects.requireNonNull(d.getWindow()).getDecorView().setOnTouchListener(new SwipeDismissTouchListener(d.getWindow().getDecorView(), null,
+                new SwipeDismissTouchListener.DismissCallbacks() {
+                    @Override
+                    public boolean canDismiss(Object token) {
+                        return true;
+                    }
+
+                    @Override
+                    public void onDismiss(View view, Object token) {
+                        dismiss();
+                    }
+                }));
+    }
+
+    @Override
     public boolean onQueryTextSubmit(String query) {
         return false;
     }
@@ -200,18 +214,18 @@ public class DriverDialog extends DialogFragment implements SearchView.OnQueryTe
     @Override
     public boolean onQueryTextChange(String query) {
         //hide favourite list
-        if(query.length() > 0) hide(true);
+        if (query.length() > 0) hide(true);
         else hide(false);
 
         searchFromArrayList(query);
         return false;
     }
 
-    private void searchFromArrayList(String query){
+    private void searchFromArrayList(String query) {
         ArrayList<DriverObject> searchList = new ArrayList<>();
-        for(int i = 0 ; i < driverObjectArrayList.size(); i++){
-            if(driverObjectArrayList.get(i).getName().contains(query)) {
-              searchList.add(driverObjectArrayList.get(i));
+        for (int i = 0; i < driverObjectArrayList.size(); i++) {
+            if (driverObjectArrayList.get(i).getName().contains(query)) {
+                searchList.add(driverObjectArrayList.get(i));
             }
         }
         driverAdapter = new DriverAdapter(getActivity(), searchList);
@@ -219,12 +233,11 @@ public class DriverDialog extends DialogFragment implements SearchView.OnQueryTe
         driverAdapter.notifyDataSetChanged();
     }
 
-    private void hide(boolean hide){
-        if(hide){
+    private void hide(boolean hide) {
+        if (hide) {
             favouriteFarmerList.setVisibility(View.GONE);
             drivDialogLabelFavouriteFarmer.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             favouriteFarmerList.setVisibility(View.VISIBLE);
             drivDialogLabelFavouriteFarmer.setVisibility(View.VISIBLE);
         }
@@ -232,7 +245,28 @@ public class DriverDialog extends DialogFragment implements SearchView.OnQueryTe
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        driverDialogCallBack.selectedItem(driverObjectArrayList.get(i).getName(), driverObjectArrayList.get(i).getId());
+        switch (adapterView.getId()) {
+            case R.id.driver_dialog_favourite_driver_list:
+                driverDialogCallBack.selectedItem(favouriteFarmerArrayList.get(i).getName(), favouriteFarmerArrayList.get(i).getId());
+                /*
+                 * store value into favourite list
+                 * */
+                frameworkClass.new create("driver_id, name, customer_id",
+                        favouriteFarmerArrayList.get(i).getId() + "," +
+                                favouriteFarmerArrayList.get(i).getName() + "," +
+                                customerID).perform();
+                break;
+            case R.id.driver_dialog_driver_list:
+                driverDialogCallBack.selectedItem(driverObjectArrayList.get(i).getName(), driverObjectArrayList.get(i).getId());
+                /*
+                 * store value into favourite list
+                 * */
+                frameworkClass.new create("driver_id, name, customer_id",
+                        driverObjectArrayList.get(i).getId() + "," +
+                                driverObjectArrayList.get(i).getName() + "," +
+                                customerID).perform();
+                break;
+        }
         dismiss();
     }
 
@@ -250,40 +284,41 @@ public class DriverDialog extends DialogFragment implements SearchView.OnQueryTe
             jsonObject = new JSONObject(result);
             JSONArray jsonArray = jsonObject.getJSONArray("result");
 
-            for(int i = 0; i < jsonArray.length(); i++){
-                if(favouriteFarmerArrayList.size() < 3){
+            for (int i = 0; i < jsonArray.length(); i++) {
+                if (favouriteFarmerArrayList.size() < 3) {
                     Log.d("haha", "haha: big loop");
                     //add item into favouriteFarmerArrayList when size = 0
-                    if(favouriteFarmerArrayList.size() <= 0){
+                    if (favouriteFarmerArrayList.size() <= 0) {
                         favouriteFarmerArrayList.add(new DriverObject(
-                                jsonArray.getJSONObject(i).getString("id"),
+                                jsonArray.getJSONObject(i).getString("driver_id"),
                                 jsonArray.getJSONObject(i).getString("name"),
                                 ""
                         ));
                     }
                     //favouriteFarmerArrayList.size > 0
-                    else{
+                    else {
                         //check repeat values
-                        for(int j = 0; j < favouriteFarmerArrayList.size(); j++){
-                            if(!favouriteFarmerArrayList.get(j).getName().equals(jsonArray.getJSONObject(i).getString("name"))) count++;
+                        for (int j = 0; j < favouriteFarmerArrayList.size(); j++) {
+                            if (!favouriteFarmerArrayList.get(j).getName().equals(jsonArray.getJSONObject(i).getString("name")))
+                                count++;
                         }
                         //if count == favourite.size() mean that one is new item
-                        if(count == favouriteFarmerArrayList.size())
+                        if (count == favouriteFarmerArrayList.size())
                             favouriteFarmerArrayList.add(new DriverObject(
-                                    jsonArray.getJSONObject(i).getString("id"),
+                                    jsonArray.getJSONObject(i).getString("driver_id"),
                                     jsonArray.getJSONObject(i).getString("name"),
                                     ""
                             ));
                         count = 0;
                     }
-                }
-                else break;
+                } else break;
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
         favouriteFarmerAdapter.notifyDataSetChanged();
-        if(favouriteFarmerArrayList.size() <= 0) drivDialogLabelFavouriteFarmer.setVisibility(View.GONE);
+        if (favouriteFarmerArrayList.size() <= 0)
+            drivDialogLabelFavouriteFarmer.setVisibility(View.GONE);
     }
 
     @Override
@@ -296,7 +331,7 @@ public class DriverDialog extends DialogFragment implements SearchView.OnQueryTe
 
     }
 
-    public interface DriverDialogCallBack{
+    public interface DriverDialogCallBack {
         void selectedItem(String name, String id);
     }
 }

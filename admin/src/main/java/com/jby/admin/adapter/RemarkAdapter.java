@@ -1,9 +1,7 @@
 package com.jby.admin.adapter;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,24 +10,23 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jby.admin.R;
 import com.jby.admin.object.RemarkChildObject;
-import com.jby.admin.object.RemarkParentObject;
+import com.jby.admin.object.ExpandableParentObject;
 
 import java.util.ArrayList;
 
 public class RemarkAdapter extends BaseExpandableListAdapter {
     private Context context;
-    private ArrayList<RemarkParentObject> remarkParentObjectArrayList;
+    private ArrayList<ExpandableParentObject> remarkParentObjectArrayList;
     private boolean isMissing = true;
     private WeightViewHolder weightViewHolder;
     private MissingViewHolder missingViewHolder;
     private RemarkAdapterCallBack remarkAdapterCallBack;
 
-    public RemarkAdapter(Context context, ArrayList<RemarkParentObject> remarkParentObjectArrayList, RemarkAdapterCallBack remarkAdapterCallBack) {
+    public RemarkAdapter(Context context, ArrayList<ExpandableParentObject> remarkParentObjectArrayList, RemarkAdapterCallBack remarkAdapterCallBack) {
         this.context = context;
         this.remarkParentObjectArrayList = remarkParentObjectArrayList;
         this.remarkAdapterCallBack = remarkAdapterCallBack;
@@ -55,7 +52,7 @@ public class RemarkAdapter extends BaseExpandableListAdapter {
         } else
             groupViewHolder = (GroupViewHolder) convertView.getTag();
 
-        RemarkParentObject object = getGroup(groupPosition);
+        ExpandableParentObject object = getGroup(groupPosition);
         groupViewHolder.date.setText(object.getDate().equals(getCurrentDate()) ? "Today" : object.getDate());
 
         return convertView;
@@ -67,7 +64,7 @@ public class RemarkAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public RemarkParentObject getGroup(int i) {
+    public ExpandableParentObject getGroup(int i) {
         return remarkParentObjectArrayList.get(i);
     }
 

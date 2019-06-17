@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
@@ -21,7 +22,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.jby.admin.R;
+import com.jby.admin.object.ProductDetailChildObject;
 import com.jby.admin.object.RemarkChildObject;
+import com.jby.admin.others.KeyboardHelper;
 import com.jby.admin.others.SwipeDismissTouchListener;
 import com.jby.admin.shareObject.ApiDataObject;
 import com.jby.admin.shareObject.ApiManager;
@@ -54,7 +57,14 @@ public class EditRemarkDialog extends DialogFragment implements View.OnClickList
     JSONObject jsonObjectLoginResponse;
     ArrayList<ApiDataObject> apiDataObjectArrayList;
     RemarkDialogCallBack remarkDialogCallBack;
-    RemarkChildObject object;
+    //remarkChildObject
+    RemarkChildObject remarkChildObject;
+    /*
+     * edit (remark) when customer contact with admin
+     * */
+    ProductDetailChildObject productDetailChildObject;
+    private String product_id = "";
+    private boolean fromRemarkFragment = true;
 
     public EditRemarkDialog() {
     }
@@ -84,14 +94,29 @@ public class EditRemarkDialog extends DialogFragment implements View.OnClickList
         setupSpinner();
 
         if (getArguments() != null) {
-            object = (RemarkChildObject) getArguments().getSerializable("object");
-            remark_status = (object.getRemark_status());
-            remark = (object.getRemark());
-            id = (object.getId());
+            fromRemarkFragment = (getArguments().getBoolean("from_where"));
 
-            remarkDialogInput.append(remark);
+            remarkChildObject = ((RemarkChildObject) getArguments().getSerializable("remark_child_object"));
+            productDetailChildObject = ((ProductDetailChildObject) getArguments().getSerializable("product_detail_child_object"));
+            product_id = getArguments().getString("product_id");
+
+            remark_status = (fromRemarkFragment ? remarkChildObject.getRemark_status() : "1");
+            remark = (fromRemarkFragment ? remarkChildObject.getRemark() : "");
+            id = (fromRemarkFragment ? remarkChildObject.getId() : "admin_manual_update");
+
+            remarkDialogInput.append(fromRemarkFragment ? remark : productDetailChildObject.getWeight());
+            remarkDialogInput.setSelectAllOnFocus(true);
+
+            remarkDialogSpinner.setVisibility(fromRemarkFragment ? View.VISIBLE : View.GONE);
             remarkDialogSpinner.setSelection(remark_status.equals("2") ? 0 : 1);
         }
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                KeyboardHelper.openSoftKeyboard(Objects.requireNonNull(getActivity()), remarkDialogInput);
+            }
+        }, 300);
     }
 
     private void setupSpinner() {
@@ -137,6 +162,12 @@ public class EditRemarkDialog extends DialogFragment implements View.OnClickList
     }
 
     @Override
+    public void dismiss() {
+        KeyboardHelper.hideSoftKeyboard(Objects.requireNonNull(getActivity()), remarkDialogInput);
+        super.dismiss();
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.remark_dialog_remark_button:
@@ -153,7 +184,8 @@ public class EditRemarkDialog extends DialogFragment implements View.OnClickList
     private void checkingInput() {
         try {
             remark = (remarkDialogInput.getText().toString().trim());
-            updateRemarkItem();
+            if (fromRemarkFragment) updateRemarkItem();
+            else updateWeightRemark();
 
         } catch (NumberFormatException e) {
             showSnackBar("Please enter the correct weight");
@@ -165,16 +197,17 @@ public class EditRemarkDialog extends DialogFragment implements View.OnClickList
 
     }
 
+    /*---------------------------------------------------------------------update remark----------------------------------------------------------------------------------*/
     private void updateRemarkItem() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 apiDataObjectArrayList = new ArrayList<>();
-                apiDataObjectArrayList.add(new ApiDataObject("id", object.getId()));
-                apiDataObjectArrayList.add(new ApiDataObject("product_id", object.getProduct_id()));
+                apiDataObjectArrayList.add(new ApiDataObject("id", remarkChildObject.getId()));
+                apiDataObjectArrayList.add(new ApiDataObject("product_id", remarkChildObject.getProduct_id()));
                 apiDataObjectArrayList.add(new ApiDataObject("remark_weight", remark));
                 apiDataObjectArrayList.add(new ApiDataObject("remark_status", remark_status));
-                apiDataObjectArrayList.add(new ApiDataObject("type", object.getRemark_type()));
+                apiDataObjectArrayList.add(new ApiDataObject("type", remarkChildObject.getRemark_type()));
                 asyncTaskManager = new AsyncTaskManager(
                         getActivity(),
                         new ApiManager().remark,
@@ -216,6 +249,68 @@ public class EditRemarkDialog extends DialogFragment implements View.OnClickList
                 }
             }
         }).start();
+    }
+
+    /*-------------------------------------------------------------- remark---------------------------------------------------------------*/
+    private void updateWeightRemark() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                apiDataObjectArrayList = new ArrayList<>();
+                apiDataObjectArrayList.add(new ApiDataObject("id", id));
+                apiDataObjectArrayList.add(new ApiDataObject("product_id", product_id));
+                apiDataObjectArrayList.add(new ApiDataObject("remark_weight", remark));
+                apiDataObjectArrayList.add(new ApiDataObject("status", getRemarkStatus()));
+                apiDataObjectArrayList.add(new ApiDataObject("stock_id", productDetailChildObject.getId()));
+                apiDataObjectArrayList.add(new ApiDataObject("type", "admin_manual_edit"));
+                asyncTaskManager = new AsyncTaskManager(
+                        getActivity(),
+                        new ApiManager().remark,
+                        new ApiManager().getResultParameter(
+                                "",
+                                new ApiManager().setData(apiDataObjectArrayList),
+                                ""
+                        )
+                );
+                asyncTaskManager.execute();
+
+                if (!asyncTaskManager.isCancelled()) {
+                    try {
+                        jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+
+                        if (jsonObjectLoginResponse != null) {
+                            Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
+                            if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                                remarkDialogCallBack.reset();
+                                dismiss();
+                            }
+                        } else {
+                            CustomToast(getActivity(), "Network Error!");
+                        }
+                    } catch (InterruptedException e) {
+                        CustomToast(getActivity(), "Interrupted Exception!");
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        CustomToast(getActivity(), "Execution Exception!");
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        CustomToast(getActivity(), "JSON Exception!");
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        CustomToast(getActivity(), "Connection Time Out!");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private String getRemarkStatus(){
+        try{
+            return (Double.valueOf(remark) > Double.valueOf(productDetailChildObject.getWeight()) ? "3" : "2");
+        }catch (NumberFormatException e){
+            return (0 > Double.valueOf(productDetailChildObject.getWeight()) ? "3" : "2");
+        }
     }
 
     //    snackBar setting

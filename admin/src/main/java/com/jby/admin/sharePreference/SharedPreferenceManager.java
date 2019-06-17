@@ -22,13 +22,13 @@ public class SharedPreferenceManager {
         return context.getSharedPreferences(SharedPreferenceFileName, Context.MODE_PRIVATE);
     }
 
-    public static void clear(Context context){
+    public static void clear(Context context) {
         getSharedPreferences(context).edit().clear().apply();
     }
 
     /*
-    *       User Shared Preference
-    * */
+     *       User Shared Preference
+     * */
 
     public static String getLanguageId(Context context) {
         return getSharedPreferences(context).getString(LanguageId, "default");
@@ -55,7 +55,7 @@ public class SharedPreferenceManager {
     }
 
     public static String getPickUpDefaultFarmer(Context context) {
-        return  getSharedPreferences(context).getString(PickUpDefaultFarmer, "default");
+        return getSharedPreferences(context).getString(PickUpDefaultFarmer, "default");
     }
 
     public static void setPickUpDefaultFarmer(Context context, String pickUpDefaultFarmer) {
@@ -63,7 +63,7 @@ public class SharedPreferenceManager {
     }
 
     public static String getBasketDefaultFarmer(Context context) {
-        return  getSharedPreferences(context).getString(BasketDefaultFarmer, "default");
+        return getSharedPreferences(context).getString(BasketDefaultFarmer, "default");
     }
 
     public static void setBasketDefaultFarmer(Context context, String basketDefaultFarmer) {
@@ -71,10 +71,18 @@ public class SharedPreferenceManager {
     }
 
     public static String getBasketDefaultCustomer(Context context) {
-        return  getSharedPreferences(context).getString(BasketDefaultCustomer, "default");
+        return getSharedPreferences(context).getString(BasketDefaultCustomer, "default");
     }
 
     public static void setBasketDefaultCustomer(Context context, String basketDefaultCustomer) {
         getSharedPreferences(context).edit().putString(BasketDefaultCustomer, basketDefaultCustomer).apply();
+    }
+
+    public static boolean getShowNotification(Context context, String notification) {
+        return getSharedPreferences(context).getBoolean(notification, true);
+    }
+
+    public static void setShowNotification(Context context, String notification, boolean showNotification) {
+        getSharedPreferences(context).edit().putBoolean(notification, showNotification).apply();
     }
 }

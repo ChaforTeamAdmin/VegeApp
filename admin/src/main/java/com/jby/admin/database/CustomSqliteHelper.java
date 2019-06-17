@@ -18,9 +18,7 @@ public class CustomSqliteHelper extends SQLiteOpenHelper {
             "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "driver_id Text," +
             "name Text," +
-            "customer_id Text," +
-            "farmer_id Text," +
-            "product_id Text)";
+            "customer_id Text)";
 
 
    public CustomSqliteHelper(Context context) {

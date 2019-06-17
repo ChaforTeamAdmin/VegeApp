@@ -28,7 +28,7 @@ import com.jby.vegeapp.database.CustomSqliteHelper;
 import com.jby.vegeapp.database.FrameworkClass;
 import com.jby.vegeapp.database.ResultCallBack;
 import com.jby.vegeapp.network.BasketNetworkMonitor;
-import com.jby.vegeapp.object.BasketHistoryObject;
+import com.jby.vegeapp.object.history.BasketHistoryObject;
 import com.jby.vegeapp.pickUp.OffLineModeDialog;
 import com.jby.vegeapp.pickUp.farmer.FarmerDialog;
 import com.jby.vegeapp.shareObject.AnimationUtility;
@@ -50,6 +50,7 @@ import static com.jby.vegeapp.database.CustomSqliteHelper.TB_BASKET;
 import static com.jby.vegeapp.database.CustomSqliteHelper.TB_BASKET_FAVOURITE_CUSTOMER;
 import static com.jby.vegeapp.database.CustomSqliteHelper.TB_BASKET_FAVOURITE_FARMER;
 import static com.jby.vegeapp.shareObject.CustomToast.CustomToast;
+import static com.jby.vegeapp.Utils.VariableUtils.REFRESH_AVAILABLE_QUANTITY;
 
 public class BasketActivity extends AppCompatActivity implements View.OnClickListener, TypeDialog.TypeDialogCallBack,
         FarmerDialog.FarmerDialogCallBack, CustomerDialog.CustomerDialogCallBack, ResultCallBack,
@@ -191,6 +192,14 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        //for update available basket quantity in home activity
+        setResult(REFRESH_AVAILABLE_QUANTITY);
+        super.onBackPressed();
+
+    }
+
     /*------------------------------------------------------------------get driver available basket------------------------------------------------------*/
     private void getAvailableBasket() {
         new Thread(new Runnable() {
@@ -278,19 +287,19 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
         String target;
         if (type.equals("Farmer")) {
             target = SharedPreferenceManager.getBasketDefaultFarmer(this);
+            if(!target.equals("default")) farmerID = splitString(target, 1);
             customerID = "0";
-            farmerID = splitString(target, 1);
         } else {
             target = SharedPreferenceManager.getBasketDefaultCustomer(this);
+            if(!target.equals("default")) customerID = splitString(target, 1);
             farmerID = "0";
-            customerID = splitString(target, 1);
         }
         basketActivityTo.setText(!target.equals("default") ? splitString(target, 0) : "Click here to select");
-        showBasketLayout(!target.equals("default"));
+        hideBasketLayout(false);
     }
 
     private String splitString(String string, int position) {
-        String[] details = string.split(",");
+        String[] details = string.split("%");
         return details[position];
     }
 
@@ -313,7 +322,7 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
-    public void selectedItem(String name, String id, String address) {
+    public void selectedItem(String name, String id, String address, String phone) {
         //this id can be customer or farmer id
         if (type.equals("Farmer")) {
             customerID = "0";
@@ -321,24 +330,24 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
             new FrameworkClass(this, new CustomSqliteHelper(this), TB_BASKET_FAVOURITE_FARMER)
                     .new create("farmer_id, name", id + "," + name)
                     .perform();
-            SharedPreferenceManager.setBasketDefaultFarmer(this, name + "," + id);
+            SharedPreferenceManager.setBasketDefaultFarmer(this, name + "%" + id + "%" + address);
         } else {
             farmerID = "0";
             customerID = id;
             new FrameworkClass(this, new CustomSqliteHelper(this), TB_BASKET_FAVOURITE_CUSTOMER)
                     .new create("customer_id, name", id + "," + name)
                     .perform();
-            SharedPreferenceManager.setBasketDefaultCustomer(this, name + "," + id);
+            SharedPreferenceManager.setBasketDefaultCustomer(this, name + "%" + id + "%" + address);
         }
         basketActivityTo.setText(name);
-        showBasketLayout(true);
+        hideBasketLayout(false);
 
     }
 
     //    ------------------------------------------------------------basket purpose--------------------------------------------------------------------
-    private void showBasketLayout(boolean show) {
+    private void hideBasketLayout(boolean hide) {
         //reset
-        if (!show) {
+        if (hide) {
             new AnimationUtility().fadeOutGone(this, basketActivityBasketLayout);
             basketActivityType.setText("Please select one");
             type = null;
@@ -369,6 +378,10 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
     /*----------------------------------------------------------------upload basket to server------------------------------------------------------*/
 
     private void save(String type) {
+        if(customerID.equals("0") && farmerID.equals("0")){
+            showSnackBar("Please select a target");
+            return;
+        }
         try {
             if (!basketActivityQuantity.getText().toString().equals("0")) {
                 if (checkNetworkConnection()) basketControl(type);
@@ -440,7 +453,7 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
                     Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
                     if (jsonObjectLoginResponse.getString("status").equals("1")) {
                         showSnackBar("Save Successfully!");
-                        showBasketLayout(false);
+                        hideBasketLayout(true);
                     }
                 } else {
                     CustomToast(this, "Network Error!");
@@ -562,6 +575,6 @@ public class BasketActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void clear() {
         showSnackBar("Save Successfully!");
-        showBasketLayout(false);
+        hideBasketLayout(true);
     }
 }

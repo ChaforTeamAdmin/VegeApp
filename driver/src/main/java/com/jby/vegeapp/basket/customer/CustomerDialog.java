@@ -23,6 +23,7 @@ import com.jby.vegeapp.database.FrameworkClass;
 import com.jby.vegeapp.database.ResultCallBack;
 import com.jby.vegeapp.object.FarmerObject;
 import com.jby.vegeapp.others.ExpandableHeightListView;
+import com.jby.vegeapp.others.SwipeDismissTouchListener;
 import com.jby.vegeapp.shareObject.ApiDataObject;
 import com.jby.vegeapp.shareObject.ApiManager;
 import com.jby.vegeapp.shareObject.AsyncTaskManager;
@@ -103,6 +104,7 @@ public class CustomerDialog extends DialogFragment implements SearchView.OnQuery
 
         customerList.setOnItemClickListener(this);
         favouriteCustomerList.setOnItemClickListener(this);
+
         Bundle bundle = getArguments();
         //check whether open from pick up activity or basket activity
         frameworkClass = new FrameworkClass(getActivity(), this, new CustomSqliteHelper(getActivity()), TB_BASKET_FAVOURITE_CUSTOMER);
@@ -185,6 +187,24 @@ public class CustomerDialog extends DialogFragment implements SearchView.OnQuery
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Dialog d = getDialog();
+        Objects.requireNonNull(d.getWindow()).getDecorView().setOnTouchListener(new SwipeDismissTouchListener(d.getWindow().getDecorView(), null,
+                new SwipeDismissTouchListener.DismissCallbacks() {
+                    @Override
+                    public boolean canDismiss(Object token) {
+                        return true;
+                    }
+
+                    @Override
+                    public void onDismiss(View view, Object token) {
+                        dismiss();
+                    }
+                }));
+    }
+
+    @Override
     public boolean onQueryTextSubmit(String query) {
         return false;
     }
@@ -224,7 +244,15 @@ public class CustomerDialog extends DialogFragment implements SearchView.OnQuery
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        customerDialogCallBack.selectedItem(customerObjectArrayList.get(i).getName(), customerObjectArrayList.get(i).getId(), customerObjectArrayList.get(i).getAddress());
+        switch (adapterView.getId()) {
+            case R.id.farmer_dialog_favourite_farmer_list:
+                Log.d("haha","customer: " + favouriteCustomerArrayList.get(i).getId());
+                customerDialogCallBack.selectedItem(favouriteCustomerArrayList.get(i).getName(), favouriteCustomerArrayList.get(i).getId(), favouriteCustomerArrayList.get(i).getAddress(), favouriteCustomerArrayList.get(i).getPhone());
+                break;
+            case R.id.farmer_dialog_farmer_list:
+                customerDialogCallBack.selectedItem(customerObjectArrayList.get(i).getName(), customerObjectArrayList.get(i).getId(), customerObjectArrayList.get(i).getAddress(), customerObjectArrayList.get(i).getPhone());
+                break;
+        }
         dismiss();
     }
 
@@ -248,7 +276,7 @@ public class CustomerDialog extends DialogFragment implements SearchView.OnQuery
                     //add item into favouriteFarmerArrayList when size = 0
                     if(favouriteCustomerArrayList.size() <= 0){
                         favouriteCustomerArrayList.add(new FarmerObject(
-                                jsonArray.getJSONObject(i).getString("id"),
+                                jsonArray.getJSONObject(i).getString("customer_id"),
                                 jsonArray.getJSONObject(i).getString("name"),
                                 "",
                                 jsonArray.getJSONObject(i).getString("address")
@@ -263,7 +291,7 @@ public class CustomerDialog extends DialogFragment implements SearchView.OnQuery
                         //if count == favourite.size() mean that one is new item
                         if(count == favouriteCustomerArrayList.size())
                             favouriteCustomerArrayList.add(new FarmerObject(
-                                    jsonArray.getJSONObject(i).getString("id"),
+                                    jsonArray.getJSONObject(i).getString("customer_id"),
                                     jsonArray.getJSONObject(i).getString("name"),
                                     "",
                                     jsonArray.getJSONObject(i).getString("address")
@@ -290,6 +318,6 @@ public class CustomerDialog extends DialogFragment implements SearchView.OnQuery
     }
 
     public interface CustomerDialogCallBack{
-        void selectedItem(String name, String id, String address);
+        void selectedItem(String name, String id, String address, String phone);
     }
 }

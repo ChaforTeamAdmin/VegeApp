@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.jby.vegeapp.database.CustomSqliteHelper.TB_STOCK;
+import static com.jby.vegeapp.shareObject.CustomToast.CustomToast;
 
 
 public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
@@ -31,7 +32,7 @@ public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
     private boolean jobCancelled = false;
     private JobParameters params;
     private FrameworkClass frameworkClass = new FrameworkClass(this, this, new CustomSqliteHelper(this), TB_STOCK);
-
+    private JSONArray jsonArray;
     //    asyncTask
     AsyncTaskManager asyncTaskManager;
     JSONObject jsonObjectLoginResponse;
@@ -71,16 +72,14 @@ public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
         Log.d("haha", "result:  " + result);
         try {
             JSONObject jsonObject = new JSONObject(result);
-            JSONArray jsonArray = jsonObject.getJSONArray("result");
+            jsonArray = jsonObject.getJSONArray("result");
             for(int i = 0 ; i < jsonArray.length(); i++){
-                storeToCloud(jsonArray.getJSONObject(i));
+                storeToCloud(jsonArray.getJSONObject(i), i);
                 jobFinished(params, false);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Override
@@ -88,15 +87,66 @@ public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
 
     }
 
+    private void sendNotification(final String farmer_id) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                apiDataObjectArrayList = new ArrayList<>();
+                apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(getApplicationContext())));
+                apiDataObjectArrayList.add(new ApiDataObject("notification", "1"));
+                apiDataObjectArrayList.add(new ApiDataObject("farmer_id", farmer_id));
+                asyncTaskManager = new AsyncTaskManager(
+                        getApplicationContext(),
+                        new ApiManager().vege_manage,
+                        new ApiManager().getResultParameter(
+                                "",
+                                new ApiManager().setData(apiDataObjectArrayList),
+                                ""
+                        )
+                );
+                asyncTaskManager.execute();
+
+                if (!asyncTaskManager.isCancelled()) {
+
+                    try {
+                        jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+
+                        if (jsonObjectLoginResponse != null) {
+                            if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                                Log.d("jsonObject", "jsonObject: 1" + jsonObjectLoginResponse);
+                            }
+                        } else {
+                            CustomToast(getApplicationContext(), "Network Error!");
+                        }
+
+                    } catch (InterruptedException e) {
+                        CustomToast(getApplicationContext(), "Interrupted Exception!");
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        CustomToast(getApplicationContext(), "Execution Exception!");
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        CustomToast(getApplicationContext(), "JSON Exception!");
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        CustomToast(getApplicationContext(), "Connection Time Out!");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
     @Override
     public void deleteResult(String status) {
 
     }
 
-    private void storeToCloud(JSONObject jsonObject){
+    private void storeToCloud(JSONObject jsonObject, int position){
         apiDataObjectArrayList = new ArrayList<>();
 
         try {
+            apiDataObjectArrayList.add(new ApiDataObject("ro_id", jsonObject.getString("ro_id")));
             apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(this)));
             apiDataObjectArrayList.add(new ApiDataObject("farmer_id", jsonObject.getString("farmer_id")));
             apiDataObjectArrayList.add(new ApiDataObject("weight", jsonObject.getString("weight")));
@@ -105,6 +155,7 @@ public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
             apiDataObjectArrayList.add(new ApiDataObject("quantity", jsonObject.getString("quantity")));
             apiDataObjectArrayList.add(new ApiDataObject("type", jsonObject.getString("type")));
             apiDataObjectArrayList.add(new ApiDataObject("grade", jsonObject.getString("grade")));
+            apiDataObjectArrayList.add(new ApiDataObject("date", jsonObject.getString("created_at")));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -131,6 +182,7 @@ public class PickUpNetworkMonitor extends JobService implements ResultCallBack {
                     Log.d("jsonObject", "jsonObject: " +  jsonObjectLoginResponse);
                     if(jsonObjectLoginResponse.getString("status").equals("1")){
                         deleteRecordAfterUpload(jsonObject.getString("id"));
+                        if(position == jsonArray.length()-1) sendNotification(jsonObject.getString("farmer_id"));
                     }
                 }
                 else {

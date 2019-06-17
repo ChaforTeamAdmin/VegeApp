@@ -6,25 +6,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jby.vegeapp.R;
-import com.jby.vegeapp.adapter.BasketHistoryExpandableAdapter;
+import com.jby.vegeapp.adapter.history.BasketHistoryExpandableAdapter;
 import com.jby.vegeapp.basket.BasketActivity;
 import com.jby.vegeapp.history.HistoryActivity;
-import com.jby.vegeapp.object.BasketHistoryObject;
-import com.jby.vegeapp.object.HistoryParentObject;
+import com.jby.vegeapp.object.history.BasketHistoryObject;
+import com.jby.vegeapp.object.history.HistoryParentObject;
 import com.jby.vegeapp.others.NetworkConnection;
 import com.jby.vegeapp.others.NonScrollExpandableListView;
 import com.jby.vegeapp.shareObject.ApiDataObject;
@@ -43,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.jby.vegeapp.shareObject.CustomToast.CustomToast;
-import static com.jby.vegeapp.shareObject.VariableUtils.UPDATE_LIST;
+import static com.jby.vegeapp.Utils.VariableUtils.UPDATE_LIST;
 
 
 public class BasketHistory extends Fragment implements BasketHistoryExpandableAdapter.BasketHistoryExpandableAdapterCallBack,
@@ -132,7 +128,7 @@ public class BasketHistory extends Fragment implements BasketHistoryExpandableAd
 
                 asyncTaskManager = new AsyncTaskManager(
                         getActivity(),
-                        new ApiManager().history,
+                        new ApiManager().basket_history,
                         new ApiManager().getResultParameter(
                                 "",
                                 new ApiManager().setData(apiDataObjectArrayList),
@@ -199,7 +195,7 @@ public class BasketHistory extends Fragment implements BasketHistoryExpandableAd
                 apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(getActivity())));
                 asyncTaskManager = new AsyncTaskManager(
                         getActivity(),
-                        new ApiManager().history,
+                        new ApiManager().basket_history,
                         new ApiManager().getResultParameter(
                                 "",
                                 new ApiManager().setData(apiDataObjectArrayList),
@@ -301,6 +297,7 @@ public class BasketHistory extends Fragment implements BasketHistoryExpandableAd
                 "Confirm",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int i) {
+                        showProgressBar(true);
                         deleteBasket(position);
                         dialog.cancel();
                     }
@@ -377,24 +374,34 @@ public class BasketHistory extends Fragment implements BasketHistoryExpandableAd
     }
 
     private void setVisibility() {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                basketHistoryListView.setVisibility(historyParentObjectArrayList.size() > 0 ? View.VISIBLE : View.GONE);
-                showProgressBar(false);
-                showFoundLayout();
-                notifyDataSetChanged();
-            }
-        });
+        try {
+            Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    basketHistoryListView.setVisibility(historyParentObjectArrayList.size() > 0 ? View.VISIBLE : View.GONE);
+                    showProgressBar(false);
+                    showFoundLayout();
+                    notifyDataSetChanged();
+                }
+            });
+        } catch (NullPointerException e) {
+            CustomToast(getActivity(), "Loading...");
+        }
     }
 
     private void notifyDataSetChanged() {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                basketHistoryExpandableAdapter.notifyDataSetChanged();
-            }
-        });
+        try {
+            Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    basketHistoryExpandableAdapter.notifyDataSetChanged();
+                }
+            });
+        } catch (NullPointerException e) {
+            CustomToast(getActivity(), "Loading...");
+        }
+
+
     }
 
     private void closeOtherChildView(int position) {
@@ -413,6 +420,7 @@ public class BasketHistory extends Fragment implements BasketHistoryExpandableAd
     }
 
     public void reset() {
+        groupPosition = 0;
         historyParentObjectArrayList.clear();
         fetchParentItem();
     }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="5dp"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        app:cardElevation="5dp"
+        app:cardCornerRadius="5dp"
+        android:layout_margin="5dp"
+        android:layout_height="70dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_margin="5dp"
+            android:id="@+id/activity_delivery_order_detail_parent_list_view_parent_layout"
+            android:orientation="horizontal"
+            android:layout_height="match_parent">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:id="@+id/activity_delivery_order_detail_parent_list_view_picture"
+                android:layout_height="match_parent" />
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Vegetable 1"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerInParent="true"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:id="@+id/activity_delivery_order_detail_parent_list_view_product"
+                    android:textColor="@color/grey"
+                    android:padding="5dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="50"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerInParent="true"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:id="@+id/activity_delivery_order_detail_parent_list_view_quantity"
+                    android:textColor="@color/grey"
+                    android:padding="5dp"
+                    android:textSize="15sp"
+                    android:textStyle="bold"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

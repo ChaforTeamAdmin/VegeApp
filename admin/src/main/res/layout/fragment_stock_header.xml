@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?actionBarSize"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentTop="true"
+    android:background="@color/action_bar_color"
+    android:minHeight="?attr/actionBarSize">
+
+    <RelativeLayout
+        android:id="@+id/sorting_layout"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@color/action_bar_color"
+        android:orientation="horizontal">
+
+        <Spinner
+            android:id="@+id/fragment_stock_sort"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@id/fragment_stock_search_view" />
+
+        <android.support.v7.widget.SearchView
+            android:id="@+id/fragment_stock_search_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:gravity="end"
+            android:theme="@style/CustomCursor" />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.Toolbar>
+
+

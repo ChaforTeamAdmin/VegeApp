@@ -28,12 +28,13 @@
         android:layout_width="match_parent"
         android:layout_weight="0.5"
         android:scrollbars="none"
+        android:fillViewport="true"
         android:layout_height="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:padding="15dp"
-            android:gravity="center"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
             android:layout_height="wrap_content">
 
@@ -41,6 +42,7 @@
                 android:layout_width="match_parent"
                 android:background="@drawable/activity_login_custom_edit_text"
                 android:layout_marginTop="15dp"
+                android:elevation="5dp"
                 android:layout_height="?actionBarSize">
 
                 <EditText
@@ -71,6 +73,7 @@
                 android:layout_width="match_parent"
                 android:background="@drawable/activity_login_custom_edit_text"
                 android:layout_marginTop="15dp"
+                android:elevation="5dp"
                 android:layout_height="?actionBarSize">
 
                 <EditText
@@ -113,6 +116,7 @@
                 android:text="@string/activity_login_sign_in_button"
                 android:textColor="@color/white"
                 android:textSize="16sp"
+                android:elevation="10dp"
                 android:id="@+id/activity_login_sign_in"
                 android:onClick="checking"
                 android:fontFamily="@string/font_family_condensed"
@@ -131,5 +135,13 @@
         </LinearLayout>
 
     </ScrollView>
+
+    <TextView
+        android:id="@+id/activity_login_version_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:padding="10dp" />
 
 </LinearLayout>

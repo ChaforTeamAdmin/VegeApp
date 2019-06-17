@@ -6,7 +6,19 @@
     <string name="activity_main_menu_1">Stock</string>
     <string name="activity_main_menu_2">Basket</string>
     <string name="activity_main_menu_3">Remark</string>
+    <string name="activity_main_menu_4">Setting</string>
+    <string name="activity_main_menu_5">Delivery Order</string>
+    <!--delete action bar-->
+    <string name="delete_action_bar_1">Spoiled</string>
+    <string name="delete_action_bar_2">Delete</string>
+    <string name="delete_action_bar_3">Select All</string>
+    <string name="delete_action_bar_4">Spoiled By Weight</string>
 
+    <string name="grade_a">Grade A</string>
+    <string name="grade_b">Grade B</string>
+    <string name="farmer_a">Farmer A</string>
+    <string name="farmer_b">Farmer B</string>
+    <string name="unknown">Unknown</string>
 
     <!--main activity-->
     <string name="activity_login_hint_email">Username</string>

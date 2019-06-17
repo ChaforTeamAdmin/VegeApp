@@ -9,6 +9,6 @@
         android:color="@color/blue"/>
 
     <solid
-        android:color="@color/edit_text_background"/>
+        android:color="@color/white"/>
 </shape>
 

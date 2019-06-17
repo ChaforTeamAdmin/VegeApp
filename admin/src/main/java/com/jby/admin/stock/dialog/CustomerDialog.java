@@ -82,8 +82,7 @@ public class CustomerDialog extends DialogFragment implements SearchView.OnQuery
         customerDialogSearch.setOnQueryTextListener(this);
 
         customerList.setOnItemClickListener(this);
-        Bundle bundle = getArguments();
-        
+
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {

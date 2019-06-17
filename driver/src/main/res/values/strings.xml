@@ -26,6 +26,7 @@
 
         <item>Click here to select farmer"</item>
         <item>Click here to select customer</item>
+
     </string-array>
 
     <string-array name="malay_language">
@@ -34,4 +35,40 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!--
+    printer purpose
+    -->
+    <string name="time_format">yyyy-MM-dd HH:mm</string>
+    <string name="no_connect_blue_tooth">No connection to bluetooth!</string>
+    <string name="connection_success">Successful Connected</string>
+    <string name="connection_fail">Failed Connected </string>
+
+    <string name="bluetooth_disconnect">Bluetooth Disconnect</string>
+    <string name="bluetooth_is_being_connected">Connecting…</string>
+    <string name="bluetooth_name">yyyy-MM-dd HH:mm</string>
+    <string name="no">Not Found</string>
+
+    <string name="chang_bluetooth_name_fail">Unable to change the bluetooth name!</string>
+    <string name="chang_bluetooth_name_success">Bluetooth name is changed!</string>
+    <string name="chang_bluetooth_name_now">Change bluetooth</string>
+    <string name="name_colon">名称：</string>
+    <string name="address_colon">地址：</string>
+
+    <string name="please_connect_bluetooth">Please connect to bluetooth</string>
+    <string name="please_input_bluetooth_name">Please input a bluetooth name</string>
+
+    <string name="printf_blue_list_stop">Stop</string>
+    <string name="printf_blue_list_search">Searching</string>
+
+    <string name="to_set_up">Go Setting</string>
+    <string name="cancel">Cancel</string>
+    <string name="prompt">Hint</string>
+
+    <string name="start_search">Searching</string>
+    <string name="stop_search">Stop Searching</string>
+    <string name="permissions_are_rejected_bluetooth">Unable to connect bluetooth without permission!</string>
+    <string name="connect_now">Connect Now!</string>
+
+    <string name="abnormal_data">数据异常</string>
+    <string name="please_improve_the_parameters">数据异常</string>
 </resources>

@@ -7,19 +7,21 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class ApiManager {
-    private static String domain = "http://www.chafor.net/";
+    private static String domain = "http://www.yofu.my/";
+//    private static String domain = "http://www.chafor.net/";
     private static String prefix = "vegetable/";
     private static String sub_prefix = "admin/";
 
     public String registration = domain + prefix + sub_prefix + "registration/registration.php";
     public String stock = domain + prefix + sub_prefix + "stock/stock.php";
-    public String driver = domain + prefix + "driver/driver.php";
-    public String customer = domain + prefix + "customer/customer.php";
     public String basket = domain + prefix + sub_prefix + "basket/basket.php";
     public String remark = domain + prefix + sub_prefix + "stock/remark.php";
     public String delivery = domain + prefix + sub_prefix + "delivery_order/delivery_order.php";
     //image path
     public String product_img = domain + prefix +  "product/vege_img/";
+    public String driver = domain + prefix + "driver/driver.php";
+    public String customer = domain + prefix + "customer/customer.php";
+    public String notification = domain + prefix + "notification/notification.php";
 
     public String setData(ArrayList<ApiDataObject> apiDataObjectArrayList){
         StringBuilder apiDataPost = new StringBuilder();

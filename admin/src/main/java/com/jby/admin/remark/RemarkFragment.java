@@ -1,7 +1,6 @@
 package com.jby.admin.remark;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
@@ -17,14 +16,12 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jby.admin.MainActivity;
 import com.jby.admin.R;
 import com.jby.admin.adapter.RemarkAdapter;
-import com.jby.admin.object.ProductDetailChildObject;
 import com.jby.admin.object.RemarkChildObject;
-import com.jby.admin.object.RemarkParentObject;
+import com.jby.admin.object.ExpandableParentObject;
 import com.jby.admin.others.NetworkConnection;
 import com.jby.admin.shareObject.ApiDataObject;
 import com.jby.admin.shareObject.ApiManager;
@@ -34,7 +31,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -44,7 +40,7 @@ import java.util.concurrent.TimeoutException;
 import static com.jby.admin.shareObject.CustomToast.CustomToast;
 
 public class RemarkFragment extends Fragment implements ExpandableListView.OnGroupClickListener, RemarkAdapter.RemarkAdapterCallBack,
-        EditRemarkDialog.RemarkDialogCallBack{
+        EditRemarkDialog.RemarkDialogCallBack {
     private View rootView;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -54,7 +50,7 @@ public class RemarkFragment extends Fragment implements ExpandableListView.OnGro
 
     private ExpandableListView remarkFragmentListView;
     private RemarkAdapter remarkAdapter;
-    private ArrayList<RemarkParentObject> remarkParentObjectArrayList;
+    private ArrayList<ExpandableParentObject> remarkParentObjectArrayList;
     private int groupPosition;
     //not found layout
     private RelativeLayout notFoundLayout;
@@ -174,7 +170,7 @@ public class RemarkFragment extends Fragment implements ExpandableListView.OnGro
                             if (jsonObjectLoginResponse.getString("status").equals("1")) {
                                 JSONArray jsonArray = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("remark");
                                 for (int i = 0; i < jsonArray.length(); i++) {
-                                    remarkParentObjectArrayList.add(new RemarkParentObject(jsonArray.getJSONObject(i).getString("created_date")));
+                                    remarkParentObjectArrayList.add(new ExpandableParentObject(jsonArray.getJSONObject(i).getString("created_date")));
                                 }
                             }
                         } else {
@@ -248,6 +244,9 @@ public class RemarkFragment extends Fragment implements ExpandableListView.OnGro
                             if (jsonObjectLoginResponse.getString("status").equals("1")) {
                                 JSONArray jsonArray = jsonObjectLoginResponse.getJSONArray("value").getJSONObject(0).getJSONArray("remark");
                                 setChildValue(jsonArray, position);
+                            } else {
+                                remarkParentObjectArrayList.remove(groupPosition);
+                                setVisibility();
                             }
                         } else {
                             CustomToast(getActivity(), "Network Error!");
@@ -356,7 +355,8 @@ public class RemarkFragment extends Fragment implements ExpandableListView.OnGro
     @Override
     public void edit(int position) {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("object", remarkParentObjectArrayList.get(groupPosition).getRemarkChildObjectArrayList().get(position));
+        bundle.putSerializable("remark_child_object", remarkParentObjectArrayList.get(groupPosition).getRemarkChildObjectArrayList().get(position));
+        bundle.putBoolean("from_where" , true);
 
         DialogFragment dialogFragment = new EditRemarkDialog();
         dialogFragment.setArguments(bundle);
@@ -502,6 +502,7 @@ public class RemarkFragment extends Fragment implements ExpandableListView.OnGro
         remarkParentObjectArrayList.get(groupPosition).getRemarkChildObjectArrayList().clear();
         fetchChildItem(groupPosition);
         ((MainActivity) Objects.requireNonNull(getActivity())).showSnackBar("Remark Updated!");
+        setVisibility();
     }
 
     /*---------------------------------------------------------------fragment setting------------------------------------------------------------*/

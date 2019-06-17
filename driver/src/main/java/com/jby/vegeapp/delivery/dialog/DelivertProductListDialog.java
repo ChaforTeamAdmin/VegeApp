@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -18,8 +17,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.jby.vegeapp.R;
-import com.jby.vegeapp.adapter.DeliverProductGridAdapter;
-import com.jby.vegeapp.object.ProductChildObject;
+import com.jby.vegeapp.adapter.delivery.DeliverProductGridAdapter;
+import com.jby.vegeapp.object.product.ProductChildObject;
 import com.jby.vegeapp.others.SwipeDismissTouchListener;
 import com.jby.vegeapp.shareObject.ApiDataObject;
 import com.jby.vegeapp.shareObject.ApiManager;
@@ -54,7 +53,7 @@ public class DelivertProductListDialog extends DialogFragment implements View.On
     AsyncTaskManager asyncTaskManager;
     JSONObject jsonObjectLoginResponse;
     ArrayList<ApiDataObject> apiDataObjectArrayList;
-    private String customerID, productID, weight, productPic, product, farmer;
+    private String customerID, productID, productPic, product, farmer, farmer_id;
 
     public DelivertProductListDialog() {
     }
@@ -86,12 +85,12 @@ public class DelivertProductListDialog extends DialogFragment implements View.On
 
         Bundle bundle = getArguments();
         if (bundle != null) {
+            farmer_id = bundle.getString("farmer_id");
             farmer = bundle.getString("farmer");
             customerID = bundle.getString("customer_id");
             productID = bundle.getString("product_id");
             product = bundle.getString("product");
             productPic = bundle.getString("product_pic");
-            weight = bundle.getString("weight");
 
             deliverProductDialogFarmer.setText(farmer);
             deliverProductDialogTitle.setText(product);
@@ -150,8 +149,8 @@ public class DelivertProductListDialog extends DialogFragment implements View.On
             public void run() {
                 apiDataObjectArrayList = new ArrayList<>();
                 apiDataObjectArrayList.add(new ApiDataObject("product_id", productID));
-                apiDataObjectArrayList.add(new ApiDataObject("weight", weight));
                 apiDataObjectArrayList.add(new ApiDataObject("customer_id", customerID));
+                apiDataObjectArrayList.add(new ApiDataObject("farmer_id", farmer_id));
                 asyncTaskManager = new AsyncTaskManager(
                         getActivity(),
                         new ApiManager().deliver,
@@ -202,13 +201,13 @@ public class DelivertProductListDialog extends DialogFragment implements View.On
         }).start();
     }
 
-    private void setGridViewData(JSONArray jsonArray){
+    private void setGridViewData(JSONArray jsonArray) {
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 ProductChildObject object = new ProductChildObject();
-                object.setWeight(  jsonArray.getJSONObject(i).getString("weight"));
-                object.setId(  jsonArray.getJSONObject(i).getString("id"));
-                object.setRemark(  jsonArray.getJSONObject(i).getString("remark"));
+                object.setWeight(jsonArray.getJSONObject(i).getString("weight"));
+                object.setId(jsonArray.getJSONObject(i).getString("id"));
+                object.setRemark(jsonArray.getJSONObject(i).getString("remark"));
                 productChildObjectArrayList.add(object);
             } catch (JSONException e) {
                 e.printStackTrace();

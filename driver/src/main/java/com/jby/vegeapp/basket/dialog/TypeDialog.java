@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.jby.vegeapp.R;
+import com.jby.vegeapp.others.SwipeDismissTouchListener;
+
 import java.util.Objects;
 
 
@@ -43,6 +45,24 @@ public class TypeDialog extends DialogFragment implements View.OnClickListener {
             d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             d.getWindow().setWindowAnimations(R.style.dialog_up_down);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Dialog d = getDialog();
+        Objects.requireNonNull(d.getWindow()).getDecorView().setOnTouchListener(new SwipeDismissTouchListener(d.getWindow().getDecorView(), null,
+                new SwipeDismissTouchListener.DismissCallbacks() {
+                    @Override
+                    public boolean canDismiss(Object token) {
+                        return true;
+                    }
+
+                    @Override
+                    public void onDismiss(View view, Object token) {
+                        dismiss();
+                    }
+                }));
     }
 
     private void objectInitialize() {

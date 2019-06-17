@@ -23,7 +23,8 @@ import com.jby.vegeapp.others.ViewPagerObject;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.jby.vegeapp.shareObject.VariableUtils.UPDATE_LIST;
+import static com.jby.vegeapp.Utils.VariableUtils.REFRESH_AVAILABLE_QUANTITY;
+import static com.jby.vegeapp.Utils.VariableUtils.UPDATE_LIST;
 
 public class HistoryActivity extends AppCompatActivity {
     //actionbar
@@ -73,6 +74,14 @@ public class HistoryActivity extends AppCompatActivity {
         setTabLayoutIcon(0);
         setupActionBar();
         checkInternetConnection(null);
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        //for update available basket quantity in home activity
+        setResult(REFRESH_AVAILABLE_QUANTITY);
+        super.onBackPressed();
 
     }
 

@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        app:cardElevation="5dp"
-        app:cardCornerRadius="5dp"
+        android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        android:layout_height="wrap_content">
+        app:cardCornerRadius="5dp"
+        app:cardElevation="5dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:padding="5dp"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="5dp">
 
             <RelativeLayout
-                android:layout_width="match_parent"
                 android:id="@+id/pick_up_history_child_list_view_layout_message"
-                android:padding="5dp"
-                android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
 
                 <LinearLayout
                     android:id="@+id/pick_up_history_child_list_view_item_linear_1"
                     android:layout_width="match_parent"
-                    android:layout_below="@+id/pick_up_history_child_list_view_item_time"
                     android:layout_height="wrap_content"
+                    android:layout_below="@+id/pick_up_history_child_list_view_item_time"
                     android:layout_centerInParent="true"
                     android:orientation="horizontal">
 
@@ -38,16 +38,16 @@
                         android:gravity="start"
                         android:maxLines="1"
                         android:padding="5dp"
-                        android:textStyle="bold"
                         android:text="Ah Ben Studio"
                         android:textColor="@color/grey"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/pick_up_history_child_list_view_item_num_item"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:ellipsize="end"
                         android:gravity="end"
                         android:maxLines="1"
@@ -55,31 +55,42 @@
                         android:text="x 4 Items"
                         android:textColor="@color/grey"
                         android:textSize="16sp" />
-                    
+
                 </LinearLayout>
-                
+
                 <TextView
+                    android:id="@+id/pick_up_history_child_list_view_item_ro_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="9:07 pm"
-                    android:layout_alignParentEnd="true"
-                    android:textStyle="bold"
+                    android:layout_alignParentStart="true"
                     android:gravity="center"
-                    android:id="@+id/pick_up_history_child_list_view_item_time"
+                    android:text="9:07 pm"
                     android:textColor="@color/transparent_black"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/pick_up_history_child_list_view_item_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="center"
+                    android:text="9:07 pm"
+                    android:textColor="@color/transparent_black"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
             </RelativeLayout>
 
             <TextView
+                android:id="@+id/pick_up_history_child_list_view_item_edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/pick_up_history_child_list_view_layout_message"
-                android:textColor="@color/blue"
                 android:layout_alignParentEnd="true"
-                android:id="@+id/pick_up_history_child_list_view_item_edit"
-                android:text="Edit"/>
-            
+                android:text="Click to view detail"
+                android:textColor="@color/blue" />
+
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>

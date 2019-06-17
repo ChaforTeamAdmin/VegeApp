@@ -1,74 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        app:cardCornerRadius="5dp"
+        android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        app:cardElevation="2dp"
-        android:layout_height="wrap_content">
+        app:cardCornerRadius="5dp"
+        app:cardElevation="2dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="@color/white"
-            android:layout_height="40dp">
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/delivery_child_list_view_item_lienar_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/delivery_child_farmer"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="6"
+                    android:ellipsize="end"
+                    android:gravity="center|start"
+                    android:maxLines="1"
+                    android:paddingStart="5dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="5dp"
+                    android:paddingBottom="5dp"
+                    android:text="Vege farmer one"
+                    android:textColor="@color/grey"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="Vege farmer one"
-                android:textSize="18sp"
-                android:id="@+id/delivery_child_farmer"
-                android:layout_toStartOf="@id/delivery_child_weight"
-                android:layout_alignParentStart="true"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:textStyle="bold"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:gravity="center|start"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:textColor="@color/grey" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="35KG"
-                android:textSize="16sp"
                 android:id="@+id/delivery_child_weight"
-                android:paddingStart="5dp"
-                android:paddingEnd="0dp"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/delivery_child_list_view_item_lienar_1"
                 android:layout_toStartOf="@id/delivery_child_quantity"
-                android:textColor="@color/grey" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="X5"
-                android:textSize="16sp"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:layout_marginStart="15dp"
-                android:layout_toStartOf="@id/delivery_child_arrow_right"
-                android:padding="5dp"
-                android:id="@+id/delivery_child_quantity"
-                android:textColor="@color/grey" />
+                android:gravity="start"
+                android:paddingStart="5dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="0dp"
+                android:paddingBottom="5dp"
+                android:text="35KG"
+                android:textColor="@color/grey"
+                android:textSize="14sp" />
 
             <ImageView
+                android:id="@+id/delivery_child_edit"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerInParent="true"
+                android:layout_toStartOf="@id/delivery_child_quantity"
+                android:contentDescription="@string/app_name"
+                android:padding="5dp"
+                android:src="@android:drawable/ic_menu_edit"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/delivery_child_quantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_marginStart="15dp"
+                android:layout_toStartOf="@id/delivery_child_arrow_right"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="X5"
+                android:textColor="@color/grey"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/delivery_child_arrow_right"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:contentDescription="@string/app_name"
-                android:id="@+id/delivery_child_arrow_right"
                 android:layout_alignParentEnd="true"
                 android:layout_centerInParent="true"
+                android:contentDescription="@string/app_name"
                 android:src="@drawable/arrow_right" />
 
         </RelativeLayout>

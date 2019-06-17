@@ -7,10 +7,11 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.widget.Toast;
+
+
+import static com.jby.vegeapp.shareObject.CustomToast.CustomToast;
 
 public class FrameworkClass {
     private Context context;
@@ -32,74 +33,77 @@ public class FrameworkClass {
         this.resultCallBack = resultCallBack;
     }
 
-    private ContentValues getContentValues(String[] storeColumn, String[] storeValue){
+    private ContentValues getContentValues(String[] storeColumn, String[] storeValue) {
         ContentValues contentValues = new ContentValues();
-        if(storeColumn.length == storeValue.length)
-            for(int i = 0; i < storeColumn.length; i++){
+        if (storeColumn.length == storeValue.length)
+            for (int i = 0; i < storeColumn.length; i++) {
                 contentValues.put(storeColumn[i], storeValue[i]);
             }
         return contentValues;
     }
 
-    private String[] getArrayFromString(String input){
-        if(!input.equals("")){
+    private String[] getArrayFromString(String input) {
+        if (!input.equals("")) {
             String[] stringArray = input.split(",");
-            for(int i = 0; i < stringArray.length; i++){
+            for (int i = 0; i < stringArray.length; i++) {
                 stringArray[i] = stringArray[i].trim();
             }
-            return  stringArray;
-        }
-        else return null;
+            return stringArray;
+        } else return null;
     }
-
     /*-----------------------------------------------------------create----------------------------------------------------------------------*/
     //store chat detail into chat room
 
-    public class create{
+    public class create {
         SQLiteDatabase db;
         String storeColumn, storeValue;
-        String[] storeColumnArray, storeValueArray;
+        String[] storeColumnArray, storeValueArray, storeValueInArray;
 
-        public create(String storeColumn, String storeValue){
+        public create(String storeColumn, String storeValue) {
             this.db = sqLiteOpenHelper.getWritableDatabase();
             this.storeColumn = storeColumn;
             this.storeValue = storeValue;
         }
 
+        public create(String storeColumn, String[] storeValueInArray) {
+            this.db = sqLiteOpenHelper.getWritableDatabase();
+            this.storeColumn = storeColumn;
+            this.storeValueInArray = storeValueInArray;
+        }
+
         public void perform() {
             ContentValues contentValues;
-            if(getStoreColumnArray(storeColumn).length != getStoreValueArray(storeValue).length){
-                Toast.makeText(context, "Number of parameter not matched!", Toast.LENGTH_SHORT).show();
+            if (storeValueInArray != null ? getStoreColumnArray(storeColumn).length != storeValueInArray.length : getStoreColumnArray(storeColumn).length != getStoreValueArray(storeValue).length) {
+                CustomToast(context, "Number of parameter not matched!");
                 return;
-            }
-            else
-                 contentValues = getContentValues(getStoreColumnArray(storeColumn), getStoreValueArray(storeValue));
+            } else
+                contentValues = getContentValues(getStoreColumnArray(storeColumn), storeValueInArray != null ? storeValueInArray : getStoreValueArray(storeValue));
             //perform
             try {
-                if (contentValues != null)  db.insert(table, null, contentValues);
+                if (contentValues != null) db.insert(table, null, contentValues);
                 //read result
-                if(resultCallBack!= null) resultCallBack.createResult("Success");
-            }catch (SQLException e){
+                if (resultCallBack != null) resultCallBack.createResult("Success");
+            } catch (SQLException e) {
                 //read result
-                if(resultCallBack!= null) resultCallBack.createResult("Fail");
-                Toast.makeText(context, "Invalid Parameter", Toast.LENGTH_SHORT).show();
+                if (resultCallBack != null) resultCallBack.createResult("Fail");
+                CustomToast(context, "Invalid Parameter!");
             }
         }
 
-        private String[] getStoreColumnArray(String storeColumn){
+        private String[] getStoreColumnArray(String storeColumn) {
             storeColumnArray = storeColumn.split(",");
-            for(int i = 0; i < storeColumnArray.length; i++){
+            for (int i = 0; i < storeColumnArray.length; i++) {
                 storeColumnArray[i] = storeColumnArray[i].trim();
             }
-            return  storeColumnArray;
+            return storeColumnArray;
         }
 
-        private String[] getStoreValueArray(String storeValue){
+        private String[] getStoreValueArray(String storeValue) {
             storeValueArray = storeValue.split(",");
-            for(int i = 0; i < storeValueArray.length; i++){
+            for (int i = 0; i < storeValueArray.length; i++) {
                 storeValueArray[i] = storeValueArray[i].trim();
             }
-            return  storeValueArray;
+            return storeValueArray;
         }
     }
 
@@ -110,66 +114,84 @@ public class FrameworkClass {
         private String query = "";
         private String[] selectColumnArray;
 
-        public Read(String selectColumn){
+        public Read(String selectColumn) {
             this.selectColumn = selectColumn;
             db = sqLiteOpenHelper.getReadableDatabase();
             select();
         }
 
         //select query
-        private void select(){
-            query = "SELECT  "+ selectColumnValue(selectColumn) + "FROM " + table;
+        private void select() {
+            query = "SELECT  " + selectColumnValue(selectColumn) + "FROM " + table;
+        }
+
+        //left join table
+        public Read leftJoinTable(String leftJoinTable) {
+            if(leftJoinTable != null) query += " LEFT JOIN " + leftJoinTable;
+            return this;
+        }
+
+        public Read leftJoinTableCondition(String condition) {
+            if(condition != null) query += " ON " + condition;
+            return this;
         }
 
         //where query
-        public Read where(String whereCondition){
-            if(whereCondition != null) query += " WHERE " + whereCondition;
+        public Read where(String whereCondition) {
+            if (whereCondition != null) query += " WHERE " + whereCondition;
             return this;
         }
 
         //ascending order
-        public Read orderByAsc(String column){
-            if(column != null) query += " ORDER BY " + column + " ASC";
+        public Read orderByAsc(String column) {
+            if (column != null) query += " ORDER BY " + column + " ASC";
             return this;
         }
 
         //descending order
-        public Read orderByDesc(String column){
-            if(column != null) query += " ORDER BY " + column + " DESC";
+        public Read orderByDesc(String column) {
+            if (column != null) query += " ORDER BY " + column + " DESC";
+            return this;
+        }
+
+        //descending order
+        public Read limitBy(String limit) {
+            if (limit != null) query += " LIMIT " + limit;
             return this;
         }
 
         //count row
-        public int count(){
+        public int count() {
             int count = 0;
-            try{
+            try {
                 //perform read action
                 Cursor crs = db.rawQuery(query, null);
                 count = crs.getCount();
                 db.close();
                 crs.close();
 
-            }catch (SQLException e){
-                Toast.makeText(context, "Invalid Parameter", Toast.LENGTH_SHORT).show();
+            } catch (SQLException e) {
+                CustomToast(context, "Invalid Parameter!");
             }
             return count;
         }
 
         //perform select action
-        public void perform(){
+        public void perform() {
             StringBuilder result = new StringBuilder();
-            try{
+            try {
                 //perform read action
                 Cursor crs = db.rawQuery(query, null);
                 //bind result
                 while (crs.moveToNext()) {
                     //first
-                    if(crs.getPosition() == 0)
+                    if (crs.getPosition() == 0)
                         //only one item
-                        if(crs.getCount() == 1) result.append("{ result:[").append(bindResult(crs, selectColumn)).append("]}");
+                        if (crs.getCount() == 1)
+                            result.append("{ result:[").append(bindResult(crs, selectColumn)).append("]}");
                         else result.append("{ result:[").append(bindResult(crs, selectColumn));
                         //last
-                    else if(crs.getPosition() == crs.getCount() -1)
+                    else if (crs.getPosition() == crs.getCount() - 1)
                         result.append(",").append(bindResult(crs, selectColumn)).append("]}");
                     else
                         result.append(",").append(bindResult(crs, selectColumn));
@@ -177,43 +199,44 @@ public class FrameworkClass {
                 db.close();
                 crs.close();
 
-            }catch (SQLException e){
-                Toast.makeText(context, "Invalid Parameter", Toast.LENGTH_SHORT).show();
+            } catch (SQLException e) {
+                CustomToast(context, "Invalid Parameter!");
             }
-            if(resultCallBack!= null) resultCallBack.readResult(result.toString());
+            if (resultCallBack != null) resultCallBack.readResult(result.toString());
         }
+
         //bind fetch result
-        private String bindResult(Cursor cursor, String selectColumn){
+        private String bindResult(Cursor cursor, String selectColumn) {
             StringBuilder bindResult = new StringBuilder("{");
-            for(int i = 0; i < cursor.getColumnCount(); i ++){
+            for (int i = 0; i < cursor.getColumnCount(); i++) {
                 //if select all
-                if(selectColumn.equals("*")){
-                    if(i == cursor.getColumnCount()-1)
+                if (selectColumn.equals("*")) {
+                    if (i == cursor.getColumnCount() - 1)
                         bindResult.append(cursor.getColumnName(i)).append(":\"").append(cursor.getString(cursor.getColumnIndex(cursor.getColumnName(i)))).append("\"}");
                     else
                         bindResult.append(cursor.getColumnName(i)).append(":\"").append(cursor.getString(cursor.getColumnIndex(cursor.getColumnName(i)))).append("\",");
                 }
                 //else
-                else{
-                    if(i == cursor.getColumnCount()-1){
+                else {
+                    if (i == cursor.getColumnCount() - 1) {
                         bindResult.append(cursor.getColumnName(i)).append(":\"").append(cursor.getString(cursor.getColumnIndex(selectColumnArray[i]))).append("\"}");
-                    }
-                    else{
+                    } else {
                         bindResult.append(cursor.getColumnName(i)).append(":\"").append(cursor.getString(cursor.getColumnIndex(selectColumnArray[i]))).append("\",");
                     }
                 }
             }
             return bindResult.toString();
         }
+
         //set select field
-        private String selectColumnValue(String selectColumn){
+        private String selectColumnValue(String selectColumn) {
             StringBuilder selectColumns = new StringBuilder();
             //if select all then return *
-            if(selectColumn.equals("*")){
+            if (selectColumn.equals("*")) {
                 return "*";
             }
             //else have to go through every select columns
-            else{
+            else {
                 try {
                     //convert SELECT column from string to array
                     selectColumnArray = getSelectColumnArray(selectColumn);
@@ -224,37 +247,37 @@ public class FrameworkClass {
                             //if i == last item
                         else selectColumns.append(selectColumnArray[i]).append(" ");
                     }
-                }catch (IndexOutOfBoundsException e){
+                } catch (IndexOutOfBoundsException e) {
                     Log.d("", "" + e);
                 }
                 return selectColumns.toString();
             }
         }
 
-        private String[] getSelectColumnArray(String selectColumn){
+        private String[] getSelectColumnArray(String selectColumn) {
             selectColumnArray = selectColumn.split(",");
-            for(int i = 0; i < selectColumnArray.length; i++){
+            for (int i = 0; i < selectColumnArray.length; i++) {
                 selectColumnArray[i] = selectColumnArray[i].trim();
             }
-            return  selectColumnArray;
+            return selectColumnArray;
         }
     }
 
     /*---------------------------------------------------------------edit------------------------------------------------------------------*/
-    public class Update{
+    public class Update {
         SQLiteDatabase db;
         String updateColumn, updateValue, whereValue = "";
         String[] updateColumnArray, updateValueArray;
 
         String where = null;
 
-        public Update(String updateColumn, String updateValue){
+        public Update(String updateColumn, String updateValue) {
             this.db = sqLiteOpenHelper.getWritableDatabase();
             this.updateColumn = updateColumn;
             this.updateValue = updateValue;
         }
 
-        public Update where(String whereCondition, String whereValue){
+        public Update where(String whereCondition, String whereValue) {
             where = whereCondition;
             this.whereValue = whereValue;
             return this;
@@ -266,36 +289,35 @@ public class FrameworkClass {
             updateValueArray = getArrayFromString(updateValue);
             //length not match then stop
             assert updateValueArray != null;
-            if(updateColumnArray.length != updateValueArray.length){
-                Toast.makeText(context, "Number of parameter not matched!", Toast.LENGTH_SHORT).show();
+            if (updateColumnArray.length != updateValueArray.length) {
+                CustomToast(context, "Number of parameter not matched!");
                 return;
-            }
-            else contentValues = getContentValues(updateColumnArray, updateValueArray);
+            } else contentValues = getContentValues(updateColumnArray, updateValueArray);
             try {
-                if (contentValues != null) db.update(table, contentValues, where, getArrayFromString(whereValue));
-                if(resultCallBack!= null) resultCallBack.updateResult("Success");
-            }catch (SQLException e){
-                if(resultCallBack!= null) resultCallBack.updateResult("Fail");
+                if (contentValues != null)
+                    db.update(table, contentValues, where, getArrayFromString(whereValue));
+                if (resultCallBack != null) resultCallBack.updateResult("Success");
+            } catch (SQLException e) {
+                if (resultCallBack != null) resultCallBack.updateResult("Fail");
                 Log.d("haha", "haha: " + e);
-                Toast.makeText(context, "Invalid Parameter", Toast.LENGTH_SHORT).show();
-            }
-            catch (IllegalArgumentException e){
-                Toast.makeText(context, "Format Not Matched!", Toast.LENGTH_SHORT).show();
+                CustomToast(context, "Invalid Parameter!");
+            } catch (IllegalArgumentException e) {
+                CustomToast(context, "Format Not Matched!");
             }
         }
 
     }
 
-    public class Delete{
+    public class Delete {
         SQLiteDatabase db;
         String whereValue = "";
         String where = "";
 
-        public Delete(){
+        public Delete() {
             this.db = sqLiteOpenHelper.getWritableDatabase();
         }
 
-        public Delete where(String whereCondition, String whereValue){
+        public Delete where(String whereCondition, String whereValue) {
             where = whereCondition;
             this.whereValue = whereValue;
             return this;
@@ -307,21 +329,13 @@ public class FrameworkClass {
                 result = db.delete(table, where, getArrayFromString(whereValue));
 
                 //delete result
-                if(resultCallBack!= null) resultCallBack.deleteResult("Success");
-            }catch (SQLException e){
+                if (resultCallBack != null) resultCallBack.deleteResult("Success");
+            } catch (SQLException e) {
                 //delete result
-                if(resultCallBack!= null) resultCallBack.deleteResult("Fail");
-                Toast.makeText(context, "Invalid Parameter", Toast.LENGTH_SHORT).show();
+                if (resultCallBack != null) resultCallBack.deleteResult("Fail");
+                CustomToast(context, "Invalid Parameter!");
             }
             return result;
         }
-
     }
-
-//    public interface ResultCallBack{
-//        void createResult(String status);
-//        void readResult(String result);
-//        void updateResult(String status);
-//        void deleteResult(String status);
-//    }
 }

@@ -49,7 +49,7 @@ public class BasketNetworkMonitor extends JobService implements ResultCallBack {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                frameworkClass.new Read("id, farmer_id, customer_id, quantity, type")
+                frameworkClass.new Read("id, farmer_id, customer_id, quantity, type, created_at")
                         .where("status = 0")
                         .orderByDesc("id").perform();
             }
@@ -63,13 +63,14 @@ public class BasketNetworkMonitor extends JobService implements ResultCallBack {
         return true;
     }
 
-    private void basketControl(String id, String farmerID, String customerID, String quantity, String type){
+    private void basketControl(String id, String farmerID, String customerID, String quantity, String type, String date){
         apiDataObjectArrayList = new ArrayList<>();
         apiDataObjectArrayList.add(new ApiDataObject("driver_id", SharedPreferenceManager.getUserId(this)));
         apiDataObjectArrayList.add(new ApiDataObject("farmer_id", farmerID));
         apiDataObjectArrayList.add(new ApiDataObject("customer_id", customerID));
         apiDataObjectArrayList.add(new ApiDataObject("quantity", quantity));
         apiDataObjectArrayList.add(new ApiDataObject("type", type));
+        apiDataObjectArrayList.add(new ApiDataObject("date", date));
 
         asyncTaskManager = new AsyncTaskManager(
                 this,
@@ -133,7 +134,8 @@ public class BasketNetworkMonitor extends JobService implements ResultCallBack {
                             jsonArray.getJSONObject(i).getString("farmer_id"),
                             jsonArray.getJSONObject(i).getString("customer_id"),
                             jsonArray.getJSONObject(i).getString("quantity"),
-                            jsonArray.getJSONObject(i).getString("type")
+                            jsonArray.getJSONObject(i).getString("type"),
+                            jsonArray.getJSONObject(i).getString("created_at")
                     );
                 jobFinished(params, true);
             }

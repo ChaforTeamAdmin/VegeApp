@@ -176,10 +176,14 @@ public class RemarkDialog extends DialogFragment implements View.OnClickListener
             if (remarkDialogInput.getText().toString().equals("")) {
                 showSnackBar("Please enter the correct weight");
             } else {
+                showProgressBar(true);
                 deliver_remark = (remarkDialogInput.getText().toString().trim());
                 remarkItem();
             }
-        } else remarkItem();
+        } else {
+            showProgressBar(true);
+            remarkItem();
+        }
     }
 
     @Override
@@ -218,6 +222,7 @@ public class RemarkDialog extends DialogFragment implements View.OnClickListener
                                     public void run() {
                                         //if status less then set the weight
                                         remarkDialogInput.setText(!deliver_remark_status.equals("1") ? weight : "");
+                                        remarkDialogInput.setEnabled(false);
                                     }
                                 });
                             }
@@ -270,6 +275,7 @@ public class RemarkDialog extends DialogFragment implements View.OnClickListener
                         if (jsonObjectLoginResponse != null) {
                             if (jsonObjectLoginResponse.getString("status").equals("1")) {
                                 CustomToast(getActivity(), deliver_remark_status.equals("0") ? "Remove Successfully!" : "Remark Successfully!");
+                                showProgressBar(false);
                                 dismiss();
                             }
                         } else {
@@ -308,6 +314,15 @@ public class RemarkDialog extends DialogFragment implements View.OnClickListener
                     }
                 });
                 snackbar.show();
+            }
+        });
+    }
+
+    public void showProgressBar(final boolean show){
+        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
             }
         });
     }

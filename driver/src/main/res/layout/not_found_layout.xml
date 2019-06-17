@@ -18,6 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/not_found_layout_icon"
         android:gravity="center"
+        android:layout_marginTop="20dp"
         android:padding="10dp"
         android:id="@+id/not_found_layout_label"
         android:textColor="@color/line_black"

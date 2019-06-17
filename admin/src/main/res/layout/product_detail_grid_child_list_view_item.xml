@@ -27,7 +27,7 @@
                 android:layout_centerInParent="true"
                 android:layout_alignParentTop="true"
                 android:textColor="@color/black"
-                android:textSize="20dp"/>
+                android:textSize="18dp"/>
 
             <View
                 android:layout_width="match_parent"
@@ -57,15 +57,6 @@
                     android:src="@drawable/tick_icon"/>
 
             </LinearLayout>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:padding="10dp"
-                android:contentDescription="@string/app_name"
-                android:id="@+id/product_detail_child_list_view_warning_icon"
-                android:src="@drawable/warning_icon"/>
 
         </RelativeLayout>
 

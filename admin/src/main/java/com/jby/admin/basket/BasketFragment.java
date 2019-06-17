@@ -3,7 +3,9 @@ package com.jby.admin.basket;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,12 +29,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 
-public class BasketFragment extends Fragment {
+public class BasketFragment extends Fragment implements View.OnClickListener {
     private View rootView;
 
     private TextView basketFragmentDriverQuantity, basketFragmentFarmerQuantity, basketFragmentCustomerQuantity;
     private TextView basketFragmentTotalOutStandingBasket, basketFragmentTotalBasket, basketFragmentAvailableQuantity;
-
+    private TextView basketFragmentDriverDetail, basketFragmentFarmerDetail, basketFragmentCustomerDetail;
     //    asyncTask
     AsyncTaskManager asyncTaskManager;
     JSONObject jsonObjectLoginResponse;
@@ -59,10 +61,15 @@ public class BasketFragment extends Fragment {
     }
 
     private void objectInitialize() {
+
         basketFragmentDriverQuantity = rootView.findViewById(R.id.fragment_basket_driver_quantity);
         basketFragmentFarmerQuantity = rootView.findViewById(R.id.fragment_basket_farmer_quantity);
         basketFragmentCustomerQuantity = rootView.findViewById(R.id.fragment_basket_customer_quantity);
         basketFragmentTotalOutStandingBasket = rootView.findViewById(R.id.fragment_basket_total_outstanding_quantity);
+
+        basketFragmentDriverDetail = rootView.findViewById(R.id.fragment_basket_driver_detail);
+        basketFragmentCustomerDetail = rootView.findViewById(R.id.fragment_basket_customer_detail);
+        basketFragmentFarmerDetail = rootView.findViewById(R.id.fragment_basket_farmer_detail);
 
         basketFragmentTotalBasket = rootView.findViewById(R.id.fragment_basket_total_basket);
         basketFragmentAvailableQuantity = rootView.findViewById(R.id.fragment_basket_available_basket);
@@ -71,6 +78,10 @@ public class BasketFragment extends Fragment {
     }
 
     private void objectSetting() {
+        basketFragmentDriverDetail.setOnClickListener(this);
+        basketFragmentCustomerDetail.setOnClickListener(this);
+        basketFragmentFarmerDetail.setOnClickListener(this);
+
         showProgressBar(true);
         handler.postDelayed(new Runnable() {
             @Override
@@ -151,7 +162,7 @@ public class BasketFragment extends Fragment {
 
     private String getTotalAvailableQuantity(String total, String outstanding){
         try{
-            return String.valueOf(Integer.valueOf(total) - Integer.valueOf(outstanding));
+            return String.valueOf(Integer.valueOf(outstanding) - Integer.valueOf(total));
         }catch (NumberFormatException e){
             return "-";
         }
@@ -159,5 +170,29 @@ public class BasketFragment extends Fragment {
 
     private void showProgressBar(boolean show){
         ((MainActivity) Objects.requireNonNull(getActivity())).showProgressBar(show);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.fragment_basket_driver_detail:
+                basketDetailDialog("driver");
+                break;
+            case R.id.fragment_basket_customer_detail:
+                basketDetailDialog("customer");
+                break;
+            case R.id.fragment_basket_farmer_detail:
+                basketDetailDialog("farmer");
+                break;
+        }
+    }
+
+    private void basketDetailDialog(String type){
+        Bundle bundle = new Bundle();
+        bundle.putString("type", type);
+
+        DialogFragment dialogFragment = new BasketDetailDialog();
+        dialogFragment.setArguments(bundle);
+        dialogFragment.show(getChildFragmentManager(), "");
     }
 }

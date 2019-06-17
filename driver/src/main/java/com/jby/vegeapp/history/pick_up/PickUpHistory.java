@@ -1,7 +1,5 @@
 package com.jby.vegeapp.history.pick_up;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,15 +12,20 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jby.vegeapp.R;
-import com.jby.vegeapp.adapter.PickUpHistoryExpandableAdapter;
-import com.jby.vegeapp.basket.BasketActivity;
+import com.jby.vegeapp.adapter.history.PickUpHistoryExpandableAdapter;
 import com.jby.vegeapp.history.HistoryActivity;
-import com.jby.vegeapp.object.HistoryParentObject;
-import com.jby.vegeapp.object.PickUpHistoryObject;
+import com.jby.vegeapp.history.HistoryDetailActivity;
+import com.jby.vegeapp.object.history.HistoryParentObject;
+import com.jby.vegeapp.object.history.PickUpHistoryObject;
 import com.jby.vegeapp.others.NetworkConnection;
 import com.jby.vegeapp.others.NonScrollExpandableListView;
+import com.jby.vegeapp.pickUp.PickUpActivity;
+import com.jby.vegeapp.printer.Manager.PrintObject;
+import com.jby.vegeapp.printer.Manager.PrintfManager;
+import com.jby.vegeapp.printer.PrintfBlueListActivity;
 import com.jby.vegeapp.shareObject.ApiDataObject;
 import com.jby.vegeapp.shareObject.ApiManager;
 import com.jby.vegeapp.shareObject.AsyncTaskManager;
@@ -38,11 +41,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.jby.vegeapp.Utils.VariableUtils.PROCEED_TO_PRINT;
 import static com.jby.vegeapp.shareObject.CustomToast.CustomToast;
-import static com.jby.vegeapp.shareObject.VariableUtils.UPDATE_LIST;
+import static com.jby.vegeapp.Utils.VariableUtils.UPDATE_LIST;
 
 
-public class PickUpHistory extends Fragment implements ExpandableListView.OnGroupClickListener, PickUpHistoryExpandableAdapter.PickUpHistoryExpandableAdapterCallBack {
+public class PickUpHistory extends Fragment implements ExpandableListView.OnGroupClickListener, ExpandableListView.OnChildClickListener {
     View rootView;
     //not found layout
     private RelativeLayout notFoundLayout;
@@ -58,6 +62,7 @@ public class PickUpHistory extends Fragment implements ExpandableListView.OnGrou
     JSONObject jsonObjectLoginResponse;
     ArrayList<ApiDataObject> apiDataObjectArrayList;
     private Handler handler;
+
     public PickUpHistory() {
         // Required empty public constructor
     }
@@ -85,13 +90,14 @@ public class PickUpHistory extends Fragment implements ExpandableListView.OnGrou
 
         pickUpHistoryExpandableAdapterListView = rootView.findViewById(R.id.fragment_pick_up_history_list_view);
         historyParentObjectArrayList = new ArrayList<>();
-        pickUpHistoryExpandableAdapterExpandableAdapter = new PickUpHistoryExpandableAdapter(getActivity(), historyParentObjectArrayList, this);
+        pickUpHistoryExpandableAdapterExpandableAdapter = new PickUpHistoryExpandableAdapter(getActivity(), historyParentObjectArrayList);
         handler = new Handler();
     }
 
     private void objectSetting() {
         pickUpHistoryExpandableAdapterListView.setAdapter(pickUpHistoryExpandableAdapterExpandableAdapter);
         pickUpHistoryExpandableAdapterListView.setOnGroupClickListener(this);
+        pickUpHistoryExpandableAdapterListView.setOnChildClickListener(this);
         setupNotFoundLayout();
         checkInternetConnection(null);
     }
@@ -130,7 +136,7 @@ public class PickUpHistory extends Fragment implements ExpandableListView.OnGrou
 
                 asyncTaskManager = new AsyncTaskManager(
                         getActivity(),
-                        new ApiManager().history,
+                        new ApiManager().pick_up_history,
                         new ApiManager().getResultParameter(
                                 "",
                                 new ApiManager().setData(apiDataObjectArrayList),
@@ -197,7 +203,7 @@ public class PickUpHistory extends Fragment implements ExpandableListView.OnGrou
                 apiDataObjectArrayList.add(new ApiDataObject("pick_up_driver_id", SharedPreferenceManager.getUserId(getActivity())));
                 asyncTaskManager = new AsyncTaskManager(
                         getActivity(),
-                        new ApiManager().history,
+                        new ApiManager().pick_up_history,
                         new ApiManager().getResultParameter(
                                 "",
                                 new ApiManager().setData(apiDataObjectArrayList),
@@ -260,6 +266,7 @@ public class PickUpHistory extends Fragment implements ExpandableListView.OnGrou
         PickUpHistoryObject object = null;
         try {
             object = new PickUpHistoryObject(
+                    jsonObject.getString("ro_id"),
                     jsonObject.getString("id"),
                     jsonObject.getString("farmer_id"),
                     jsonObject.getString("farmer"),
@@ -273,119 +280,54 @@ public class PickUpHistory extends Fragment implements ExpandableListView.OnGrou
 
     /*------------------------------------------------------list view onclick-------------------------------------------------------------*/
     @Override
-    public void edit(int position) {
+    public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("object" , historyParentObjectArrayList.get(groupPosition).getBasketHistoryObjectArrayList().get(position));
-        startActivityForResult(new Intent(getActivity(), BasketActivity.class).putExtras(bundle), UPDATE_LIST);
+        bundle.putString("ro_id", historyParentObjectArrayList.get(i).getPickUpHistoryObjectArrayList().get(i1).getRo_id());
+        bundle.putString("farmer_id", historyParentObjectArrayList.get(i).getPickUpHistoryObjectArrayList().get(i1).getFarmer_id());
+        bundle.putString("date", historyParentObjectArrayList.get(i).getDate());
+        bundle.putString("time", historyParentObjectArrayList.get(i).getPickUpHistoryObjectArrayList().get(i1).getCreated_time());
+        startActivityForResult(new Intent(getActivity(), HistoryDetailActivity.class).putExtras(bundle), UPDATE_LIST);
+        return true;
     }
 
-    @Override
-    public void delete(int position) {
-        deleteConfirmation(position);
-    }
-
-    public void deleteConfirmation(final int position) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Warning");
-        builder.setMessage("Are you sure that you want to delete this record? \nIt may affect overall result");
-        builder.setCancelable(true);
-
-        builder.setPositiveButton(
-                "Confirm",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int i) {
-                        deleteBasket(position);
-                        dialog.cancel();
-                    }
-                });
-
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.cancel();
-            }
-        });
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
-
-
-    private void deleteBasket(final int position) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                apiDataObjectArrayList = new ArrayList<>();
-                apiDataObjectArrayList.add(new ApiDataObject("id", historyParentObjectArrayList.get(groupPosition).getBasketHistoryObjectArrayList().get(position).getId()));
-                apiDataObjectArrayList.add(new ApiDataObject("type", historyParentObjectArrayList.get(groupPosition).getBasketHistoryObjectArrayList().get(position).getType()));
-                asyncTaskManager = new AsyncTaskManager(
-                        getActivity(),
-                        new ApiManager().basket,
-                        new ApiManager().getResultParameter(
-                                "",
-                                new ApiManager().setData(apiDataObjectArrayList),
-                                ""
-                        )
-                );
-                asyncTaskManager.execute();
-
-                if (!asyncTaskManager.isCancelled()) {
-                    try {
-                        jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
-                        if (jsonObjectLoginResponse != null) {
-                            Log.d("jsonObject", "jsonObject: " + jsonObjectLoginResponse);
-                            if (jsonObjectLoginResponse.getString("status").equals("1")) {
-                                showSnackBar("Delete Successfully!");
-                                reset();
-                            }
-                        } else {
-                            CustomToast(getActivity(), "Network Error!");
-                        }
-                    } catch (InterruptedException e) {
-                        CustomToast(getActivity(), "Interrupted Exception!");
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        CustomToast(getActivity(), "Execution Exception!");
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        CustomToast(getActivity(), "JSON Exception!");
-                        e.printStackTrace();
-                    } catch (TimeoutException e) {
-                        CustomToast(getActivity(), "Connection Time Out!");
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
-    }
     /*---------------------------------------------------------list view other setting---------------------------------------------------*/
     private void preOpenChild(final int groupPosition) {
         Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (historyParentObjectArrayList.size() > 0) fetchChildItem(groupPosition >0 ? groupPosition : 0);
+                if (historyParentObjectArrayList.size() > 0)
+                    fetchChildItem(groupPosition > 0 ? groupPosition : 0);
             }
         });
     }
 
     private void setVisibility() {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                pickUpHistoryExpandableAdapterListView.setVisibility(historyParentObjectArrayList.size() > 0 ? View.VISIBLE : View.GONE);
-                showProgressBar(false);
-                showFoundLayout();
-                notifyDataSetChanged();
-            }
-        });
+        try {
+            Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pickUpHistoryExpandableAdapterListView.setVisibility(historyParentObjectArrayList.size() > 0 ? View.VISIBLE : View.GONE);
+                    showProgressBar(false);
+                    showFoundLayout();
+                    notifyDataSetChanged();
+                }
+            });
+        } catch (NullPointerException e) {
+            CustomToast(getActivity(), "Loading...");
+        }
     }
 
     private void notifyDataSetChanged() {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                pickUpHistoryExpandableAdapterExpandableAdapter.notifyDataSetChanged();
-            }
-        });
+        try {
+            Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pickUpHistoryExpandableAdapterExpandableAdapter.notifyDataSetChanged();
+                }
+            });
+        } catch (NullPointerException e) {
+            CustomToast(getActivity(), "Loading...");
+        }
     }
 
     private void closeOtherChildView(int position) {
@@ -403,13 +345,22 @@ public class PickUpHistory extends Fragment implements ExpandableListView.OnGrou
         });
     }
 
-    public void reset(){
+    public void reset() {
         historyParentObjectArrayList.clear();
         fetchParentItem();
     }
 
     /*----------------------------------------------------------other--------------------------------------------------------------------*/
-    private void showSnackBar(String message){
+    private void showSnackBar(String message) {
         ((HistoryActivity) Objects.requireNonNull(getActivity())).showSnackBar(message);
+    }
+
+    /*-------------------------------------------------------------refresh list request from history detail activity---------------------------*/
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == UPDATE_LIST)
+            reset();
     }
 }
