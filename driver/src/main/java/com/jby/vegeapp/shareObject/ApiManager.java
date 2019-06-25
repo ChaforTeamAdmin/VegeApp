@@ -7,8 +7,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class ApiManager {
-//    private static String domain = "http://www.chafor.net/";
-    private static String domain = "http://www.yofu.my/";
+    private static String domain = "http://www.chafor.net/";
+//    private static String domain = "http://www.yofu.my/";
     private static String prefix = "vegetable/";
     private static String sub_prefix = "driver/";
 

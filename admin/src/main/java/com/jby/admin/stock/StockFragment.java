@@ -779,6 +779,7 @@ public class StockFragment extends Fragment implements AdapterView.OnItemSelecte
                             else if (jsonObjectLoginResponse.getString("status").equals("2")) {
                                 assignVegetable();
                             } else if (jsonObjectLoginResponse.getString("status").equals("3")) {
+                                Log.d("haha","hahahaha");
                                 checkingStockBeforeUpdate();
                             }
                         } else {

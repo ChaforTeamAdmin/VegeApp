@@ -2,10 +2,7 @@ package com.jby.vegeapp.pickUp;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -964,6 +961,7 @@ public class PickUpActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.cancel();
+                        if(action == PRINT_CONFIRMATION && isUpdate) onBackPressed();
                     }
                 });
                 AlertDialog alert = builder.create();
@@ -1143,7 +1141,7 @@ public class PickUpActivity extends AppCompatActivity implements View.OnClickLis
                          * */
                         setCurrentProgress(position++);
                         /*
-                         * upload item's staus set to 1
+                         * upload item's status set to 1
                          * */
                         updateStatus(jsonObject.getString("id"));
                         if (stop) {
@@ -1426,7 +1424,7 @@ public class PickUpActivity extends AppCompatActivity implements View.OnClickLis
     private void setDefaultDate() {
         if (SharedPreferenceManager.getUserType(this).equals("1"))
             new AnimationUtility().fadeInVisible(this, pickUpActivityDateParentLayout);
-        date = (String) android.text.format.DateFormat.format("yyyy-MM-dd", new java.util.Date());
+        date = (date != null ? date : (String) android.text.format.DateFormat.format("yyyy-MM-dd", new java.util.Date()));
     }
 
     private String getCurrentDateAndTime() {

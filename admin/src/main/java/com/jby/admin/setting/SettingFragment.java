@@ -7,8 +7,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,18 +18,38 @@ import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.jby.admin.MainActivity;
 import com.jby.admin.R;
 import com.jby.admin.registration.LoginActivity;
+import com.jby.admin.shareObject.ApiDataObject;
+import com.jby.admin.shareObject.ApiManager;
+import com.jby.admin.shareObject.AsyncTaskManager;
 import com.jby.admin.sharePreference.SharedPreferenceManager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static com.jby.admin.shareObject.CustomToast.CustomToast;
 
 
 public class SettingFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     View rootView;
-    RelativeLayout settingFragmentLogOut, settingFragmentContactUs, settingFragmentNotification;
+    RelativeLayout settingFragmentLogOut, settingFragmentContactUs, settingFragmentNotification, settingFragmentClearCache;
     SwitchCompat settingFragmentRemarkNotificationSwitch, settingFragmentPickUpNotificationSwitch, settingFragmentDeliverNotificationSwitch;
     TextView settingFragmentVersion;
+    /*
+     * Async task
+     * */
+    AsyncTaskManager asyncTaskManager;
+    JSONObject jsonObjectLoginResponse;
+    ArrayList<ApiDataObject> apiDataObjectArrayList;
+    private Handler handler;
 
     public SettingFragment() {
         // Required empty public constructor
@@ -52,6 +74,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener, C
     private void objectInitialize() {
         settingFragmentLogOut = rootView.findViewById(R.id.fragment_setting_log_out_button);
         settingFragmentContactUs = rootView.findViewById(R.id.fragment_setting_contact_us);
+        settingFragmentClearCache = rootView.findViewById(R.id.fragment_setting_clear_cache);
 
         settingFragmentRemarkNotificationSwitch = rootView.findViewById(R.id.fragment_setting_remark_notification_button);
         settingFragmentPickUpNotificationSwitch = rootView.findViewById(R.id.fragment_setting_pick_up_notification_button);
@@ -63,6 +86,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener, C
     private void objectSetting() {
         settingFragmentLogOut.setOnClickListener(this);
         settingFragmentContactUs.setOnClickListener(this);
+        settingFragmentClearCache.setOnClickListener(this);
 
         settingFragmentRemarkNotificationSwitch.setOnCheckedChangeListener(this);
         settingFragmentPickUpNotificationSwitch.setOnCheckedChangeListener(this);
@@ -83,10 +107,14 @@ public class SettingFragment extends Fragment implements View.OnClickListener, C
             case R.id.fragment_setting_contact_us:
                 openWhatApp();
                 break;
+            case R.id.fragment_setting_clear_cache:
+                showProgressBar(true);
+                clearCache();
+                break;
         }
     }
 
-    private void openWhatApp(){
+    private void openWhatApp() {
         startActivity(new Intent(Intent.ACTION_VIEW,
                 Uri.parse(
                         "https://api.whatsapp.com/send?phone=60143157329&text=I'm%20interested%20in%20your%20car%20for%20sale"
@@ -147,5 +175,56 @@ public class SettingFragment extends Fragment implements View.OnClickListener, C
                 SharedPreferenceManager.setShowNotification(getActivity(), "delivery_notification", b);
                 break;
         }
+    }
+
+    /*
+     * clear queue control
+     * */
+    private void clearCache() {
+        apiDataObjectArrayList = new ArrayList<>();
+        apiDataObjectArrayList.add(new ApiDataObject("clear_cache", ""));
+
+        asyncTaskManager = new AsyncTaskManager(
+                getActivity(),
+                new ApiManager().cache,
+                new ApiManager().getResultParameter(
+                        "",
+                        new ApiManager().setData(apiDataObjectArrayList),
+                        ""
+                )
+        );
+        asyncTaskManager.execute();
+
+        if (!asyncTaskManager.isCancelled()) {
+
+            try {
+                jsonObjectLoginResponse = asyncTaskManager.get(30000, TimeUnit.MILLISECONDS);
+                if (jsonObjectLoginResponse != null) {
+                    try {
+                        if (jsonObjectLoginResponse.getString("status").equals("1")) {
+                            CustomToast(getActivity(), "Cache cleared Successfully!");
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    CustomToast(getActivity(), "Network Error!");
+                }
+            } catch (InterruptedException e) {
+                CustomToast(getActivity(), "Interrupted Exception!");
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                CustomToast(getActivity(), "Execution Exception!");
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                CustomToast(getActivity(), "Connection Time Out!");
+                e.printStackTrace();
+            }
+        }
+        showProgressBar(false);
+    }
+
+    private void showProgressBar(boolean show) {
+        ((MainActivity) Objects.requireNonNull(getActivity())).showProgressBar(show);
     }
 }

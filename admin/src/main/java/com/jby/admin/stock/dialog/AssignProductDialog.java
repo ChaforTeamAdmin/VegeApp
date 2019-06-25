@@ -141,6 +141,7 @@ public class AssignProductDialog extends DialogFragment implements View.OnClickL
         assignProductDialogCallBack = (AssignProductDialogCallBack) (getParentFragment() != null ? getParentFragment() : getActivity());
 
         productGridAdapter = new ProductGridAdapter(getActivity(), productDetailChildObjectArrayList, this, fromWhere);
+
         assignProductDialogGridView.setAdapter(productGridAdapter);
         assignProductDialogGridView.setMultiChoiceModeListener(this);
         assignProductDialogGridView.setOnItemClickListener(this);

@@ -17,6 +17,7 @@ public class ApiManager {
     public String basket = domain + prefix + sub_prefix + "basket/basket.php";
     public String remark = domain + prefix + sub_prefix + "stock/remark.php";
     public String delivery = domain + prefix + sub_prefix + "delivery_order/delivery_order.php";
+    public String cache = domain + prefix + sub_prefix + "cache/cache.php";
     //image path
     public String product_img = domain + prefix +  "product/vege_img/";
     public String driver = domain + prefix + "driver/driver.php";
