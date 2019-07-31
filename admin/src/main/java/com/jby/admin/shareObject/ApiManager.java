@@ -7,9 +7,12 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class ApiManager {
-    private static String domain = "http://www.yofu.my/";
+    private static String domain = "https://www.yofu.my/";
 //    private static String domain = "http://www.chafor.net/";
-    private static String prefix = "vegetable/";
+
+    //    private static String prefix = "vegetable/";
+    private static String prefix = "mahsing/";
+
     private static String sub_prefix = "admin/";
 
     public String registration = domain + prefix + sub_prefix + "registration/registration.php";
@@ -19,20 +22,20 @@ public class ApiManager {
     public String delivery = domain + prefix + sub_prefix + "delivery_order/delivery_order.php";
     public String cache = domain + prefix + sub_prefix + "cache/cache.php";
     //image path
-    public String product_img = domain + prefix +  "product/vege_img/";
+    public String product_img = domain + prefix + "product/vege_img/";
     public String driver = domain + prefix + "driver/driver.php";
     public String customer = domain + prefix + "customer/customer.php";
     public String notification = domain + prefix + "notification/notification.php";
 
-    public String setData(ArrayList<ApiDataObject> apiDataObjectArrayList){
+    public String setData(ArrayList<ApiDataObject> apiDataObjectArrayList) {
         StringBuilder apiDataPost = new StringBuilder();
         String anApiDataPost = "";
-        for (int position = 0 ; position < apiDataObjectArrayList.size() ; position++) {
+        for (int position = 0; position < apiDataObjectArrayList.size(); position++) {
             apiDataObjectArrayList.size();
             try {
                 anApiDataPost = URLEncoder.encode(apiDataObjectArrayList.get(position).getDataKey(), "UTF-8")
-                                + "=" +
-                                URLEncoder.encode(apiDataObjectArrayList.get(position).getDataContent(), "UTF-8");
+                        + "=" +
+                        URLEncoder.encode(apiDataObjectArrayList.get(position).getDataContent(), "UTF-8");
 
                 apiDataPost.append(anApiDataPost);
             } catch (UnsupportedEncodingException e) {
@@ -46,26 +49,26 @@ public class ApiManager {
     }
 
     /*
-    *       Set Data <key>=<data> OR Model <model-name>[<key>]=<data>
-    * */
-    public String setModel(ArrayList<ApiModelObject> apiModelObjectArrayList){
+     *       Set Data <key>=<data> OR Model <model-name>[<key>]=<data>
+     * */
+    public String setModel(ArrayList<ApiModelObject> apiModelObjectArrayList) {
         String apiModelPost = "";
         String anApiDataPost = "";
 
         /*
-        *
-        *       Build Post Data In Model Format
-        *
-        * */
-        for (int position = 0 ; position < apiModelObjectArrayList.size() ; position++) {
-            if (apiModelObjectArrayList.size() > 0){
+         *
+         *       Build Post Data In Model Format
+         *
+         * */
+        for (int position = 0; position < apiModelObjectArrayList.size(); position++) {
+            if (apiModelObjectArrayList.size() > 0) {
                 try {
                     anApiDataPost = URLEncoder.encode(apiModelObjectArrayList.get(position).getModelName(), "UTF-8")
-                                    + URLEncoder.encode("[", "UTF-8")
-                                    + URLEncoder.encode(apiModelObjectArrayList.get(position).getApiDataObject().getDataKey(), "UTF-8")
-                                    + URLEncoder.encode("]", "UTF-8")
-                                    + "="
-                                    + URLEncoder.encode(apiModelObjectArrayList.get(position).getApiDataObject().getDataContent(), "UTF-8");
+                            + URLEncoder.encode("[", "UTF-8")
+                            + URLEncoder.encode(apiModelObjectArrayList.get(position).getApiDataObject().getDataKey(), "UTF-8")
+                            + URLEncoder.encode("]", "UTF-8")
+                            + "="
+                            + URLEncoder.encode(apiModelObjectArrayList.get(position).getApiDataObject().getDataContent(), "UTF-8");
 
                     apiModelPost += anApiDataPost;
                 } catch (UnsupportedEncodingException e) {
@@ -81,31 +84,31 @@ public class ApiManager {
     }
 
     /*
-    *       List Data Or Model
-    * */
-    public String setListModel(String Model, ArrayList<ArrayList<ApiDataObject>> apiListModelObjectArrayList){
+     *       List Data Or Model
+     * */
+    public String setListModel(String Model, ArrayList<ArrayList<ApiDataObject>> apiListModelObjectArrayList) {
         String apiListModelPost = "";
 
         String anApiModelPost = "";
 
         /*
-        *
-        *       Build Post Data In List Model Format
-        *
-        * */
-        for (int position = 0 ; position < apiListModelObjectArrayList.size() ; position++) {
-            if (apiListModelObjectArrayList.size() > 0){
+         *
+         *       Build Post Data In List Model Format
+         *
+         * */
+        for (int position = 0; position < apiListModelObjectArrayList.size(); position++) {
+            if (apiListModelObjectArrayList.size() > 0) {
                 try {
-                    for (int innerPosition = 0 ; innerPosition < apiListModelObjectArrayList.get(position).size() ; innerPosition++){
+                    for (int innerPosition = 0; innerPosition < apiListModelObjectArrayList.get(position).size(); innerPosition++) {
                         anApiModelPost = URLEncoder.encode(Model, "UTF-8")
-                                        + URLEncoder.encode("[", "UTF-8")
-                                        + position
-                                        + URLEncoder.encode("]", "UTF-8")
-                                        + URLEncoder.encode("[", "UTF-8")
-                                        + URLEncoder.encode(apiListModelObjectArrayList.get(position).get(innerPosition).getDataKey(), "UTF-8")
-                                        + URLEncoder.encode("]", "UTF-8")
-                                        + "="
-                                        + URLEncoder.encode(apiListModelObjectArrayList.get(position).get(innerPosition).getDataContent(), "UTF-8");
+                                + URLEncoder.encode("[", "UTF-8")
+                                + position
+                                + URLEncoder.encode("]", "UTF-8")
+                                + URLEncoder.encode("[", "UTF-8")
+                                + URLEncoder.encode(apiListModelObjectArrayList.get(position).get(innerPosition).getDataKey(), "UTF-8")
+                                + URLEncoder.encode("]", "UTF-8")
+                                + "="
+                                + URLEncoder.encode(apiListModelObjectArrayList.get(position).get(innerPosition).getDataContent(), "UTF-8");
 
                         Log.i("Each Api", anApiModelPost);
 
@@ -124,9 +127,9 @@ public class ApiManager {
     }
 
     /*
-    *       Data OR Model OR List Model Joining
-    * */
-    public String getResultParameter(String data, String model, String listModel){
+     *       Data OR Model OR List Model Joining
+     * */
+    public String getResultParameter(String data, String model, String listModel) {
 
         if ((!data.equals("")) && (!model.equals("")) && (!listModel.equals("")))
             return data + "&" + model + "&" + listModel;

@@ -331,7 +331,8 @@ public class PrintfManager implements ResultCallBack {
     }
 
     public static int getCenterLeft(int paperWidth, Bitmap bitmap) {
-        try {        //计算居中的边距
+        try {
+            //计算居中的边距
             int width = bitmap.getWidth();
             //计算出图片在纸上宽度 单位为mm   8指的是1mm=8px
             float bitmapPaperWidth = width / 8F;
