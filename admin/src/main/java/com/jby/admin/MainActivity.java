@@ -56,7 +56,7 @@ import static com.jby.admin.shareObject.VariableUtils.REFRESH_STOCK_LIST;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         StockFragment.OnFragmentInteractionListener, RemarkFragment.OnFragmentInteractionListener,
         View.OnClickListener, CustomerDialog.CustomerDialogCallBack {
-    //new version
+    //new version22
     //navigation drawer
     private DrawerLayout mainActivityDrawerLayout;
     private ActionBarDrawerToggle mainActivityActionBarDrawerToggle;
