@@ -128,6 +128,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 ""
                         )
                 );
+                Log.d("hahaha", "my Api: " + new ApiManager().registration);
                 asyncTaskManager.execute();
 
                 if (!asyncTaskManager.isCancelled()) {
