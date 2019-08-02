@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class ExpandableParentObject {
     private String date;
-    private ArrayList<RemarkChildObject> remarkChildObjectArrayList = new ArrayList<>();
     private ArrayList<DeliveryOrderObject> deliveryOrderObjectArrayList = new ArrayList<>();
 
     public ExpandableParentObject(String date) {
@@ -13,14 +12,6 @@ public class ExpandableParentObject {
 
     public String getDate() {
         return date;
-    }
-
-    public void setRemarkChildObjectArrayList(RemarkChildObject remarkChildObject) {
-        this.remarkChildObjectArrayList.add(remarkChildObject);
-    }
-
-    public ArrayList<RemarkChildObject> getRemarkChildObjectArrayList() {
-        return remarkChildObjectArrayList;
     }
 
     public void setDeliveryOrderObjectArrayList(DeliveryOrderObject deliveryOrderObject) {

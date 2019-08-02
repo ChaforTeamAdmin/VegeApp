@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.jby.admin.database.CustomSqliteHelper.TB_DEFAULT_DRIVER;
+import static com.jby.admin.database.CustomSqliteHelper.TB_FAVOURITE_DRIVER;
 
 
 public class DriverDialog extends DialogFragment implements SearchView.OnQueryTextListener, AdapterView.OnItemClickListener,
@@ -106,7 +106,7 @@ public class DriverDialog extends DialogFragment implements SearchView.OnQueryTe
         driverList.setOnItemClickListener(this);
         favouriteFarmerList.setOnItemClickListener(this);
 
-        frameworkClass = new FrameworkClass(getActivity(), this, new CustomSqliteHelper(getActivity()), TB_DEFAULT_DRIVER);
+        frameworkClass = new FrameworkClass(getActivity(), this, new CustomSqliteHelper(getActivity()), TB_FAVOURITE_DRIVER);
         final Bundle bundle = getArguments();
         if (bundle != null) {
             customerID = bundle.getString("customer_id");

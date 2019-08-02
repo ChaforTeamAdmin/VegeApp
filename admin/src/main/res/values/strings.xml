@@ -5,7 +5,7 @@
     <string name="activity_main_close">Close</string>
     <string name="activity_main_menu_1">Stock</string>
     <string name="activity_main_menu_2">Basket</string>
-    <string name="activity_main_menu_3">Remark</string>
+    <string name="activity_main_menu_3">Purchase Order</string>
     <string name="activity_main_menu_4">Setting</string>
     <string name="activity_main_menu_5">Delivery Order</string>
     <!--delete action bar-->

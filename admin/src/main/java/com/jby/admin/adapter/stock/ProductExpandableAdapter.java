@@ -4,33 +4,26 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.support.v7.widget.CardView;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.jby.admin.MainActivity;
 import com.jby.admin.R;
-import com.jby.admin.object.ProductDetailChildObject;
+import com.jby.admin.object.StockObject;
 import com.jby.admin.object.ProductDetailParentObject;
-import com.jby.admin.others.CustomGridView;
 import com.jby.admin.shareObject.ApiManager;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
-import java.util.logging.Handler;
 
 public class ProductExpandableAdapter extends BaseExpandableListAdapter {
     private Context context;
-    private ArrayList<ProductDetailParentObject> productDetailParentObjectArrayList, unavailableProduct;
-
-    private ArrayList<ProductDetailParentObject> stockControlArrayList;
+    private ArrayList<ProductDetailParentObject> productDetailParentObjectArrayList;
     private ProductExpandableAdapterCallBack productExpandableAdapterCallBack;
 
     public ProductExpandableAdapter(Context context, ArrayList<ProductDetailParentObject> productDetailParentObjectArrayList,
@@ -38,8 +31,6 @@ public class ProductExpandableAdapter extends BaseExpandableListAdapter {
         this.context = context;
         this.productDetailParentObjectArrayList = productDetailParentObjectArrayList;
         this.productExpandableAdapterCallBack = productExpandableAdapterCallBack;
-        stockControlArrayList = unavailableProduct = new ArrayList<>();
-
     }
 
     @Override
@@ -65,40 +56,18 @@ public class ProductExpandableAdapter extends BaseExpandableListAdapter {
         try {
             final ProductDetailParentObject object = getGroup(groupPosition);
             String imagePath = new ApiManager().product_img + object.getPicture();
-
-            groupViewHolder.status.setBackground(object.getAvailable_quantity().equals("0") ? context.getDrawable(R.drawable.product_list_view_item_unavailable) : context.getDrawable(R.drawable.product_list_view_item_available));
-            groupViewHolder.status.setText(object.getAvailable_quantity().equals("0") ? R.string.product_adapter_stock_unavailable : R.string.product_adapter_stock_available);
-            groupViewHolder.quantity.setVisibility(object.getAvailable_quantity().equals("0") ? View.INVISIBLE : View.VISIBLE);
-
-            //taken
-            if (!((MainActivity) context).getCustomerID().equals("-1")) {
-                groupViewHolder.takenLayout.setVisibility(object.getTaken_quantity().equals("0") ? View.GONE : View.VISIBLE);
-                groupViewHolder.statusLayout.setGravity(object.getTaken_quantity().equals("0") ? Gravity.END : Gravity.START);
-
-            } else {
-                groupViewHolder.takenLayout.setVisibility(View.GONE);
-                groupViewHolder.statusLayout.setGravity(Gravity.END);
-            }
-            groupViewHolder.takenQuantity.setText(String.format(" x %s", object.getTaken_quantity()));
-            groupViewHolder.quantity.setText(String.format(" x %s", object.getAvailable_quantity()));
             groupViewHolder.name.setText(object.getName());
             groupViewHolder.code.setText(object.getProduct_code());
 
-            /*
-             * unavailable layout (product)
-             * */
-            unavailableStock(groupViewHolder, object.getId());
-
-            /*
-             * parent stock control when searching or list refreshed
-             * */
-            stockControlPurpose(groupViewHolder, object.getId());
+            groupViewHolder.quantity.setText(String.format("x %s", setText(groupViewHolder.quantity, object.getAvailable_quantity())));
+            setStatus(groupViewHolder.status, object.getAvailable_quantity());
 
             Picasso.get()
                     .load(imagePath)
                     .error(R.drawable.image_error)
                     .resize(70, 70)
                     .into(groupViewHolder.picture);
+
         } catch (NullPointerException e) {
             e.printStackTrace();
         } catch (IllegalStateException e) {
@@ -123,25 +92,31 @@ public class ProductExpandableAdapter extends BaseExpandableListAdapter {
         }
     }
 
+    private void setStatus(TextView status, String value) {
+        try {
+            status.setText(Double.valueOf(value) > 0 ? "Available" : "Unavailable");
+            status.setBackground(Double.valueOf(value) > 0 ? context.getResources().getDrawable(R.drawable.product_list_view_item_available) : context.getResources().getDrawable(R.drawable.product_list_view_item_unavailable));
+        } catch (NullPointerException e) {
+            status.setText("Unavailable");
+            status.setBackground(context.getResources().getDrawable(R.drawable.product_list_view_item_unavailable));
+
+        } catch (NumberFormatException e) {
+            status.setText("Unavailable");
+            status.setBackground(context.getResources().getDrawable(R.drawable.product_list_view_item_unavailable));
+        }
+    }
+
     private static class GroupViewHolder {
-        private CardView parentLayout;
         private ImageView picture;
-        private TextView code, name, status, quantity, takenQuantity;
-        private LinearLayout statusLayout, takenLayout;
+        private TextView code, name, quantity, weight, status;
 
         GroupViewHolder(View view) {
-            parentLayout = view.findViewById(R.id.product_parent_list_view_item_parent_layout);
-
             picture = view.findViewById(R.id.product_parent_list_view_item_picture);
-
             code = view.findViewById(R.id.product_parent_list_view_item_code);
             name = view.findViewById(R.id.product_parent_list_view_item_name);
+            quantity = view.findViewById(R.id.product_parent_list_view_item_total_quantity);
+            weight = view.findViewById(R.id.product_parent_list_view_item_total_weight);
             status = view.findViewById(R.id.product_parent_list_view_item_status);
-            quantity = view.findViewById(R.id.product_parent_list_view_item_quantity);
-            statusLayout = view.findViewById(R.id.product_parent_list_view_item_status_layout);
-            takenLayout = view.findViewById(R.id.product_parent_list_view_item_taken_layout);
-
-            takenQuantity = view.findViewById(R.id.product_parent_list_view_item_taken_quantity);
         }
     }
 
@@ -150,48 +125,12 @@ public class ProductExpandableAdapter extends BaseExpandableListAdapter {
         return productDetailParentObjectArrayList.size();
     }
 
-    /*
-     * when the product list is refresh or in searching this method will hold the user's selected item
-     * */
-    private void stockControlPurpose(GroupViewHolder groupViewHolder, String id) {
-        if (stockControlArrayList.size() > 0) {
-            for (int i = 0; i < stockControlArrayList.size(); i++) {
-                if (stockControlArrayList.get(i).getId().equals(id)) {
-                    groupViewHolder.status.setText(stockControlArrayList.get(i).getAvailable_quantity().equals("0") ? R.string.product_adapter_stock_unavailable : R.string.product_adapter_stock_available);
-                    groupViewHolder.quantity.setVisibility(stockControlArrayList.get(i).getAvailable_quantity().equals("0") ? View.INVISIBLE : View.VISIBLE);
-                    groupViewHolder.quantity.setText(String.format(" x %s", stockControlArrayList.get(i).getAvailable_quantity()));
-
-                    groupViewHolder.takenQuantity.setText(String.format(" x %s", stockControlArrayList.get(i).getTaken_quantity()));
-                    groupViewHolder.takenLayout.setVisibility(stockControlArrayList.get(i).getTaken_quantity().equals("0") ? View.GONE : View.VISIBLE);
-                    groupViewHolder.statusLayout.setGravity(Gravity.START);
-                    break;
-                }
-            }
-        }
-    }
-
-    private void unavailableStock(GroupViewHolder groupViewHolder, String id) {
-        if (unavailableProduct.size() > 0) {
-            for (int i = 0; i < unavailableProduct.size(); i++) {
-                if (unavailableProduct.get(i).getId().equals(id)) {
-                    groupViewHolder.parentLayout.setBackgroundColor(context.getResources().getColor(R.color.light_red));
-                    break;
-                } else
-                    groupViewHolder.parentLayout.setBackgroundColor(context.getResources().getColor(R.color.white));
-            }
-        } else {
-            groupViewHolder.parentLayout.setBackgroundColor(context.getResources().getColor(R.color.white));
-        }
-    }
-
-
     /*-----------------------------------------------------------------------END OF PARENT VIEW-------------------------------------------------------------*/
     /*---------------------------------------------------------------------------CHILD VIEW-------------------------------------------------------------------*/
     @SuppressLint("SetTextI18n")
     @Override
     public View getChildView(final int groupPosition, final int childPosition, boolean isLastChild, View view, ViewGroup parent) {
         ChildViewHolder viewHolder;
-        Handler handler;
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             assert layoutInflater != null;
@@ -201,40 +140,25 @@ public class ProductExpandableAdapter extends BaseExpandableListAdapter {
         } else
             viewHolder = (ChildViewHolder) view.getTag();
 
-        final ProductDetailChildObject object = getChild(groupPosition, childPosition);
-
-        viewHolder.farmerName.setText(object.getFarmerName());
-        viewHolder.availableQuantity.setText("A: " + object.getQuantity());
-        //taken
-        if (!((MainActivity) context).getCustomerID().equals("-1")) {
-            viewHolder.takenQuantity.setVisibility(object.getTakenQuantity().equals("0") ? View.GONE : View.VISIBLE);
-            viewHolder.takenQuantity.setText("T: " + object.getTakenQuantity());
-        } else viewHolder.takenQuantity.setVisibility(View.GONE);
-
-        /*
-         * unavailable layout (farmer)
-         * */
-        childUnavailableFarmerList(viewHolder, object.getFarmerID(), productDetailParentObjectArrayList.get(groupPosition).getId());
-        /*
-         * child stock control when searching or list refreshed
-         * */
-        childStockControl(viewHolder, object.getFarmerID(), object.getTakenQuantity(), productDetailParentObjectArrayList.get(groupPosition).getId());
-
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                view.setEnabled(false);
-                productExpandableAdapterCallBack.childOnClick(childPosition, groupPosition);
-                //prevent double click
-                view.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        view.setEnabled(true);
-                    }
-                }, 200);
-            }
-        });
+        final StockObject object = getChild(groupPosition, childPosition);
+        viewHolder.stockDate.setText(object.getDate());
+        viewHolder.stockTotalQuantity.setText("Basket: " + setText(viewHolder.stockTotalQuantity, object.getTotalQuantity()));
+        viewHolder.stockTotalWeight.setText("Weight: " + setText(viewHolder.stockTotalWeight, object.getTotalWeight()) + " KG");
         return view;
+    }
+
+    private String setText(TextView tv, String text) {
+        try {
+            if (Double.valueOf(text) > 0) {
+                tv.setTextColor(context.getResources().getColor(R.color.green));
+            } else tv.setTextColor(context.getResources().getColor(R.color.red));
+            return text;
+        } catch (NullPointerException e) {
+            return "0";
+
+        } catch (NumberFormatException e) {
+            return "0";
+        }
     }
 
     @Override
@@ -244,12 +168,12 @@ public class ProductExpandableAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int i) {
-        return productDetailParentObjectArrayList.get(i).getProductDetailChildObjectArrayList().size();
+        return productDetailParentObjectArrayList.get(i).getStockObjectArrayList().size();
     }
 
     @Override
-    public ProductDetailChildObject getChild(int groupPosition, int childPosition) {
-        return productDetailParentObjectArrayList.get(groupPosition).getProductDetailChildObjectArrayList().get(childPosition);
+    public StockObject getChild(int groupPosition, int childPosition) {
+        return productDetailParentObjectArrayList.get(groupPosition).getStockObjectArrayList().get(childPosition);
     }
 
     @Override
@@ -259,13 +183,13 @@ public class ProductExpandableAdapter extends BaseExpandableListAdapter {
 
     private static class ChildViewHolder {
         CardView parentLayout;
-        TextView farmerName, availableQuantity, takenQuantity;
+        TextView stockDate, stockTotalQuantity, stockTotalWeight;
 
         ChildViewHolder(View view) {
             parentLayout = view.findViewById(R.id.product_child_list_view_item_parent_layout);
-            farmerName = view.findViewById(R.id.product_child_list_view_item_farmer_name);
-            availableQuantity = view.findViewById(R.id.product_child_list_view_item__available_quantity);
-            takenQuantity = view.findViewById(R.id.product_child_list_view_item_taken_quantity);
+            stockDate = view.findViewById(R.id.product_child_list_view_item_date);
+            stockTotalQuantity = view.findViewById(R.id.product_child_list_view_item_stock_quantity);
+            stockTotalWeight = view.findViewById(R.id.product_child_list_view_item_stock_weight);
         }
     }
 
@@ -273,99 +197,6 @@ public class ProductExpandableAdapter extends BaseExpandableListAdapter {
     public void registerDataSetObserver(DataSetObserver observer) {
         super.registerDataSetObserver(observer);
     }
-
-    /*----------------------------------------------------------------------for unavailable list purpose-------------------------------------------------*/
-    /*
-     * unavailable product
-     * */
-    public void setUnavailableProduct(ArrayList<ProductDetailParentObject> unavailableProduct) {
-        this.unavailableProduct = unavailableProduct;
-    }
-
-    /*
-     * clear unavailable list
-     * */
-    public void clearUnavailableList() {
-        unavailableProduct.clear();
-    }
-
-    /*
-     * child unavailable list control
-     * */
-    private void childUnavailableFarmerList(ChildViewHolder childViewHolder, String farmerID, String productID) {
-        if (unavailableProduct.size() > 0) {
-            for (int i = 0; i < unavailableProduct.size(); i++) {
-                if (unavailableProduct.get(i).getId().equals(productID)) {
-                    /*
-                     * get unavailable farmer based on unavailable product id
-                     * */
-                    String[] unavailableFarmer = unavailableProduct.get(i).getUnavailableFarmer();
-                    /*
-                     * if length > 0 then start loop
-                     * */
-                    if (unavailableFarmer.length > 0) {
-                        for (String s : unavailableFarmer) {
-                            if (s.equals(farmerID)) {
-                                childViewHolder.parentLayout.setBackgroundColor(context.getResources().getColor(R.color.light_red));
-                                break;
-                            }
-                        }
-                    }
-                    /*
-                     * length <= 0 then set to white color
-                     * */
-                    else
-                        childViewHolder.parentLayout.setBackgroundColor(context.getResources().getColor(R.color.white));
-                    break;
-                }
-                /*
-                 * if not unavailable product id is not found then set white color as well
-                 * */
-                else
-                    childViewHolder.parentLayout.setBackgroundColor(context.getResources().getColor(R.color.white));
-            }
-        } else
-            childViewHolder.parentLayout.setBackgroundColor(context.getResources().getColor(R.color.white));
-    }
-
-    /*--------------------------------------------------------------------assign stock purpose-----------------------------------------------------------*/
-    /*
-     * this method use when select item from assign dialog for update the taken and available quantity
-     * */
-    public void setProductDetailParentObjectArrayList(ArrayList<ProductDetailParentObject> productDetailParentObjectArrayList) {
-        this.productDetailParentObjectArrayList = productDetailParentObjectArrayList;
-        notifyDataSetChanged();
-    }
-
-    /*------------------------------------------------------------------stock control when the list is refrehsed------------------------------------------*/
-
-    private void childStockControl(ChildViewHolder childViewHolder, String farmerId, String takenQuantity, String productID) {
-        for (int j = 0; j < stockControlArrayList.size(); j++) {
-            if (stockControlArrayList.get(j).getId().equals(productID)) {
-
-                ArrayList<ProductDetailChildObject> childArray = stockControlArrayList.get(j).getProductDetailChildObjectArrayList();
-                for (int i = 0; i < childArray.size(); i++) {
-                    if (childArray.get(i).getFarmerID().equals(farmerId)) {
-                        childViewHolder.takenQuantity.setVisibility(childArray.get(i).getTakenQuantity().equals("0") ? View.GONE : View.VISIBLE);
-                        childViewHolder.takenQuantity.setText(String.format(" x %s", childArray.get(i).getTakenQuantity()));
-                        childViewHolder.availableQuantity.setText(String.format(" x %s", childArray.get(i).getQuantity()));
-                        break;
-                    } else
-                        childViewHolder.takenQuantity.setText(String.format(" x %s", takenQuantity));
-                }
-            }
-        }
-    }
-
-
-    public void setStockControlArrayList(ArrayList<ProductDetailParentObject> stockControlArrayList) {
-        this.stockControlArrayList = stockControlArrayList;
-    }
-
-    public void clearStockControlArrayList() {
-        this.stockControlArrayList.clear();
-    }
-
 
     /*-----------------------------------------------------------------------------------END OF CHILD VIEW---------------------------------------------------------*/
 

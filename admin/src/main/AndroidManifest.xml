@@ -24,9 +24,6 @@
         </service>
 
         <activity
-            android:name=".delivery.DeliveryOrderDetail"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
         <activity

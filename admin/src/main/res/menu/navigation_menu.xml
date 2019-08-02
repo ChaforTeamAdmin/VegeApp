@@ -13,8 +13,8 @@
         android:icon="@drawable/delivery_icon"
         android:title="@string/activity_main_menu_5"/>
 
-    <item android:id="@+id/navigation_remark"
-        android:icon="@drawable/remark_icon"
+    <item android:id="@+id/navigation_purchase"
+        android:icon="@drawable/delivery_icon"
         android:title="@string/activity_main_menu_3"/>
 
     <item android:id="@+id/navigation_setting"

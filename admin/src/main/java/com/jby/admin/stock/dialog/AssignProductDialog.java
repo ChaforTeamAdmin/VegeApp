@@ -33,9 +33,7 @@ import com.jby.admin.MainActivity;
 import com.jby.admin.R;
 import com.jby.admin.adapter.stock.ProductGridAdapter;
 import com.jby.admin.object.ProductDetailChildObject;
-import com.jby.admin.others.DoubleClickListener;
 import com.jby.admin.others.SwipeDismissTouchListener;
-import com.jby.admin.remark.EditRemarkDialog;
 import com.jby.admin.shareObject.ApiDataObject;
 import com.jby.admin.shareObject.ApiManager;
 import com.jby.admin.shareObject.AsyncTaskManager;
@@ -56,8 +54,7 @@ import static com.jby.admin.shareObject.CustomToast.CustomToast;
 
 
 public class AssignProductDialog extends DialogFragment implements View.OnClickListener, ProductGridAdapter.ProductGridAdapterCallBack,
-        AbsListView.MultiChoiceModeListener, EditRemarkDialog.RemarkDialogCallBack,
-        SpoilDialog.SpoilDialogCallBack, AdapterView.OnItemClickListener {
+        AbsListView.MultiChoiceModeListener, SpoilDialog.SpoilDialogCallBack, AdapterView.OnItemClickListener {
     View rootView;
 
     private ProgressBar assignProductDialogProgressBar;
@@ -880,20 +877,6 @@ public class AssignProductDialog extends DialogFragment implements View.OnClickL
         }).start();
     }
 
-    /*
-    edit purpose
-    * */
-    public void edit(int position) {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("product_detail_child_object", productDetailChildObjectArrayList.get(position));
-        bundle.putString("product_id", productID);
-        bundle.putBoolean("from_where", false);
-
-        DialogFragment dialogFragment = new EditRemarkDialog();
-        dialogFragment.setArguments(bundle);
-        dialogFragment.show(getChildFragmentManager(), "");
-    }
-
     @Override
     public void reset() {
         //for on back press purpose
@@ -944,8 +927,6 @@ public class AssignProductDialog extends DialogFragment implements View.OnClickL
                 //edit item
                 else editDialog(i);
             }
-        } else {
-            edit(i);
         }
     }
 

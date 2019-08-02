@@ -10,15 +10,13 @@ public class ApiManager {
     private static String domain = "https://www.yofu.my/";
 //    private static String domain = "http://www.chafor.net/";
 
-    //    private static String prefix = "vegetable/";
-    private static String prefix = "mahsing/";
+    private static String prefix = "vegetable_v2/";
 
     private static String sub_prefix = "admin/";
 
     public String registration = domain + prefix + sub_prefix + "registration/registration.php";
     public String stock = domain + prefix + sub_prefix + "stock/stock.php";
     public String basket = domain + prefix + sub_prefix + "basket/basket.php";
-    public String remark = domain + prefix + sub_prefix + "stock/remark.php";
     public String delivery = domain + prefix + sub_prefix + "delivery_order/delivery_order.php";
     public String cache = domain + prefix + sub_prefix + "cache/cache.php";
     //image path

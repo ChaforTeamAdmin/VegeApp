@@ -32,7 +32,6 @@ import com.google.firebase.iid.InstanceIdResult;
 import com.jby.admin.basket.BasketFragment;
 import com.jby.admin.delivery.DeliveryFragment;
 import com.jby.admin.others.NetworkConnection;
-import com.jby.admin.remark.RemarkFragment;
 import com.jby.admin.setting.SettingFragment;
 import com.jby.admin.shareObject.ApiDataObject;
 import com.jby.admin.shareObject.ApiManager;
@@ -50,13 +49,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.jby.admin.shareObject.CustomToast.CustomToast;
-import static com.jby.admin.shareObject.VariableUtils.REFRESH_DELIVERY_ORDER_LIST;
-import static com.jby.admin.shareObject.VariableUtils.REFRESH_STOCK_LIST;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        StockFragment.OnFragmentInteractionListener, RemarkFragment.OnFragmentInteractionListener,
-        View.OnClickListener, CustomerDialog.CustomerDialogCallBack {
-    //10.51
+        StockFragment.OnFragmentInteractionListener, CustomerDialog.CustomerDialogCallBack {
     //navigation drawer
     private DrawerLayout mainActivityDrawerLayout;
     private ActionBarDrawerToggle mainActivityActionBarDrawerToggle;
@@ -108,9 +103,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainActivityUsername = headerView.findViewById(R.id.activity_main_username);
 
         actionBar = findViewById(R.id.toolbar);
-        actionBarCustomerLayout = findViewById(R.id.actionbar_customer_layout);
-        actionBarCustomer = findViewById(R.id.actionbar_customer);
-
         mainActivityProgressBar = findViewById(R.id.activity_main_progress_bar);
         handler = new Handler();
     }
@@ -122,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainActivityNavigationView.setNavigationItemSelectedListener(this);
         mainActivityUsername.setText(SharedPreferenceManager.getUsername(this));
 
-        actionBarCustomerLayout.setOnClickListener(this);
         actionBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -146,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setDefaultFragment(String channel_id) {
         switch (channel_id) {
             case "1":
-                displaySelectedScreen(R.id.navigation_remark);
+                displaySelectedScreen(R.id.navigation_purchase);
                 break;
             case "2":
                 displaySelectedScreen(R.id.navigation_stock);
@@ -178,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (itemId) {
             case R.id.navigation_stock:
                 fragmentClass = StockFragment.class;
+                setActionBarTitle("Stock");
                 break;
             case R.id.navigation_basket:
                 fragmentClass = BasketFragment.class;
@@ -187,10 +179,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragmentClass = DeliveryFragment.class;
                 setActionBarTitle("Delivery Order");
                 break;
-            case R.id.navigation_remark:
-                fragmentClass = RemarkFragment.class;
-                setActionBarTitle("Remark");
-                break;
             case R.id.navigation_setting:
                 fragmentClass = SettingFragment.class;
                 setActionBarTitle("Setting");
@@ -198,7 +186,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (lastFragment != itemId) {
             checkInternetConnection(null);
-            hideCustomerLayout(itemId);
         }
         lastFragment = itemId;
         mainActivityDrawerLayout.closeDrawer(Gravity.START);
@@ -238,15 +225,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.actionbar_customer_layout:
-                openCustomerDialog();
-                break;
-        }
-    }
-
     /*-------------------------------------------------------customer dialog purpose---------------------------------------------*/
     private void openCustomerDialog() {
         DialogFragment dialogFragment = new CustomerDialog();
@@ -266,17 +244,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }, 200);
     }
 
-    private void hideCustomerLayout(int id) {
-        if (id != R.id.navigation_stock) actionBarCustomerLayout.setVisibility(View.GONE);
-        else actionBarCustomerLayout.setVisibility(View.VISIBLE);
-    }
-
     public String getCustomerID() {
         return customerID;
-    }
-
-    public void setCustomerID(String customerID) {
-        this.customerID = customerID;
     }
 
     /*---------------------------------------------------------progress bar-----------------------------------------*/
@@ -403,24 +372,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        /*
-         * when click add more from delivery order detail
-         * */
-        if (resultCode == REFRESH_STOCK_LIST) {
-            setDefaultFragment("2");
-            /*
-             * set do_id
-             * */
-            stockFragment.setDo_id(data.getStringExtra("do_id"));
-            /*
-             * get customer detail
-             * */
-            selectedItem(data.getStringExtra("name"), data.getStringExtra("id"), data.getStringExtra("address"));
-        }
-        /*
-        * refresh do list when delete*/
-        else if (resultCode == REFRESH_DELIVERY_ORDER_LIST) {
-            deliveryFragment.reset();
-        }
+
     }
 }

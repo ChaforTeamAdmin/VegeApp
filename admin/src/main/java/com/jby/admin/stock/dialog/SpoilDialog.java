@@ -4,32 +4,24 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jby.admin.R;
-import com.jby.admin.adapter.CustomerAdapter;
-import com.jby.admin.database.FrameworkClass;
-import com.jby.admin.object.CustomerObject;
 import com.jby.admin.object.ProductDetailChildObject;
-import com.jby.admin.others.ExpandableHeightListView;
+
 import com.jby.admin.others.SwipeDismissTouchListener;
 import com.jby.admin.shareObject.ApiDataObject;
 import com.jby.admin.shareObject.ApiManager;
 import com.jby.admin.shareObject.AsyncTaskManager;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
