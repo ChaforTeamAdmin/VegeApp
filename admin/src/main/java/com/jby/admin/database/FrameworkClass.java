@@ -8,7 +8,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.Toast;
+
+import static com.jby.admin.shareObject.CustomToast.CustomToast;
 
 public class FrameworkClass {
     private Context context;
@@ -48,14 +49,13 @@ public class FrameworkClass {
             return stringArray;
         } else return null;
     }
-
     /*-----------------------------------------------------------create----------------------------------------------------------------------*/
     //store chat detail into chat room
 
     public class create {
         SQLiteDatabase db;
         String storeColumn, storeValue;
-        String[] storeColumnArray, storeValueArray;
+        String[] storeColumnArray, storeValueArray, storeValueInArray;
 
         public create(String storeColumn, String storeValue) {
             this.db = sqLiteOpenHelper.getWritableDatabase();
@@ -63,13 +63,19 @@ public class FrameworkClass {
             this.storeValue = storeValue;
         }
 
+        public create(String storeColumn, String[] storeValueInArray) {
+            this.db = sqLiteOpenHelper.getWritableDatabase();
+            this.storeColumn = storeColumn;
+            this.storeValueInArray = storeValueInArray;
+        }
+
         public void perform() {
             ContentValues contentValues;
-            if (getStoreColumnArray(storeColumn).length != getStoreValueArray(storeValue).length) {
-                Toast.makeText(context, "Number of parameter not matched!", Toast.LENGTH_SHORT).show();
+            if (storeValueInArray != null ? getStoreColumnArray(storeColumn).length != storeValueInArray.length : getStoreColumnArray(storeColumn).length != getStoreValueArray(storeValue).length) {
+                CustomToast(context, "Number of parameter not matched!");
                 return;
             } else
-                contentValues = getContentValues(getStoreColumnArray(storeColumn), getStoreValueArray(storeValue));
+                contentValues = getContentValues(getStoreColumnArray(storeColumn), storeValueInArray != null ? storeValueInArray : getStoreValueArray(storeValue));
             //perform
             try {
                 if (contentValues != null) db.insert(table, null, contentValues);
@@ -78,7 +84,7 @@ public class FrameworkClass {
             } catch (SQLException e) {
                 //read result
                 if (resultCallBack != null) resultCallBack.createResult("Fail");
-                Toast.makeText(context, "Invalid Parameter", Toast.LENGTH_SHORT).show();
+                CustomToast(context, "Invalid Parameter!");
             }
         }
 
@@ -117,6 +123,17 @@ public class FrameworkClass {
             query = "SELECT  " + selectColumnValue(selectColumn) + "FROM " + table;
         }
 
+        //left join table
+        public Read leftJoinTable(String leftJoinTable) {
+            if(leftJoinTable != null) query += " LEFT JOIN " + leftJoinTable;
+            return this;
+        }
+
+        public Read leftJoinTableCondition(String condition) {
+            if(condition != null) query += " ON " + condition;
+            return this;
+        }
+
         //where query
         public Read where(String whereCondition) {
             if (whereCondition != null) query += " WHERE " + whereCondition;
@@ -135,6 +152,12 @@ public class FrameworkClass {
             return this;
         }
 
+        //descending order
+        public Read limitBy(String limit) {
+            if (limit != null) query += " LIMIT " + limit;
+            return this;
+        }
+
         //count row
         public int count() {
             int count = 0;
@@ -146,7 +169,7 @@ public class FrameworkClass {
                 crs.close();
 
             } catch (SQLException e) {
-                Toast.makeText(context, "Invalid Parameter", Toast.LENGTH_SHORT).show();
+                CustomToast(context, "Invalid Parameter!");
             }
             return count;
         }
@@ -175,7 +198,7 @@ public class FrameworkClass {
                 crs.close();
 
             } catch (SQLException e) {
-                Toast.makeText(context, "Invalid Parameter", Toast.LENGTH_SHORT).show();
+                CustomToast(context, "Invalid Parameter!");
             }
             if (resultCallBack != null) resultCallBack.readResult(result.toString());
         }
@@ -265,7 +288,7 @@ public class FrameworkClass {
             //length not match then stop
             assert updateValueArray != null;
             if (updateColumnArray.length != updateValueArray.length) {
-                Toast.makeText(context, "Number of parameter not matched!", Toast.LENGTH_SHORT).show();
+                CustomToast(context, "Number of parameter not matched!");
                 return;
             } else contentValues = getContentValues(updateColumnArray, updateValueArray);
             try {
@@ -275,9 +298,9 @@ public class FrameworkClass {
             } catch (SQLException e) {
                 if (resultCallBack != null) resultCallBack.updateResult("Fail");
                 Log.d("haha", "haha: " + e);
-                Toast.makeText(context, "Invalid Parameter", Toast.LENGTH_SHORT).show();
+                CustomToast(context, "Invalid Parameter!");
             } catch (IllegalArgumentException e) {
-                Toast.makeText(context, "Format Not Matched!", Toast.LENGTH_SHORT).show();
+                CustomToast(context, "Format Not Matched!");
             }
         }
 
@@ -308,10 +331,9 @@ public class FrameworkClass {
             } catch (SQLException e) {
                 //delete result
                 if (resultCallBack != null) resultCallBack.deleteResult("Fail");
-                Toast.makeText(context, "Invalid Parameter", Toast.LENGTH_SHORT).show();
+                CustomToast(context, "Invalid Parameter!");
             }
             return result;
         }
-
     }
 }

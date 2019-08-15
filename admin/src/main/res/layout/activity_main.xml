@@ -9,50 +9,50 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:orientation="vertical"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <include
+            android:id="@+id/toolbar"
             layout="@layout/actionbar"
             android:layout_width="match_parent"
-            android:id="@+id/actionbar"
-            android:layout_height="?actionBarSize"/>
+            android:layout_height="?actionBarSize" />
 
         <include
             layout="@layout/no_internet_connection"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
         <FrameLayout
             android:id="@+id/frameLayout"
-            android:layout_below="@id/actionbar"
-            android:background="@color/background_white"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_below="@id/toolbar"
+            android:background="@color/background_white" />
+
 
         <ProgressBar
+            android:id="@+id/activity_main_progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminateBehavior="repeat"
-            android:layout_gravity="center"
-            android:padding="15dp"
-            android:visibility="gone"
-            android:id="@+id/activity_main_progress_bar"
             android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:indeterminateBehavior="repeat"
+            android:indeterminateTint="@color/red"
             android:indeterminateTintMode="src_in"
-            android:indeterminateTint="@color/red"/>
+            android:padding="15dp"
+            android:visibility="gone" />
 
     </RelativeLayout>
 
     <android.support.design.widget.NavigationView
+        android:id="@+id/activity_main_navigation_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        app:menu="@menu/navigation_menu"
-        app:itemTextColor="@color/grey"
         android:layout_gravity="start"
-        app:itemTextAppearance="@string/font_family_condensed"
         app:headerLayout="@layout/nav_header"
-        android:id="@+id/activity_main_navigation_view">
+        app:itemTextAppearance="@string/font_family_condensed"
+        app:itemTextColor="@color/grey">
 
     </android.support.design.widget.NavigationView>
 

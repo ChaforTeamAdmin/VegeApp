@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 import com.jby.admin.R;
 import com.jby.admin.adapter.BasketAdapter;
-import com.jby.admin.object.BasketObject;
+import com.jby.admin.object.entity.BasketObject;
 import com.jby.admin.others.SwipeDismissTouchListener;
 import com.jby.admin.shareObject.ApiDataObject;
 import com.jby.admin.shareObject.ApiManager;

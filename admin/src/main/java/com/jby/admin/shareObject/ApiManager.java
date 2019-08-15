@@ -18,12 +18,21 @@ public class ApiManager {
     public String stock = domain + prefix + sub_prefix + "stock/stock.php";
     public String basket = domain + prefix + sub_prefix + "basket/basket.php";
     public String delivery = domain + prefix + sub_prefix + "delivery_order/delivery_order.php";
+    public String purchase = domain + prefix + sub_prefix + "purchase_order/purchase_order.php";
+    public String company = domain + prefix + "company/company.php";
+
     public String cache = domain + prefix + sub_prefix + "cache/cache.php";
     //image path
     public String product_img = domain + prefix + "product/vege_img/";
+
+    public String notification = domain + prefix + "notification/notification.php";
+    //object path
     public String driver = domain + prefix + "driver/driver.php";
     public String customer = domain + prefix + "customer/customer.php";
-    public String notification = domain + prefix + "notification/notification.php";
+    public String farmer = domain + prefix + "farmer/farmer.php";
+    public String product = domain + prefix + "product/product.php";
+    public String location = domain + prefix + "location/location.php";
+    public String grade = domain + prefix + "grade/grade.php";
 
     public String setData(ArrayList<ApiDataObject> apiDataObjectArrayList) {
         StringBuilder apiDataPost = new StringBuilder();
@@ -36,6 +45,9 @@ public class ApiManager {
                         URLEncoder.encode(apiDataObjectArrayList.get(position).getDataContent(), "UTF-8");
 
                 apiDataPost.append(anApiDataPost);
+            } catch (NullPointerException e) {
+                Log.d("ApiManager", "Api Manager Here: " + e);
+                e.printStackTrace();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             } finally {
@@ -132,16 +144,16 @@ public class ApiManager {
         if ((!data.equals("")) && (!model.equals("")) && (!listModel.equals("")))
             return data + "&" + model + "&" + listModel;
 
-        else if ((!data.equals("")) && (!model.equals("")) && (listModel.equals("")))
+        else if (!data.equals("") && !model.equals(""))
             return data + "&" + model;
-        else if ((!data.equals("")) && (model.equals("")) && (!listModel.equals("")))
+        else if (!data.equals("") && !listModel.equals(""))
             return data + "&" + listModel;
         else if ((data.equals("")) && (!model.equals("")) && (!listModel.equals("")))
             return model + "&" + listModel;
 
-        else if ((!data.equals("")) && (model.equals("")) && (listModel.equals("")))
+        else if (!data.equals(""))
             return data;
-        else if ((data.equals("")) && (!model.equals("")) && (listModel.equals("")))
+        else if (!model.equals(""))
             return model;
         else if ((data.equals("")) && (model.equals("")) && (!listModel.equals("")))
             return listModel;

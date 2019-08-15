@@ -9,11 +9,13 @@ import android.content.SharedPreferences;
 
 public class SharedPreferenceManager {
 
-
-    private static String LanguageId = "language_id";
     private static String UserId = "user_id";
     private static String Username = "username";
     private static String DayLimit = "day_limit";
+    private static String Grade = "grade";
+    private static String Location = "location";
+    private static String Price = "price";
+
     private static SharedPreferences getSharedPreferences(Context context) {
         String SharedPreferenceFileName = "VegeApp";
         return context.getSharedPreferences(SharedPreferenceFileName, Context.MODE_PRIVATE);
@@ -57,5 +59,30 @@ public class SharedPreferenceManager {
 
     public static void setDayLimit(Context context, String dayLimit) {
         getSharedPreferences(context).edit().putString(DayLimit, dayLimit).apply();
+    }
+
+
+    public static boolean getGrade(Context context) {
+        return getSharedPreferences(context).getBoolean(Grade, true);
+    }
+
+    public static void setGrade(Context context, boolean grade) {
+        getSharedPreferences(context).edit().putBoolean(Grade, grade).apply();
+    }
+
+    public static boolean getLocation(Context context) {
+        return getSharedPreferences(context).getBoolean(Location, true);
+    }
+
+    public static void setLocation(Context context, boolean location) {
+        getSharedPreferences(context).edit().putBoolean(Location, location).apply();
+    }
+
+    public static boolean getPrice(Context context) {
+        return getSharedPreferences(context).getBoolean(Price, true);
+    }
+
+    public static void setPrice(Context context, boolean price) {
+        getSharedPreferences(context).edit().putBoolean(Price, price).apply();
     }
 }

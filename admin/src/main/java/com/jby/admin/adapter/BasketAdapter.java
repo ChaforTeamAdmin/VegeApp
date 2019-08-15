@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.jby.admin.R;
-import com.jby.admin.object.BasketObject;
+import com.jby.admin.object.entity.BasketObject;
 
 import java.util.ArrayList;
 

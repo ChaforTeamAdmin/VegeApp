@@ -25,7 +25,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".registration.LoginActivity"
             android:screenOrientation="portrait"
@@ -37,6 +38,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".network.PONetworkMonitor"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".network.DONetworkMonitor"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
     </application>
 
 </manifest>

@@ -1,43 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/transparent_black"
+    android:orientation="vertical">
 
-    <android.support.v7.widget.SearchView
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:id="@+id/farmer_dialog_search"
-        android:layout_height="?actionBarSize"/>
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:orientation="vertical"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
-            <TextView
+            <android.support.v7.widget.SearchView
+                android:id="@+id/customer_dialog_search"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="All Farmer"
-                android:textSize="15sp"
-                android:padding="5dp"
-                android:textStyle="bold"
-                android:id="@+id/farmer_dialog_label_farmer"
-                android:textColor="@color/grey"/>
+                android:layout_height="?actionBarSize" />
 
-            <com.jby.admin.others.ExpandableHeightListView
+            <ScrollView
                 android:layout_width="match_parent"
-                android:id="@+id/farmer_dialog_farmer_list"
-                android:divider="@color/line_black"
-                android:dividerHeight="1dp"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent"
+                android:layout_below="@id/customer_dialog_search">
 
-        </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-    </ScrollView>
+                    <TextView
+                        android:id="@+id/customer_dialog_label_recent_choose"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Recent Choose"
+                        android:textColor="@color/grey"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
-</LinearLayout>
+                    <com.jby.admin.others.ExpandableHeightListView
+                        android:id="@+id/customer_dialog_favourite_customer_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:divider="@color/line_black"
+                        android:dividerHeight="1dp" />
+
+                    <TextView
+                        android:id="@+id/customer_dialog_label_customer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="All Customer"
+                        android:textColor="@color/grey"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <com.jby.admin.others.ExpandableHeightListView
+                        android:id="@+id/customer_dialog_customer_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:divider="@color/line_black"
+                        android:dividerHeight="1dp" />
+
+                </LinearLayout>
+
+            </ScrollView>
+
+            <include
+                layout="@layout/not_found_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <include
+                layout="@layout/progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

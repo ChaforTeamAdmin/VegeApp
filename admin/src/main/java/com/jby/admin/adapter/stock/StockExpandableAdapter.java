@@ -17,17 +17,15 @@ import com.jby.admin.object.ProductDetailParentObject;
 import com.jby.admin.shareObject.ApiManager;
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
-public class ProductExpandableAdapter extends BaseExpandableListAdapter {
+public class StockExpandableAdapter extends BaseExpandableListAdapter {
     private Context context;
     private ArrayList<ProductDetailParentObject> productDetailParentObjectArrayList;
     private ProductExpandableAdapterCallBack productExpandableAdapterCallBack;
 
-    public ProductExpandableAdapter(Context context, ArrayList<ProductDetailParentObject> productDetailParentObjectArrayList,
-                                    ProductExpandableAdapterCallBack productExpandableAdapterCallBack) {
+    public StockExpandableAdapter(Context context, ArrayList<ProductDetailParentObject> productDetailParentObjectArrayList,
+                                  ProductExpandableAdapterCallBack productExpandableAdapterCallBack) {
         this.context = context;
         this.productDetailParentObjectArrayList = productDetailParentObjectArrayList;
         this.productExpandableAdapterCallBack = productExpandableAdapterCallBack;
@@ -142,8 +140,17 @@ public class ProductExpandableAdapter extends BaseExpandableListAdapter {
 
         final StockObject object = getChild(groupPosition, childPosition);
         viewHolder.stockDate.setText(object.getDate());
-        viewHolder.stockTotalQuantity.setText("Basket: " + setText(viewHolder.stockTotalQuantity, object.getTotalQuantity()));
-        viewHolder.stockTotalWeight.setText("Weight: " + setText(viewHolder.stockTotalWeight, object.getTotalWeight()) + " KG");
+
+        viewHolder.stockTotalQuantity.setVisibility(productDetailParentObjectArrayList.get(groupPosition).getType().equals("box") ? View.GONE : View.VISIBLE);
+        viewHolder.stockTotalQuantity.setText("Basket: " + setText(viewHolder.stockTotalQuantity, object.calculateTotalQuantity()));
+        viewHolder.stockTotalWeight.setText(productDetailParentObjectArrayList.get(groupPosition).getType().equals("box") ? "Quantity: " + setText(viewHolder.stockTotalWeight, object.calculateTotalWeight()) + " Boxes" : "Weight: " + setText(viewHolder.stockTotalWeight, object.calculateTotalWeight()) + " KG");
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                productExpandableAdapterCallBack.childOnClick(groupPosition, childPosition);
+            }
+        });
         return view;
     }
 

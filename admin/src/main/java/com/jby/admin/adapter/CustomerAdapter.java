@@ -8,7 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jby.admin.R;
-import com.jby.admin.object.CustomerObject;
+import com.jby.admin.object.entity.CustomerObject;
 
 import java.util.ArrayList;
 

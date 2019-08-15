@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/transparent_black"
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:background="@color/white"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
         app:cardCornerRadius="10dp"
-        app:cardElevation="10dp"
-        android:orientation="vertical">
+        app:cardElevation="5dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
             <android.support.v7.widget.SearchView
                 android:id="@+id/driver_dialog_search"
@@ -29,7 +25,7 @@
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:fillViewport="true">
+                android:layout_below="@id/driver_dialog_search">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -54,7 +50,7 @@
                         android:dividerHeight="1dp" />
 
                     <TextView
-                        android:id="@+id/driver_dialog_label_farmer"
+                        android:id="@+id/driver_dialog_label_driver"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
@@ -74,8 +70,19 @@
 
             </ScrollView>
 
-        </LinearLayout>
+            <include
+                layout="@layout/not_found_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <include
+                layout="@layout/progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+
+        </RelativeLayout>
 
     </android.support.v7.widget.CardView>
 
-</LinearLayout>
+</RelativeLayout>

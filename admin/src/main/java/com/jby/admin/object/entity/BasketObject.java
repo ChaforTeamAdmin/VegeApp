@@ -1,4 +1,4 @@
-package com.jby.admin.object;
+package com.jby.admin.object.entity;
 
 public class BasketObject {
     private String id, name, quantity;

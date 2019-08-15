@@ -21,4 +21,7 @@
     <!-- Main Content -->
     <include layout="@layout/fragment_stock_main_content" />
 
+    <!-- Bottom Sheet -->
+    <include layout="@layout/fragment_stock_bottom_sheet" />
+
 </android.support.design.widget.CoordinatorLayout>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/navigation_stock"
+            android:icon="@drawable/stock_icon"
+            android:title="@string/activity_main_menu_1" />
+
+        <item
+            android:id="@+id/navigation_basket"
+            android:icon="@drawable/basket_icon"
+            android:title="@string/activity_main_menu_2" />
+
+        <item
+            android:id="@+id/navigation_delivery"
+            android:icon="@drawable/delivery_icon"
+            android:title="@string/activity_main_menu_5" />
+
+        <item
+            android:id="@+id/navigation_purchase"
+            android:icon="@drawable/delivery_icon"
+            android:title="@string/activity_main_menu_3" />
+
+        <item
+            android:id="@+id/navigation_setting"
+            android:icon="@drawable/setting_icon"
+            android:title="@string/activity_main_menu_4" />
+
+    </group>
+
+</menu>

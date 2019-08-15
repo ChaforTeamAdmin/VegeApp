@@ -20,18 +20,6 @@ public class ProductDetailParentObject {
         this.available_quantity = available_quantity;
     }
 
-    /*
-     * delivery order detail list view purpose
-     * */
-    public ProductDetailParentObject(String id, String name, String picture, String type, String price, String available_quantity, ArrayList<StockObject> stockObjectArrayList) {
-        this.id = id;
-        this.name = name;
-        this.picture = picture;
-        this.type = type;
-        this.price = price;
-        this.available_quantity = available_quantity;
-        this.stockObjectArrayList = stockObjectArrayList;
-    }
 
     public String getId() {
         return id;
@@ -59,6 +47,14 @@ public class ProductDetailParentObject {
 
     public String getProduct_code() {
         return product_code;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getPrice() {
+        return price;
     }
 
     public void setId(String id) {

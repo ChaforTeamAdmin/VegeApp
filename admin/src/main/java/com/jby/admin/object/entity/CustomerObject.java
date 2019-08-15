@@ -1,4 +1,4 @@
-package com.jby.admin.object;
+package com.jby.admin.object.entity;
 
 public class CustomerObject {
     private String id, name, phone, address;
@@ -8,6 +8,9 @@ public class CustomerObject {
         this.name = name;
         this.phone = phone;
         this.address = address;
+    }
+
+    public CustomerObject() {
     }
 
     public String getId() {

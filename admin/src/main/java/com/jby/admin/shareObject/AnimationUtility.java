@@ -73,4 +73,9 @@ public class AnimationUtility {
         view.setVisibility(View.VISIBLE);
     }
 
+    public void layoutSwipeUpOut(Context context, View view){
+        view.startAnimation(android.view.animation.AnimationUtils.loadAnimation(context, R.anim.layout_slide_up_in));
+        view.setVisibility(View.GONE);
+    }
+
 }

@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_stock_bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_alignParentBottom="true"
+    android:background="@color/white"
+    android:orientation="vertical"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="?actionBarSize"
+    app:layout_behavior="@string/bottom_sheet_behavior">
+
+    <TextView
+        android:id="@+id/fragment_stock_delivery_layout_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:gravity="center"
+        android:text="Swipe Up To Make Deduction"
+        android:textColor="@color/grey"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Date"
+                android:textColor="@color/grey"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/fragment_stock_date_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/custom_view_wtih_border"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_stock_date"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="5"
+                    android:ellipsize="end"
+                    android:gravity="start|center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:text="Today"
+                    android:textColor="@color/grey"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:padding="20dp"
+                    android:src="@drawable/arrow_down" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Farmer"
+                android:textColor="@color/grey"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/fragment_stock_farmer_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/custom_view_wtih_border"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_stock_farmer"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="5"
+                    android:ellipsize="end"
+                    android:gravity="start|center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:text="Please Select A Farmer Here."
+                    android:textColor="@color/grey"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:padding="20dp"
+                    android:src="@drawable/arrow_down" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Product"
+                android:textColor="@color/grey"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/fragment_stock_product_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/custom_view_wtih_border"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fragment_stock_product"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="5"
+                    android:ellipsize="end"
+                    android:gravity="start|center_vertical"
+                    android:maxLines="1"
+                    android:padding="5dp"
+                    android:text="Please Select A Item Here."
+                    android:textColor="@color/grey"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:padding="20dp"
+                    android:src="@drawable/arrow_down" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/fragment_stock_location_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Location"
+                        android:textColor="@color/grey"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/fragment_stock_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="?actionBarSize" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/fragment_stock_grade_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Grade"
+                        android:textColor="@color/grey"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/fragment_stock_grade"
+                        android:layout_width="match_parent"
+                        android:layout_height="?actionBarSize" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/fragment_stock_deduce_weight_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Weight to Deduct(KG)"
+                    android:textColor="@color/grey"
+                    android:textStyle="bold" />
+
+
+                <EditText
+                    android:id="@+id/fragment_stock_deduce_weight"
+                    android:layout_width="match_parent"
+                    android:layout_height="?actionBarSize"
+                    android:hint="5 KG"
+                    android:maxLines="1"
+                    android:inputType="numberDecimal"
+                    android:padding="5dp"
+                    android:textColor="@color/grey" />
+
+            </LinearLayout>
+
+
+            <Button
+                android:id="@+id/fragment_stock_deduce_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/custom_button"
+                android:text="Comfirm"
+                android:textColor="@color/white"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
+
+

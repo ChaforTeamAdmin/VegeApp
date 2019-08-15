@@ -16,6 +16,7 @@
 
     <style name="ToolbarColoredBackArrow" parent="AppTheme">
         <item name="android:textColorSecondary">#fff</item>
+        <item name="actionMenuTextColor">@color/white</item>
     </style>
 
     <style name="dialog_up_down">
@@ -25,7 +26,10 @@
 
     <style name="CustomCursor" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorControlActivated">@color/white</item>
-
     </style>
+
+    <!--<style name="AppTheme.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">-->
+        <!--<item name="actionMenuTextColor">@color/white</item>-->
+    <!--</style>-->
 
 </resources>

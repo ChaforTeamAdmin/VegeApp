@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:fillViewport="true"
+    android:orientation="vertical"
     android:scrollbars="none"
     tools:context=".setting.SettingFragment">
 
@@ -41,7 +41,8 @@
                     android:id="@+id/fragment_setting_remark_notification"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <TextView
                         android:id="@+id/fragment_setting_label_remark_notification"
@@ -99,7 +100,7 @@
                         android:padding="5dp"
                         android:paddingStart="15dp"
                         android:paddingEnd="0dp"
-                        android:text="Pick Up Notfication"
+                        android:text="Purchase Order Notification"
                         android:textColor="#564141"
                         android:textSize="16sp" />
 
@@ -107,12 +108,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/fragment_setting_pick_up_notification_button"
+                        android:layout_alignParentStart="true"
                         android:layout_toStartOf="@id/fragment_setting_pick_up_notification_button"
                         android:fontFamily="@string/font_family_condensed"
                         android:gravity="center_vertical"
                         android:paddingStart="15dp"
                         android:paddingEnd="0dp"
-                        android:text="Receive notification when the driver is pick up vegetables from farmer side."
+                        android:text="Receive notification when a purchase is made."
                         android:textColor="@color/transparent_black"
                         android:textSize="14sp" />
 
@@ -146,7 +148,7 @@
                         android:padding="5dp"
                         android:paddingStart="15dp"
                         android:paddingEnd="0dp"
-                        android:text="Delivery Notfication"
+                        android:text="Delivery Order Notfication"
                         android:textColor="#564141"
                         android:textSize="16sp" />
 
@@ -154,12 +156,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/fragment_setting_label_delivery_notification"
+                        android:layout_alignParentStart="true"
                         android:layout_toStartOf="@id/fragment_setting_delivery_notification_button"
                         android:fontFamily="@string/font_family_condensed"
                         android:gravity="center_vertical"
                         android:paddingStart="15dp"
                         android:paddingEnd="0dp"
-                        android:text="Receive notification when the driver is successfully deliver vegetables to customer."
+                        android:text="Receive notification when the delivery order is made."
                         android:textColor="@color/transparent_black"
                         android:textSize="14sp" />
 
@@ -177,10 +180,227 @@
         </android.support.v7.widget.CardView>
 
         <TextView
-            android:id="@+id/fragment_setting_label_account"
+            android:id="@+id/fragment_setting_label_behavior"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/fragment_setting_notification_layout"
+            android:fontFamily="@string/font_family_black"
+            android:padding="10dp"
+            android:text="User Behavior"
+            android:textColor="@color/transparent_black" />
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/fragment_setting_user_behavior_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fragment_setting_label_behavior"
+            android:layout_margin="1dp"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="5dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:id="@+id/fragment_setting_location_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/fragment_setting_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@string/font_family_condensed"
+                        android:gravity="center_vertical"
+                        android:padding="5dp"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        android:text="Location"
+                        android:textColor="#564141"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/fragment_setting_location"
+                        android:layout_alignParentStart="true"
+                        android:layout_toStartOf="@id/fragment_setting_location_button"
+                        android:fontFamily="@string/font_family_condensed"
+                        android:gravity="center_vertical"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        android:text="Enable to choose multiple location when creating PO or DO"
+                        android:textColor="@color/transparent_black"
+                        android:textSize="14sp" />
+
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/fragment_setting_location_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerInParent="true" />
+
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_margin="15dp"
+                    android:background="@color/line_black" />
+
+                <RelativeLayout
+                    android:id="@+id/fragment_setting_grade_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/fragment_setting_grade"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@string/font_family_condensed"
+                        android:gravity="center_vertical"
+                        android:padding="5dp"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        android:text="Grade"
+                        android:textColor="#564141"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/fragment_setting_grade"
+                        android:layout_alignParentStart="true"
+                        android:layout_toStartOf="@id/fragment_setting_grade_button"
+                        android:fontFamily="@string/font_family_condensed"
+                        android:gravity="start"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        android:text="Enable to choose multiple grade when creating PO or DO"
+                        android:textColor="@color/transparent_black"
+                        android:textSize="14sp" />
+
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/fragment_setting_grade_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerInParent="true" />
+
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_margin="15dp"
+                    android:background="@color/line_black" />
+
+                <RelativeLayout
+                    android:id="@+id/fragment_setting_price_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/fragment_setting_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@string/font_family_condensed"
+                        android:gravity="center_vertical"
+                        android:padding="5dp"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        android:text="Price"
+                        android:textColor="#564141"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/fragment_setting_price"
+                        android:layout_alignParentStart="true"
+                        android:layout_toStartOf="@id/fragment_setting_price_button"
+                        android:fontFamily="@string/font_family_condensed"
+                        android:gravity="start"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        android:text="Enable to key in price when creating PO or DO"
+                        android:textColor="@color/transparent_black"
+                        android:textSize="14sp" />
+
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/fragment_setting_price_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerInParent="true" />
+
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_margin="15dp"
+                    android:background="@color/line_black" />
+
+                <RelativeLayout
+                    android:id="@+id/fragment_setting_stock_limit_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/fragment_setting_label_stock_limit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@string/font_family_condensed"
+                        android:gravity="center_vertical"
+                        android:padding="5dp"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        android:text="Stock Range"
+                        android:textColor="#564141"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/fragment_setting_stock_limit"
+                        android:layout_alignParentStart="true"
+                        android:layout_toStartOf="@id/fragment_setting_stock_limit"
+                        android:fontFamily="@string/font_family_condensed"
+                        android:gravity="start"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        android:text="Stock will shows based on the days"
+                        android:textColor="@color/transparent_black"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/fragment_setting_stock_limit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerInParent="true"
+                        android:padding="5dp"
+                        android:text="5 days" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+        <TextView
+            android:id="@+id/fragment_setting_label_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fragment_setting_user_behavior_layout"
             android:fontFamily="@string/font_family_black"
             android:padding="10dp"
             android:text="General"
@@ -204,7 +424,8 @@
                     android:id="@+id/fragment_setting_clear_cache"
                     android:layout_width="match_parent"
                     android:layout_height="?actionBarSize"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -312,8 +533,8 @@
             android:id="@+id/fragment_setting_version_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
             android:layout_alignParentBottom="true"
+            android:layout_marginTop="50dp"
             android:gravity="center"
             android:padding="10dp" />
 
